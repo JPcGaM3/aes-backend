@@ -5,7 +5,7 @@ import {
   createNewCar,
   updateExistingCar,
   deleteExistingCar,
-} from '../../controllers/car.controllers.js';
+} from '../../controllers/car_controllers.js';
 
 const router = Router();
 

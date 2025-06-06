@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import apiV1Routes from './routes/v1/index.js';
-import { MESSAGES } from './configs/constants.js';
+import apiV1Routes from './routes/v1/index.ts';
+import { MESSAGES } from './configs/constants.ts';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
