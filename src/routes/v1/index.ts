@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import carRoutes from './car_routes.js';
-import homeRoutes from './home_routes.js';
+import carRoutes from './car_routes.ts';
+import homeRoutes from './home_routes.ts';
 
 const router: Router = Router();
 
