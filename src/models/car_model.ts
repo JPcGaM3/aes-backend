@@ -8,11 +8,11 @@ export const getAllCars = () => {
   return cars;
 };
 
-export const getCarById = (id) => {
+export const getCarById = (id: number) => {
   return cars.find(car => car.id === id);
 };
 
-export const createCar = (carData) => {
+export const createCar = (carData: any) => {
   const newCar = {
     id: cars.length > 0 ? Math.max(...cars.map(car => car.id)) + 1 : 1,
     ...carData
@@ -21,7 +21,7 @@ export const createCar = (carData) => {
   return newCar;
 };
 
-export const updateCar = (id, carData) => {
+export const updateCar = (id: number, carData: any) => {
   const index = cars.findIndex(car => car.id === id);
   if (index === -1) return null;
   
@@ -29,7 +29,7 @@ export const updateCar = (id, carData) => {
   return cars[index];
 };
 
-export const deleteCar = (id) => {
+export const deleteCar = (id: number) => {
   const initialLength = cars.length;
   cars = cars.filter(car => car.id !== id);
   return cars.length !== initialLength;
