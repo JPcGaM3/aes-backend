@@ -11,4 +11,4 @@ COPY --from=builder /app ./
 RUN npm install -g nodemon
 
 EXPOSE 8080
-CMD ["nodemon", "src/index.js"]
+CMD [ "npm", "start" ]

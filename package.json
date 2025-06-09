@@ -4,7 +4,8 @@
   "main": "dist/index.ts",
   "type": "module",
   "scripts": {
-    "dev": "nodemon --watch src --exec tsx src/index.ts",
+    "dev": "nodemon --watch src --exec \"tsx --env-file=.env src/index.ts\"",
+    "start": "nodemon --watch src --exec \"tsx src/index.ts\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -13,7 +14,8 @@
   "dependencies": {
     "body-parser": "^2.2.0",
     "dotenv": "^16.5.0",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "postgres": "^3.4.7"
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.5",
@@ -23,5 +25,8 @@
     "ts-node": "^10.9.2",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }
