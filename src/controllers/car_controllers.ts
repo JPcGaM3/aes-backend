@@ -1,5 +1,5 @@
-import * as CarModel from '../models/car_model.ts';
-import { HTTP_STATUS, MESSAGES } from '../configs/constants.ts';
+import * as CarModel from '../models/car_model.js';
+import { HTTP_STATUS, MESSAGES } from '../configs/constants.js';
 
 
 export const getCars = (_req: any, _res: any) => {

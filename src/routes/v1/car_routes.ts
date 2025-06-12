@@ -5,8 +5,7 @@ import {
   createNewCar,
   updateExistingCar,
   deleteExistingCar,
-} from '../../controllers/car_controllers.ts';
-import type { Request, Response } from 'express';
+} from '../../controllers/car_controllers.js';
 
 const router = Router();
 

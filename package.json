@@ -1,10 +1,12 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "dist/index.ts",
+  "main": "index.ts",
   "type": "module",
   "scripts": {
+    "build": "tsc",
     "dev": "nodemon --watch src --exec \"tsx --env-file=.env src/index.ts\"",
+    "prod": "node --env-file=.env dist/index.js",
     "start": "nodemon --watch src --exec \"tsx src/index.ts\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -12,9 +14,14 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
     "postgres": "^3.4.7"
   },
   "devDependencies": {
@@ -23,10 +30,11 @@
     "@types/node": "^22.15.30",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   }
 }
