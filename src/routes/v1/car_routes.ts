@@ -1,19 +1,18 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {
   getCars,
   getCar,
   createNewCar,
   updateExistingCar,
   deleteExistingCar,
-} from '../../controllers/car_controllers.js';
+} from "../../controllers/car_controllers";
 
-const router = Router();
+const carRouter = Router();
 
-router.get('/', getCars);
-router.get('/:id', getCar);
-router.post('/', createNewCar);
-router.put('/:id', updateExistingCar);
-router.delete('/:id', deleteExistingCar);
+carRouter.get("/", getCars);
+carRouter.get("/:id", getCar);
+carRouter.post("/", createNewCar);
+carRouter.put("/:id", updateExistingCar);
+carRouter.delete("/:id", deleteExistingCar);
 
-
-export default router;
+export default carRouter;

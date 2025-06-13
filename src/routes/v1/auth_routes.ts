@@ -1,8 +1,8 @@
-import { Router } from 'express';
-import { loginUsename } from '../../controllers/auth_controllers.js';
+import { Router } from "express";
+import { jwtAuth, loginUsername } from "../../controllers/auth_controllers";
 
-const router = Router();
+const authRouter = Router();
 
-router.post("/login", loginUsename)
+authRouter.post("/", loginUsername);
 
-export default router
+export default authRouter;

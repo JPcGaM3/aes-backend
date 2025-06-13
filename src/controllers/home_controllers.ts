@@ -1,5 +1,5 @@
-import { HTTP_STATUS, MESSAGES } from '../configs/constants.js';
+import { HTTP_STATUS, MESSAGES } from "../configs/constants";
 
 export const getHome = (_req: any, _res: any) => {
-    _res.status(HTTP_STATUS.OK).send('Hello World!');
-}
+  _res.status(HTTP_STATUS.OK).send("Hello World!");
+};

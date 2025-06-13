@@ -1,12 +1,15 @@
-import { Router } from 'express';
-import carRoutes from './car_routes.js';
-import loginRoutes from './auth_routes.js'
-import homeRoutes from './home_routes.js';
+import { Router } from "express";
 
-const router: Router = Router();
+import carRouter from "./user_routes";
+import homeRouter from "./home_routes";
+import userRouter from "./user_routes";
+import authRouter from "./auth_routes";
 
-router.use('/', homeRoutes);
-router.use('/', loginRoutes)
-router.use('/car', carRoutes);
+const apiRouter = Router();
 
-export default router;
+apiRouter.use("/", homeRouter);
+apiRouter.use("/auth", authRouter);
+apiRouter.use("/user", userRouter);
+apiRouter.use("/car", carRouter);
+
+export default apiRouter;
