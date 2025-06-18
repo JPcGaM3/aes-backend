@@ -8,6 +8,30 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model users {
+  id            Int             @id @default(autoincrement())
+  // quota_number  String?         @db.VarChar(255)
+  fullname      String?         @db.VarChar(255)
+  email         String?         @unique @db.VarChar(255)
+  phone         String          @db.VarChar(15)
+  unit          Int?
+  ae            String          @db.VarChar(255)
+  role          String          @db.VarChar(255)
+  // leader_id     Int?
+  status        String?         @db.VarChar(255)
+  active        Boolean
+  created_at    DateTime?       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+  updated_at    DateTime?       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+  created_by    Int
+  updated_by    Int
+  username      String?         @db.VarChar(255)
+  // password      String?         @unique
+  requestorders requestorders[]
+  taskorders    taskorders[]
+  // users         users?          @relation("usersTousers", fields: [leader_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  // other_users   users[]         @relation("usersTousers")
+}
+
 model bills {
   id               Int            @id @default(autoincrement())
   target_price     Float?         @default(0)
@@ -73,6 +97,7 @@ model prices {
 
 model requestorders {
   id                  Int          @id @default(autoincrement())
+  work_order_number   String?      @db.VarChar(255)
   customer_type       String       @db.VarChar(255)
   affiliation         String       @db.VarChar(10)
   quota_number        String?      @db.VarChar(255)
@@ -93,6 +118,7 @@ model requestorders {
   status              String?      @db.VarChar(255)
   supervisor_id       Int?
   location_id         Int?
+  unit_head_id        Int?
   created_at          DateTime?    @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
   updated_at          DateTime?    @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
   created_by          Int
@@ -168,7 +194,7 @@ model tool_types {
 model tools {
   id               Int          @id @default(autoincrement())
   name             String?      @db.VarChar(255)
-  ae               String?      @db.VarChar(255)
+  ae               String?      @db.VarChar(255) // Delete in future
   status           String?      @db.VarChar(255)
   created_at       DateTime?    @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
   updated_at       DateTime?    @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
@@ -179,28 +205,14 @@ model tools {
   taskorders       taskorders[]
 }
 
-model users {
-  id            Int             @id @default(autoincrement())
-  quota_number  String?         @db.VarChar(255)
-  fullname      String          @db.VarChar(255)
-  email         String          @unique @db.VarChar(255)
-  phone         String          @db.VarChar(15)
-  unit          Int?
-  ae            String          @db.VarChar(255)
-  role          String          @db.VarChar(255)
-  leader_id     Int?
-  status        String?         @db.VarChar(255)
-  active        Boolean
-  created_at    DateTime?       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
-  updated_at    DateTime?       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
-  created_by    Int
-  updated_by    Int
-  username      String?
-  password      String?         @unique
-  requestorders requestorders[]
-  taskorders    taskorders[]
-  users         users?          @relation("usersTousers", fields: [leader_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  other_users   users[]         @relation("usersTousers")
+model ae_area {
+  id             BigInt           @id @default(autoincrement())
+  name           String?          @db.VarChar(255)
+  created_at     DateTime?        @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+  updated_at     DateTime?        @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+  created_by     Int
+  updated_by     Int
+  operation_area operation_area[]
 }
 
 model company_farm {
@@ -212,7 +224,7 @@ model company_farm {
   updated_at     DateTime?      @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
   created_by     Int
   updated_by     Int
-  operation_area operation_area @relation(fields: [area_number], references: [area_number], onDelete: SetNull)
+  operation_area operation_area @relation(fields: [area_number], references: [area_number], onDelete: NoAction)
 }
 
 model operation_area {
@@ -224,6 +236,26 @@ model operation_area {
   updated_at     DateTime?      @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
   created_by     Int
   updated_by     Int
-  ae             String?        @db.VarChar(255)
+  ae             String?        @db.VarChar(255) // Delete in future
+  ae_number      BigInt?
+  ae_area        ae_area?       @relation(fields: [ae_number], references: [id], onDelete: NoAction, onUpdate: NoAction)
   company_farm   company_farm[]
+}
+
+model customer_type {
+  id         BigInt    @id @default(autoincrement())
+  name       String?   @db.VarChar(255)
+  created_at DateTime? @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+  updated_at DateTime? @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+  created_by Int
+  updated_by Int
+}
+
+model status {
+  id         BigInt    @id @unique @default(autoincrement())
+  name       String?   @db.VarChar(255)
+  created_at DateTime? @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+  updated_at DateTime? @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+  created_by Int
+  updated_by Int
 }

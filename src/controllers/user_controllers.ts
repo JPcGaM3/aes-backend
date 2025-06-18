@@ -21,4 +21,22 @@ export const UserController = {
       _next(error);
     }
   },
+  getByUsername: async (
+    _req: Request,
+    _res: Response,
+    _next: NextFunction
+  ): Promise<any> => {
+    const username = _req.params.username;
+    try {
+      const user = await UserService.getByUsername(username);
+      if (!user) {
+        return _res
+          .status(HTTP_STATUS.NOT_FOUND)
+          .json(formatResponse(null, { message: "User not found." }));
+      }
+      return _res.status(HTTP_STATUS.OK).json(formatResponse(user));
+    } catch (error) {
+      _next(error);
+    }
+  },
 };

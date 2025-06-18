@@ -15,8 +15,5 @@ export const Page_Internal_Error = (
   _res: Response,
   _next: NextFunction
 ) => {
-  console.error(_err.stack);
-  _res
-    .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-    .json({ error: "Something went wrong!" });
+  console.error(_err.stack);_res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: "Something went wrong!" });
 };

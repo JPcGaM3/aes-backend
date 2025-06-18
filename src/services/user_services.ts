@@ -24,6 +24,13 @@ export const UserService = {
     return user;
   },
 
+  getByUsername: async (username: string) => {
+    const user = await prisma.users.findFirst({
+      where: { username },
+    });
+    return user;
+  },
+
   getAll: async () => {
     const users = await prisma.users.findMany({
       orderBy: { id: "asc" },

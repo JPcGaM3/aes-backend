@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { HTTP_STATUS } from "../configs/constants";
 import { formatResponse } from "../utils/response_formatter";
 import jwt from "jsonwebtoken";
+import { UserService } from "../services/user_services";
 
 const ExtractJwt = require("passport-jwt").ExtractJwt;
 const JwtStrategy = require("passport-jwt").Strategy;
@@ -39,9 +40,9 @@ export const jwtOptions = {
 
 export const jwtAuth = new JwtStrategy(
   jwtOptions,
-  (payload: any, done: any) => {
-    //TODO: Have to change in the future
-    if (payload.sub === "admin") done(null, true);
+  async (payload: any, done: any) => {
+    const user = await UserService.getByUsername(payload.sub);
+    if (user) done(null, true);
     else done(null, false);
   }
 );
