@@ -8,13 +8,55 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum StatusEnum {
+  CREATED
+  PENDING_APPROVAL
+  PENDING_EDIT
+  PENDING
+  IN_PROGRESS
+  PENDING_REVIEW
+  PENDING_CONFIRM
+  COMPLETED
+  REJECTED
+  ON_HOLD
+  WORKING
+  INACTIVE
+  ON_LEAVE
+  CANCELLED
+}
+
+enum RoleEnum {
+  ADMIN
+  DEPARTMENT_HEAD
+  UNIT_HEAD
+  DRIVER
+  ACCOUNTANT
+  MAINTENANCE
+}
+
+enum AE {
+  CT
+  NE1
+  NE2
+}
+
+// model roles {
+//   id         Int       @id @default(autoincrement())
+//   name       RoleEnum
+//   created_at DateTime? @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+//   updated_at DateTime? @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+//   created_by Int
+//   updated_by Int
+//   users      users[]
+// }
+
 model users {
   id            Int             @id @default(autoincrement())
-  phone         String          @db.VarChar(15)
+  phone         String?         @db.VarChar(15)
   unit          Int?
   ae_id         Int?
-  role          String          @db.VarChar(255)
-  status_id     Int?
+  role          RoleEnum?
+  status        StatusEnum      @default(INACTIVE)
   active        Boolean
   created_at    DateTime?       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
   updated_at    DateTime?       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
@@ -24,9 +66,10 @@ model users {
   email         String?         @unique @db.VarChar(255)
   fullname      String?         @db.VarChar(255)
   ae_area       ae_area?        @relation(fields: [ae_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  status        status?         @relation(fields: [status_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   requestorders requestorders[]
   taskorders    taskorders[]
+
+  @@index([ae_id])
 }
 
 model cars {
@@ -53,6 +96,8 @@ model cars {
   updated_by        Int
   ae_area           ae_area?     @relation(fields: [ae_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   taskorders        taskorders[]
+
+  @@index([ae_id])
 }
 
 model locations {
@@ -95,6 +140,8 @@ model tool_types {
   tool_type_number Int?
   activities       activities @relation(fields: [activity_id], references: [id])
   tools            tools[]
+
+  @@index([activity_id])
 }
 
 model tools {
@@ -103,7 +150,7 @@ model tools {
   asset          String?      @unique @db.VarChar(255)
   year           Int?
   capitalized_on DateTime     @db.Date
-  status_id      Int?
+  status         StatusEnum   @default(INACTIVE)
   created_at     DateTime?    @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
   updated_at     DateTime?    @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
   created_by     Int
@@ -111,9 +158,11 @@ model tools {
   ae_id          Int?
   tool_type_id   Int?
   taskorders     taskorders[]
-  status         status?      @relation(fields: [status_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   ae_area        ae_area?     @relation(fields: [ae_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   tool_type      tool_types?  @relation(fields: [tool_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([ae_id])
+  @@index([tool_type_id])
 }
 
 model ae_area {
@@ -144,6 +193,9 @@ model operation_area {
   ae_area          ae_area?        @relation(fields: [ae_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   customer_type    customer_type   @relation(fields: [customer_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   requestorders    requestorders[]
+
+  @@index([ae_id])
+  @@index([customer_type_id])
 }
 
 model company_farm {
@@ -157,6 +209,8 @@ model company_farm {
   updated_by     Int
   operation_area operation_area  @relation(fields: [area_number], references: [area_number], onDelete: NoAction)
   requestorders  requestorders[]
+
+  @@index([area_number])
 }
 
 model customer_type {
@@ -168,20 +222,6 @@ model customer_type {
   updated_by     Int
   operation_area operation_area[]
   requestorders  requestorders[]
-}
-
-model status {
-  id            Int             @id @default(autoincrement())
-  name          String?         @db.VarChar(255)
-  created_at    DateTime?       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
-  updated_at    DateTime?       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
-  created_by    Int
-  updated_by    Int
-  users         users[]
-  requestorders requestorders[]
-  taskorders    taskorders[]
-  tools         tools[]
-  bills         bills[]
 }
 
 model attachment {
@@ -200,6 +240,7 @@ model attachment {
 model requestorders {
   id                  Int             @id @default(autoincrement())
   work_order_number   String?         @db.VarChar(255)
+  phone               String?         @db.VarChar(15)
   customer_type_id    Int?
   operation_area_id   Int?
   quota_number        String?         @db.VarChar(255)
@@ -215,7 +256,7 @@ model requestorders {
   active              Boolean
   evidence            Int?
   sale                Float?
-  status_id           Int?
+  status              StatusEnum      @default(CREATED)
   supervisor_id       Int?
   location_id         Int?
   unit_head_id        Int?
@@ -228,12 +269,17 @@ model requestorders {
   operation_area      operation_area? @relation(fields: [operation_area_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   company_farm        company_farm?   @relation(fields: [company_farm_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   ae_area             ae_area?        @relation(fields: [ae_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  status              status?         @relation(fields: [status_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   locations           locations?      @relation(fields: [location_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users               users?          @relation(fields: [supervisor_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   attachment          attachment?     @relation(fields: [evidence], references: [id], onDelete: NoAction, onUpdate: NoAction)
   taskorders          taskorders[]
   bills               bills[]
+
+  @@index([ae_id])
+  @@index([supervisor_id])
+  @@index([operation_area_id])
+  @@index([company_farm_id])
+  @@index([customer_type_id])
 }
 
 model taskorders {
@@ -256,29 +302,32 @@ model taskorders {
   car_end_hour     String?        @db.VarChar(255)
   start_timer      String?        @db.VarChar(255)
   end_timer        String?        @db.VarChar(255)
-  status_id        Int?
+  status           StatusEnum     @default(CREATED)
   comment          String?
   created_at       DateTime?      @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
   updated_at       DateTime?      @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
   created_by       Int
   updated_by       Int
-  status           status?        @relation(fields: [status_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users            users?         @relation(fields: [assigned_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   cars             cars?          @relation(fields: [car_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   requestorders    requestorders? @relation(fields: [request_order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   tools            tools?         @relation(fields: [tool_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([car_id])
+  @@index([tool_id])
+  @@index([assigned_user_id])
+  @@index([request_order_id])
 }
 
 model bills {
   id               Int            @id @default(autoincrement())
   target_price     Float?         @default(0)
   actual_price     Float?         @default(0)
-  status_id        Int?
+  status           StatusEnum     @default(CREATED)
   request_order_id Int?
   created_at       DateTime?      @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
   updated_at       DateTime?      @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
   created_by       Int
   updated_by       Int
-  status           status?        @relation(fields: [status_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   requestorders    requestorders? @relation(fields: [request_order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }

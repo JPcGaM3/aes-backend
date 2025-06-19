@@ -8,24 +8,24 @@ const ExtractJwt = require("passport-jwt").ExtractJwt;
 const JwtStrategy = require("passport-jwt").Strategy;
 
 export const loginUsername = (
-  _req: Request,
-  _res: Response,
-  _next: NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const token = jwt.sign(
-      { sub: _req.body.username, iat: new Date().getTime() },
+      { sub: req.body.username, iat: new Date().getTime() },
       process.env.SECRET as string,
       { expiresIn: "1h" }
     );
-    _res.status(HTTP_STATUS.OK).json(
+    res.status(HTTP_STATUS.OK).json(
       formatResponse({
         token: token,
-        username: _req.body.username,
+        username: req.body.username,
       })
     );
   } catch (error) {
-    _res.status(HTTP_STATUS.UNAUTHORIZED).json(
+    res.status(HTTP_STATUS.UNAUTHORIZED).json(
       formatResponse(null, {
         message: "Authentication failed",
       })
