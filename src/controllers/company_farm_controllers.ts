@@ -1,0 +1,25 @@
+import { NextFunction, Request, Response } from "express";
+import { HTTP_STATUS } from "../configs/constants";
+import { formatResponse } from "../utils/response_formatter";
+import { CompanyFarmService } from "../services/company_farm_services";
+
+export const CompanyFarmController = {
+  getByAreaNumber: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const areaNumber = Number(req.query.area_number);
+    try {
+      if (!areaNumber) {
+        return res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .json(formatResponse([], { message: "Operation area is required." }));
+      }
+      const companyFarms = await CompanyFarmService.getByAreaNumber(areaNumber);
+      return res.status(HTTP_STATUS.OK).json(formatResponse(companyFarms));
+    } catch (error) {
+      next(error);
+    }
+  },
+};
