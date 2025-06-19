@@ -3,7 +3,6 @@ import { HTTP_STATUS } from "../configs/constants";
 import { MitrService } from "../services/mitr_services";
 import { CheckRole, CheckUnit } from "../utils/check_functions";
 import { UserService } from "../services/user_services";
-import { AEService } from "../services/ae_servives";
 
 export const MitrController = {
   getToken: async (

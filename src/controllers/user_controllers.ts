@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../configs/constants";
 import { formatResponse } from "../utils/response_formatter";
 import { UserService } from "../services/user_services";
-import { AEService } from "../services/ae_servives";
+import { AEAreaService } from "../services/ae_area_servives";
 
 export const UserController = {
   create: async (
@@ -38,7 +38,7 @@ export const UserController = {
               ae_name: null,
             };
           }
-          const ae = await AEService.getById(user.ae_id as number);
+          const ae = await AEAreaService.getById(user.ae_id as number);
           return {
             ...user,
             ae_name: ae?.name,
@@ -70,7 +70,7 @@ export const UserController = {
             ae_name: null,
           };
         }
-        const ae = await AEService.getById(user.ae_id as number);
+        const ae = await AEAreaService.getById(user.ae_id as number);
         return {
           ...user,
           ae_name: ae?.name,

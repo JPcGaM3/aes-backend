@@ -5,85 +5,84 @@ import { formatResponse } from "../utils/response_formatter";
 
 export const RequestOrderController = {
   create: async (
-    _req: Request,
-    _res: Response,
-    _next: NextFunction
+    req: Request,
+    res: Response,
+    next: NextFunction
   ): Promise<any> => {
     try {
-      const newRequestOrder = await RequestOrderService.create(_req.body);
-      _res.status(HTTP_STATUS.CREATED).json(newRequestOrder);
+      const newRequestOrder = await RequestOrderService.create(req.body);
+      res.status(HTTP_STATUS.CREATED).json(newRequestOrder);
     } catch (error) {
-      _next(error);
+      next(error);
     }
   },
 
   getAll: async (
-    _req: Request,
-    _res: Response,
-    _next: NextFunction
+    req: Request,
+    res: Response,
+    next: NextFunction
   ): Promise<any> => {
     try {
       const requestOrders = await RequestOrderService.getAll();
       if (!requestOrders || requestOrders.length === 0) {
-        return _res
+        return res
           .status(HTTP_STATUS.OK)
-          .json({ message: "No request orders found" });
+          .json(formatResponse([], { message: "No request orders found." }));
       }
-      return _res.status(HTTP_STATUS.OK).json(formatResponse(requestOrders));
+      return res.status(HTTP_STATUS.OK).json(formatResponse(requestOrders));
     } catch (error) {
-      _next(error);
+      next(error);
     }
   },
 
   getById: async (
-    _req: Request,
-    _res: Response,
-    _next: NextFunction
+    req: Request,
+    res: Response,
+    next: NextFunction
   ): Promise<any> => {
+    const { id } = req.params;
     try {
-      const requestOrder = await RequestOrderService.getById(
-        Number(_req.params.id)
-      );
+      const requestOrder = await RequestOrderService.getById(Number(id));
       if (requestOrder) {
-        _res.status(HTTP_STATUS.OK).json(formatResponse(requestOrder));
+        res.status(HTTP_STATUS.OK).json(formatResponse(requestOrder));
       } else {
-        _res
+        res
           .status(HTTP_STATUS.NOT_FOUND)
-          .json({ error: "Request order not found" });
+          .json(formatResponse([], { message: "Request order not found" }));
       }
     } catch (error) {
-      _next(error);
+      next(error);
     }
   },
 
   update: async (
-    _req: Request,
-    _res: Response,
-    _next: NextFunction
+    req: Request,
+    res: Response,
+    next: NextFunction
   ): Promise<any> => {
     try {
       const updatedRequestOrder = await RequestOrderService.update(
-        Number(_req.params.id),
-        _req.body
+        Number(req.params.id),
+        req.body
       );
-      _res.status(HTTP_STATUS.OK).json(formatResponse(updatedRequestOrder));
+      res.status(HTTP_STATUS.OK).json(formatResponse(updatedRequestOrder));
     } catch (error) {
-      _next(error);
+      next(error);
     }
   },
 
   delete: async (
-    _req: Request,
-    _res: Response,
-    _next: NextFunction
+    req: Request,
+    res: Response,
+    next: NextFunction
   ): Promise<any> => {
     try {
       const deletedRequestOrder = await RequestOrderService.delete(
-        Number(_req.params.id)
+        Number(req.params.id)
       );
-      _res.status(HTTP_STATUS.OK).json(formatResponse(deletedRequestOrder));
+      res.status(HTTP_STATUS.OK).json(formatResponse(deletedRequestOrder));
     } catch (error) {
-      _next(error);
+      next(error);
     }
   },
 };
