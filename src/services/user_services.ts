@@ -1,13 +1,13 @@
-import { PrismaClient } from "../../generated/prisma/index";
+import { PrismaClient, RoleEnum } from "../../generated/prisma/index";
 
 const prisma = new PrismaClient();
 
 export const UserService = {
-  create: async (userData: any) => {
-    const newUser = await prisma.users.create({
-      data: userData,
+  getAll: async () => {
+    const users = await prisma.users.findMany({
+      orderBy: { id: "asc" },
     });
-    return newUser;
+    return users;
   },
 
   getById: async (id: number) => {
@@ -30,29 +30,12 @@ export const UserService = {
     });
     return user;
   },
-
-  getAll: async () => {
+  getByRole: async (role: RoleEnum) => {
     const users = await prisma.users.findMany({
-      orderBy: { id: "asc" },
+      where: { role },
     });
     return users;
   },
-
-  getByLeaderId: async (leaderId: number) => {
-    const users = await prisma.users.findMany({
-      where: { leader_id: leaderId },
-    });
-    return users;
-  },
-
-  update: async (id: number, userData: any) => {
-    const updatedUser = await prisma.users.update({
-      where: { id },
-      data: userData,
-    });
-    return updatedUser;
-  },
-
   setActive: async (id: number, active: boolean, updatedBy: any) => {
     const updatedUser = await prisma.users.update({
       where: { id },
@@ -63,11 +46,25 @@ export const UserService = {
     });
     return updatedUser;
   },
-
-  getByRole: async (role: string) => {
-    const users = await prisma.users.findMany({
-      where: { role },
+  create: async (userData: any) => {
+    const newUser = await prisma.users.create({
+      data: userData,
     });
-    return users;
+    return newUser;
+  },
+
+  update: async (id: number, userData: any) => {
+    const updatedUser = await prisma.users.update({
+      where: { id },
+      data: userData,
+    });
+    return updatedUser;
+  },
+
+  delete: async (id: number) => {
+    const deletedUser = await prisma.users.delete({
+      where: { id },
+    });
+    return deletedUser;
   },
 };
