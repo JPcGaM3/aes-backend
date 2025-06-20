@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { HTTP_STATUS } from "../configs/constants";
 import { formatResponse } from "../utils/response_formatter";
-import { OperationAreaService } from "../services/operation_area_services";
+import { OperationAreaService } from "../services/operation_area.service";
 
 export const OperationAreaController = {
   getAll: async (

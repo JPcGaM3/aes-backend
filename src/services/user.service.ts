@@ -30,9 +30,9 @@ export const UserService = {
     });
     return user;
   },
-  getByRole: async (role: RoleEnum) => {
+  getByRole: async (role: RoleEnum[]) => {
     const users = await prisma.users.findMany({
-      where: { role },
+      where: { role: { hasSome: role } },
     });
     return users;
   },

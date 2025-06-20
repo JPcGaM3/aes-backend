@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { HTTP_STATUS } from "../configs/constants";
 import { formatResponse } from "../utils/response_formatter";
-import { CompanyFarmService } from "../services/company_farm_services";
+import { CompanyFarmService } from "../services/company_farm.service";
 
 export const CompanyFarmController = {
   getByAreaNumber: async (

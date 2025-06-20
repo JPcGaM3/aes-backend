@@ -1,14 +1,13 @@
 import { Router } from "express";
 
-import carRouter from "./user_routes";
-import homeRouter from "./home_routes";
-import userRouter from "./user_routes";
-import authRouter from "./auth_routes";
-import reqOrderRouter from "./req_order_routes";
-import mitrRouter from "./mitr_routes";
-import customerTypeRouter from "./customer_type_routes";
-import operationAreaRouter from "./operation_area_routes";
-import companyFarmRouter from "./company_farm_routes";
+import homeRouter from "./home.route";
+import userRouter from "./user.route";
+import authRouter from "./auth.route";
+import reqOrderRouter from "./req_order.route";
+import mitrRouter from "./mitr.route";
+import customerTypeRouter from "./customer_type.route";
+import operationAreaRouter from "./operation_area.route";
+import companyFarmRouter from "./company_farm.route";
 
 const apiRouter = Router();
 

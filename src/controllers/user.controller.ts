@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../configs/constants";
 import { formatResponse } from "../utils/response_formatter";
-import { UserService } from "../services/user_services";
-import { AEAreaService } from "../services/ae_area_servives";
+import { UserService } from "../services/user.service";
+import { AEAreaService } from "../services/ae_area.servive";
 
 export const UserController = {
   create: async (

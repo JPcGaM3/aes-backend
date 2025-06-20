@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { HTTP_STATUS } from "../configs/constants";
 import { formatResponse } from "../utils/response_formatter";
-import { CustomerTypeService } from "../services/custormer_type_services";
+import { CustomerTypeService } from "../services/custormer_type.service";
 
 export const CustomerTypeController = {
   getAll: async (
@@ -51,6 +51,24 @@ export const CustomerTypeController = {
       next(error);
     }
   },
+  // getByName: async (
+  //   req: Request,
+  //   res: Response,
+  //   next: NextFunction
+  // ): Promise<any> => {
+  //   const { name } = req.body;
+  //   try {
+  //     const customerType = await CustomerTypeService.getByName(name);
+  //     if (!customerType) {
+  //       return res
+  //         .status(HTTP_STATUS.NOT_FOUND)
+  //         .json(formatResponse([], { message: "Customer type not found" }));
+  //     }
+  //     return res.status(HTTP_STATUS.OK).json(formatResponse(customerType));
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // },
   create: async (
     req: Request,
     res: Response,

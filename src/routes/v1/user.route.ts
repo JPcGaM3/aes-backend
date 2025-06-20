@@ -1,7 +1,7 @@
 import passport from "passport";
 import { Router } from "express";
-import { jwtAuth } from "../../controllers/auth_controllers";
-import { UserController } from "../../controllers/user_controllers";
+import { jwtAuth } from "../../controllers/auth.controller";
+import { UserController } from "../../controllers/user.controller";
 
 // passport.use(jwtAuth);
 

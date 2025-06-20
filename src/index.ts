@@ -2,7 +2,10 @@ import express from "express";
 import dotenv from "dotenv";
 import { MESSAGES } from "./configs/constants";
 import apiRouter from "./routes/v1/index";
-import { notFoundHandler, errorHandler } from "./middlewares/error_handler";
+import {
+  notFoundHandler,
+  errorHandler,
+} from "./middlewares/error_handler.middleware";
 import cors from "cors";
 
 dotenv.config({ path: "../.env" });

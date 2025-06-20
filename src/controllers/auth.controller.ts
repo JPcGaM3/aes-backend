@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { HTTP_STATUS } from "../configs/constants";
 import { formatResponse } from "../utils/response_formatter";
 import jwt from "jsonwebtoken";
-import { UserService } from "../services/user_services";
+import { UserService } from "../services/user.service";
 
 const ExtractJwt = require("passport-jwt").ExtractJwt;
 const JwtStrategy = require("passport-jwt").Strategy;

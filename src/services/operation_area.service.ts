@@ -23,6 +23,11 @@ export const OperationAreaService = {
       orderBy: { id: "asc" },
     });
   },
+  getByName: async (name: string): Promise<any> => {
+    return await prisma.operation_area.findFirst({
+      where: { operation_area: name },
+    });
+  },
   create: async (data: any): Promise<any> => {
     return await prisma.operation_area.create({
       data,

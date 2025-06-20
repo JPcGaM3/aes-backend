@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { OperationAreaController } from "../../controllers/operation_area_controllers";
+import { OperationAreaController } from "../../controllers/operation_area.controller";
 
 const operationAreaRouter = Router();
 

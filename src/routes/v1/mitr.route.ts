@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { MitrController } from "../../controllers/mitr_controllers";
+import { MitrController } from "../../controllers/mitr.controller";
 
 const mitrRouter = Router();
 

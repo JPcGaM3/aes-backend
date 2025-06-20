@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { jwtAuth, loginUsername } from "../../controllers/auth_controllers";
+import { jwtAuth, loginUsername } from "../../controllers/auth.controller";
 
 const authRouter = Router();
 
