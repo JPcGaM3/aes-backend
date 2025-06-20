@@ -174,16 +174,14 @@ export const MitrController = {
         updated_by: 1,
       };
 
-      const userresponse = await UserService.update(user_exist.id, userData);
+      const userResponse = await UserService.update(user_exist.id, userData);
 
       return res.status(HTTP_STATUS.OK).json(
         formatResponse({
-          data: {
-            token: token,
-            userresult: userresponse,
-            authenresult: authen.result[0],
-            profileresult: profile.result[0],
-          },
+          token: token,
+          user_result: userResponse,
+          authen_result: authen.result[0],
+          profile_result: profile.result[0],
         })
       );
     } catch (error) {

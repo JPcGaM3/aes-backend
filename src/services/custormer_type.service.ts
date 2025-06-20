@@ -18,6 +18,14 @@ export const CustomerTypeService = {
       where: { name },
     });
   },
+  getAllIdAndName: async () => {
+    return await prisma.customer_type.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+  },
   create: async (data: any) => {
     return await prisma.customer_type.create({
       data,

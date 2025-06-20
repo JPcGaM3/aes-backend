@@ -9,7 +9,6 @@ import {
   SplitWords,
 } from "../utils/functions";
 import { OperationAreaService } from "../services/operation_area.service";
-import { create } from "domain";
 import { TaskOrderService } from "../services/task_order.service";
 import { ActivityService } from "../services/activity.service";
 import { ToolTypeService } from "../services/tool_type.service";
@@ -109,10 +108,16 @@ export const RequestOrderController = {
       const req_id = newRequestOrder.id;
       const allActivities = SplitWords(activities);
       const allToolTypes = SplitWords(tool_types);
+      const act_id_name = await ActivityService.getAllIdAndName();
+      const tool_id_name = await ToolTypeService.getAllIdAndName();
       const taskOrderPromises = allActivities.map(async (activity, index) => {
         try {
-          let act = await ActivityService.getByName(allActivities[index]);
-          let tool = await ToolTypeService.getByName(allToolTypes[index]);
+          let act = act_id_name.find(
+            (item) => item.name === allActivities[index]
+          );
+          let tool = tool_id_name.find(
+            (item) => item.tool_type_name === allToolTypes[index]
+          );
           if (!act || !tool) {
             return null;
           }
@@ -157,52 +162,90 @@ export const RequestOrderController = {
       }
 
       const files = req.files as Express.Multer.File[];
-      const processedFiles: { fileName: string; dataPreview: any[] }[] = [];
       const processedData: any[] = [];
 
       for (const file of files) {
         const data = await ReadExcelFile(file.buffer);
-        // console.log(`--- Excel Data for: ${file.originalname} ---`);
-        // console.log(JSON.stringify(data, null, 2));
-        // console.log("------------------------------------");
-
-        // processedFiles.push({
-        //   fileName: file.originalname,
-        //   dataPreview: data.slice(0, 5),
-        // });
+        const ctm = await CustomerTypeService.getAllIdAndName();
+        const opa = await OperationAreaService.getAllIdAndName();
 
         const reqDataPromises = data.map(async (row) => {
           try {
-            const ctm_res = await CustomerTypeService.getByName(
-              row.หัวตารางแจ้งงาน
+            let ctm_res = ctm.find(
+              (item: any) => item.name === row.หัวตารางแจ้งงาน
             );
             if (!ctm_res) {
               console.error(`Customer type not found: ${row.หัวตารางแจ้งงาน}`);
               return null;
             }
 
-            const opa_res = await OperationAreaService.getByName(row.สังกัด);
+            let opa_res = opa.find(
+              (item: any) => item.operation_area === row.สังกัด
+            );
             if (!opa_res) {
               console.error(`Operation area not found: ${row.สังกัด}`);
               return null;
             }
 
-            return {
+            const reqOrder = {
               customer_type_id: Number(ctm_res.id),
-              phone: row.เบอร์ติดต่อ || null,
+              phone: row.เบอร์ติดต่อ.toString(),
               operation_area_id: Number(opa_res.id),
-              zone: row.รหัสไร่ || null,
-              quota_number: row.โควต้าไร่ || null,
-              farmer_name: row.ชื่อไร่ || null,
-              target_area: row.พื้นที่แจ้งจำนวนไร่ || null,
-              land_number: row.เลขที่แปลง || null,
-              location_xy: row.สถานที่ทำงานใส่พิกัดXY || null,
-              ap_month: ConvertMonthTH_ENG(row.เดือน) || null,
-              ap_year: row.ปี || null,
-              supervisor_name: row.หัวหน้าไร่ || null,
-              unit_head_id: user_id,
-              created_by: user_id,
-              updated_by: user_id,
+              zone: row.รหัสไร่.toString(),
+              quota_number: row.โควต้าไร่.toString(),
+              farmer_name: row.ชื่อไร่.toString(),
+              target_area: Number(row.พื้นที่แจ้งจำนวนไร่),
+              land_number: Number(row.เลขที่แปลง),
+              location_xy: row.สถานที่ทำงานใส่พิกัดXY.toString(),
+              ap_month: ConvertMonthTH_ENG(row.เดือน),
+              ap_year: Number(row.ปี),
+              supervisor_name: row.หัวหน้าไร่.toString(),
+              unit_head_id: Number(user_id),
+              created_by: Number(user_id),
+              updated_by: Number(user_id),
+            };
+
+            const newRequestOrder = await RequestOrderService.create(reqOrder);
+            if (!newRequestOrder) {
+              console.error("Failed to create new request order");
+              return null;
+            }
+            const req_id = newRequestOrder.id;
+            const allActivities = SplitWords(row.กิจกรรม);
+            const allToolTypes = SplitWords(row.เครื่องมือ);
+            const act_id_name = await ActivityService.getAllIdAndName();
+            const tool_id_name = await ToolTypeService.getAllIdAndName();
+            const taskOrderPromises = allActivities.map(
+              async (activity, index) => {
+                try {
+                  let act = act_id_name.find(
+                    (item) => item.name === allActivities[index]
+                  );
+                  let tool = tool_id_name.find(
+                    (item) => item.tool_type_name === allToolTypes[index]
+                  );
+                  if (!act || !tool) {
+                    return null;
+                  }
+                  let taskData = {
+                    request_order_id: Number(req_id),
+                    activities_id: Number(act.id as number),
+                    tool_types_id: Number(tool.id as number),
+                    created_by: Number(user_id),
+                    updated_by: Number(user_id),
+                  };
+                  return await TaskOrderService.create(taskData);
+                } catch (error) {
+                  next(error);
+                }
+              }
+            );
+
+            const newTaskOrders = await Promise.all(taskOrderPromises);
+
+            return {
+              Request_order: newRequestOrder,
+              Task_orders: newTaskOrders,
             };
           } catch (error) {
             console.error("Error processing Excel row:", error);

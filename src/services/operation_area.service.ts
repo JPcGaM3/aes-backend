@@ -8,7 +8,14 @@ export const OperationAreaService = {
       orderBy: { id: "asc" },
     });
   },
-
+  getAllIdAndName: async (): Promise<any> => {
+    return await prisma.operation_area.findMany({
+      select: {
+        id: true,
+        operation_area: true,
+      },
+    });
+  },
   getById: async (id: number): Promise<any> => {
     return await prisma.operation_area.findUnique({
       where: { id },
