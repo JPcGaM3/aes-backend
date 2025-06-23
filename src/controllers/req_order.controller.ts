@@ -113,10 +113,10 @@ export const RequestOrderController = {
       const taskOrderPromises = allActivities.map(async (activity, index) => {
         try {
           let act = act_id_name.find(
-            (item) => item.name === allActivities[index]
+            (item: any) => item.name === allActivities[index]
           );
           let tool = tool_id_name.find(
-            (item) => item.tool_type_name === allToolTypes[index]
+            (item: any) => item.tool_type_name === allToolTypes[index]
           );
           if (!act || !tool) {
             return null;
@@ -219,10 +219,10 @@ export const RequestOrderController = {
               async (activity, index) => {
                 try {
                   let act = act_id_name.find(
-                    (item) => item.name === allActivities[index]
+                    (item: any) => item.name === allActivities[index]
                   );
                   let tool = tool_id_name.find(
-                    (item) => item.tool_type_name === allToolTypes[index]
+                    (item: any) => item.tool_type_name === allToolTypes[index]
                   );
                   if (!act || !tool) {
                     return null;

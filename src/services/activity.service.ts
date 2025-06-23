@@ -3,7 +3,7 @@ import { PrismaClient } from "../../generated/prisma/index";
 const prisma = new PrismaClient();
 
 export const ActivityService = {
-  getAllIdAndName: async () => {
+  getAllIdAndName: async (): Promise<any> => {
     const activities = await prisma.activities.findMany({
       select: {
         id: true,
@@ -12,7 +12,7 @@ export const ActivityService = {
     });
     return activities;
   },
-  getByName: async (name: string) => {
+  getByName: async (name: string): Promise<any> => {
     const activity = await prisma.activities.findFirst({
       where: {
         name,
