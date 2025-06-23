@@ -4,6 +4,7 @@ import { HTTP_STATUS } from "../configs/constants";
 import { formatResponse } from "../utils/response_formatter";
 import { CustomerTypeService } from "../services/custormer_type.service";
 import {
+  ConvertMonthIndex_Eng,
   ConvertMonthTH_ENG,
   ReadExcelFile,
   SplitWords,
@@ -12,6 +13,8 @@ import { OperationAreaService } from "../services/operation_area.service";
 import { TaskOrderService } from "../services/task_order.service";
 import { ActivityService } from "../services/activity.service";
 import { ToolTypeService } from "../services/tool_type.service";
+import { AEAreaService } from "../services/ae_area.servive";
+import { StatusEnum } from "../../generated/prisma";
 
 export const RequestOrderController = {
   getAll: async (
@@ -20,10 +23,33 @@ export const RequestOrderController = {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const requestOrders = await RequestOrderService.getAll();
+      const {
+        ae,
+        customer_type,
+        status,
+        start_month,
+        end_month,
+        start_year,
+        end_year,
+      } = req.query;
+      const ae_id = await AEAreaService.getByName(ae as string);
+      const customer_type_id = await CustomerTypeService.getByName(
+        customer_type as string
+      );
+
+      const requestOrders = await RequestOrderService.getAll(
+        ae_id ? Number(ae_id) : NaN,
+        customer_type_id ? Number(customer_type_id.id) : NaN,
+        status ? ((status as string).toUpperCase() as StatusEnum) : undefined,
+        start_month ? (start_month as string) : undefined,
+        end_month ? (end_month as string) : undefined,
+        start_year ? Number(start_year) : undefined,
+        end_year ? Number(end_year) : undefined
+      );
+
       if (!requestOrders || requestOrders.length === 0) {
         return res
-          .status(HTTP_STATUS.OK)
+          .status(HTTP_STATUS.NOT_FOUND)
           .json(formatResponse([], { message: "No request orders found." }));
       }
       return res.status(HTTP_STATUS.OK).json(formatResponse(requestOrders));
@@ -281,10 +307,16 @@ export const RequestOrderController = {
     next: NextFunction
   ): Promise<any> => {
     try {
+      const { id } = req.params;
       const updatedRequestOrder = await RequestOrderService.update(
-        Number(req.params.id),
+        Number(id),
         req.body
       );
+      if (!updatedRequestOrder) {
+        return res
+          .status(HTTP_STATUS.NOT_FOUND)
+          .json(formatResponse(null, { message: "Request order not found." }));
+      }
       res.status(HTTP_STATUS.OK).json(formatResponse(updatedRequestOrder));
     } catch (error) {
       next(error);
@@ -312,16 +344,14 @@ export const RequestOrderController = {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const { request_order_id } = req.body;
-      const requestOrder = await RequestOrderService.getById(request_order_id);
+      const { id } = req.params;
+      const requestOrder = await RequestOrderService.getById(Number(id));
       if (!requestOrder) {
         return res
           .status(HTTP_STATUS.NOT_FOUND)
           .json(formatResponse([], { message: "Request order not found" }));
       }
-      const taskOrders = await TaskOrderService.getByRequestOrderId(
-        request_order_id
-      );
+      const taskOrders = await TaskOrderService.getByRequestOrderId(Number(id));
       if (!taskOrders || taskOrders.length === 0) {
         return res
           .status(HTTP_STATUS.NOT_FOUND)
@@ -330,6 +360,32 @@ export const RequestOrderController = {
       return res
         .status(HTTP_STATUS.OK)
         .json(formatResponse({ requestOrder, taskOrders }));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  setStatus: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    try {
+      const { id } = req.params;
+      const { status, updated_by } = req.body;
+      const updatedRequestOrder = await RequestOrderService.setStatus(
+        Number(id),
+        status,
+        updated_by
+      );
+      if (!updatedRequestOrder) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json(
+          formatResponse([], {
+            message: "Failed to update status of request order",
+          })
+        );
+      }
+      res.status(HTTP_STATUS.OK).json(formatResponse(updatedRequestOrder));
     } catch (error) {
       next(error);
     }

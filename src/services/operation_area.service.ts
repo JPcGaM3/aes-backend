@@ -3,8 +3,12 @@ import { PrismaClient } from "../../generated/prisma/index";
 const prisma = new PrismaClient();
 
 export const OperationAreaService = {
-  getAll: async (): Promise<any> => {
+  getAll: async (customer_type_id?: number, ae_id?: number): Promise<any> => {
     return await prisma.operation_area.findMany({
+      where: {
+        ...(customer_type_id && { customer_type_id }),
+        ...(ae_id && { ae_id }),
+      },
       orderBy: { id: "asc" },
     });
   },

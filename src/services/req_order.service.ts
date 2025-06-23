@@ -3,27 +3,80 @@ import { PrismaClient, StatusEnum } from "../../generated/prisma/index";
 const prisma = new PrismaClient();
 
 export const RequestOrderService = {
-  getAll: async (): Promise<any> => {
-    const requestOrders = await prisma.requestorders.findMany();
+  getAll: async (
+    ae_id?: number,
+    customer_type_id?: number,
+    status?: StatusEnum,
+    startMonth?: string,
+    endMonth?: string,
+    startYear?: number,
+    endYear?: number
+  ): Promise<any> => {
+    const requestOrders = await prisma.requestorders.findMany({
+      where: {
+        ...(ae_id && { ae_id }),
+        ...(customer_type_id && { customer_type_id }),
+        ...(status && { status }),
+        ...(startMonth &&
+          endMonth && {
+            ap_month: {
+              gte: startMonth,
+              lte: endMonth,
+            },
+          }),
+        ...(startMonth && !endMonth && { ap_month: startMonth }),
+        ...(startYear &&
+          endYear && {
+            ap_year: {
+              gte: startYear,
+              lte: endYear,
+            },
+          }),
+        active: true,
+      },
+      orderBy: [
+        {
+          status: "desc",
+        },
+      ],
+    });
     return requestOrders;
   },
-  getById: async (id: number): Promise<any> => {
+  getById: async (
+    id: number,
+    ae_id?: number,
+    customer_type_id?: number
+  ): Promise<any> => {
     const requestOrder = await prisma.requestorders.findUnique({
-      where: { id },
+      where: {
+        id,
+        active: true,
+        ...(ae_id && { ae_id }),
+        ...(customer_type_id && { customer_type_id }),
+      },
     });
     return requestOrder;
   },
 
-  getByStatus: async (status: StatusEnum): Promise<any> => {
+  getByStatus: async (
+    status: StatusEnum,
+    ae_id?: number,
+    customer_type_id?: number
+  ): Promise<any> => {
     const requestOrders = await prisma.requestorders.findMany({
-      where: { status },
+      where: {
+        status,
+        active: true,
+        ...(ae_id && { ae_id }),
+        ...(customer_type_id && { customer_type_id }),
+      },
     });
     return requestOrders;
   },
 
   getEvidence: async (id: number): Promise<any> => {
     const requestOrders = await prisma.requestorders.findFirst({
-      where: { id },
+      where: { id, active: true },
       select: {
         evidence: true,
       },
@@ -88,33 +141,49 @@ export const RequestOrderService = {
     return deletedRequestOrder;
   },
 
-  setActive: async (id: number, isActive: boolean): Promise<any> => {
+  setActive: async (
+    id: number,
+    isActive: boolean,
+    updated_by: number
+  ): Promise<any> => {
     const updatedRequestOrder = await prisma.requestorders.update({
       where: { id },
-      data: { active: isActive },
+      data: { active: isActive, updated_by },
     });
     return updatedRequestOrder;
   },
 
-  setStatus: async (id: number, status: StatusEnum): Promise<any> => {
+  setStatus: async (
+    id: number,
+    status: StatusEnum,
+    updated_by: number
+  ): Promise<any> => {
     const updatedRequestOrder = await prisma.requestorders.update({
       where: { id },
-      data: { status },
+      data: { status, updated_by },
     });
     return updatedRequestOrder;
   },
-  setComment: async (id: number, comment: string): Promise<any> => {
+  setComment: async (
+    id: number,
+    comment: string,
+    updated_by: number
+  ): Promise<any> => {
     const updatedRequestOrder = await prisma.requestorders.update({
       where: { id },
-      data: { comment },
+      data: { comment, updated_by },
     });
     return updatedRequestOrder;
   },
 
-  setEvidence: async (id: number, evidence: Array<number>): Promise<any> => {
+  setEvidence: async (
+    id: number,
+    evidence: Array<number>,
+    updated_by: number
+  ): Promise<any> => {
     const updatedRequestOrder = await prisma.requestorders.update({
       where: { id },
-      data: { evidence },
+      data: { evidence, updated_by },
     });
     return updatedRequestOrder;
   },

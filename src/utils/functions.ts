@@ -91,3 +91,27 @@ export const ReadExcelFile = (buffer: Buffer): Promise<any[]> => {
     }
   });
 };
+
+export const ConvertMonthIndex_Eng = (monthIndex: number): string => {
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  return months[monthIndex] || "";
+};
+
+export const ConvertToChristianDate = (buddhistDateString: string): Date => {
+  const date = new Date(buddhistDateString);
+  date.setFullYear(date.getFullYear() - 543);
+  return date;
+};
