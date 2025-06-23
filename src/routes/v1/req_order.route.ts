@@ -11,6 +11,8 @@ reqOrderRouter.post(
   upload.array("files", 5),
   RequestOrderController.createFromExcel
 );
-reqOrderRouter.post("/getByIdAndTask", RequestOrderController.getByIdAndTask);
+reqOrderRouter.patch("/:id/update", RequestOrderController.update);
+reqOrderRouter.post("/:id/get-task", RequestOrderController.getByIdAndTask);
+reqOrderRouter.patch("/:id/set/status", RequestOrderController.setStatus);
 
 export default reqOrderRouter;

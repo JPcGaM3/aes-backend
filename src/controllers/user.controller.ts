@@ -6,27 +6,27 @@ import { AEAreaService } from "../services/ae_area.servive";
 
 export const UserController = {
   create: async (
-    _req: Request,
-    _res: Response,
-    _next: NextFunction
+    req: Request,
+    res: Response,
+    next: NextFunction
   ): Promise<any> => {
     try {
-      const user = await UserService.create(_req.body);
-      return _res.status(HTTP_STATUS.CREATED).json(formatResponse(user));
+      const user = await UserService.create(req.body);
+      return res.status(HTTP_STATUS.CREATED).json(formatResponse(user));
     } catch (error) {
-      _next(error);
+      next(error);
     }
   },
 
   getAll: async (
-    _req: Request,
-    _res: Response,
-    _next: NextFunction
+    req: Request,
+    res: Response,
+    next: NextFunction
   ): Promise<any> => {
     try {
       const users = await UserService.getAll();
       if (!users || users.length === 0) {
-        return _res
+        return res
           .status(HTTP_STATUS.OK)
           .json(formatResponse([], { message: "No users found." }));
       }
@@ -45,21 +45,21 @@ export const UserController = {
           };
         })
       );
-      return _res.status(HTTP_STATUS.OK).json(formatResponse(enhancedUsers));
+      return res.status(HTTP_STATUS.OK).json(formatResponse(enhancedUsers));
     } catch (error) {
-      _next(error);
+      next(error);
     }
   },
   getByUsername: async (
-    _req: Request,
-    _res: Response,
-    _next: NextFunction
+    req: Request,
+    res: Response,
+    next: NextFunction
   ): Promise<any> => {
-    const username = _req.params.username;
+    const username = req.params.username;
     try {
       const user = await UserService.getByUsername(username);
       if (!user) {
-        return _res
+        return res
           .status(HTTP_STATUS.NOT_FOUND)
           .json(formatResponse(null, { message: "User not found." }));
       }
@@ -76,9 +76,34 @@ export const UserController = {
           ae_name: ae?.name,
         };
       });
-      return _res.status(HTTP_STATUS.OK).json(formatResponse(enhancedUser));
+      return res.status(HTTP_STATUS.OK).json(formatResponse(enhancedUser));
     } catch (error) {
-      _next(error);
+      next(error);
+    }
+  },
+  setActive: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    try {
+      const { id } = req.params;
+      const { is_active, updated_by } = req.body;
+      const updatedUser = await UserService.setActive(
+        Number(id),
+        is_active,
+        updated_by
+      );
+      if (!updatedUser) {
+        return res
+          .status(HTTP_STATUS.BADreqUEST)
+          .json(
+            formatResponse([], { message: "Failed to update user status." })
+          );
+      }
+      return res.status(HTTP_STATUS.OK).json(formatResponse(updatedUser));
+    } catch (error) {
+      next(error);
     }
   },
 };

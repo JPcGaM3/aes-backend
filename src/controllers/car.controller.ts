@@ -11,13 +11,38 @@ export const CarController = {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const cars = await CarService.getAll();
+      const { ae_id } = req.query;
+      const cars = await CarService.getAll(ae_id ? Number(ae_id) : undefined);
       if (!cars || cars.length === 0) {
         return res
           .status(HTTP_STATUS.OK)
           .json(formatResponse([], { message: "No cars found." }));
       }
       return res.status(HTTP_STATUS.OK).json(formatResponse(cars));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  setActive: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    try {
+      const { id } = req.params;
+      const { is_active, updated_by } = req.body;
+      const updatedCar = await CarService.setActive(
+        Number(id),
+        is_active,
+        updated_by
+      );
+      if (!updatedCar) {
+        return res
+          .status(HTTP_STATUS.NOT_FOUND)
+          .json(formatResponse(null, { message: "Car not found." }));
+      }
+      return res.status(HTTP_STATUS.OK).json(formatResponse(updatedCar));
     } catch (error) {
       next(error);
     }

@@ -10,20 +10,39 @@ export const OperationAreaController = {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const id = req.query.id ? Number(req.query.id) : undefined;
-      if (id) {
-        const operationArea = await OperationAreaService.getById(id);
-        if (!operationArea) {
-          return res
-            .status(HTTP_STATUS.NOT_FOUND)
-            .json(
-              formatResponse([], { message: "Operation area ID not found." })
-            );
-        }
-        return res.status(HTTP_STATUS.OK).json(formatResponse(operationArea));
-      }
-      const operationAreas = await OperationAreaService.getAll();
+      const { customer_type_id, ae_id } = req.query;
+      let customerTypeId = Number(customer_type_id);
+      let aeId = Number(ae_id) || NaN;
+      const operationAreas = await OperationAreaService.getAll(
+        customerTypeId ? customerTypeId : undefined,
+        aeId ? aeId : undefined
+      );
       return res.status(HTTP_STATUS.OK).json(formatResponse(operationAreas));
+    } catch (error) {
+      next(error);
+    }
+  },
+  getById: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { id } = req.params;
+    try {
+      if (!id) {
+        return res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .json(formatResponse([], { message: "Invalid operation area ID." }));
+      }
+      const operationArea = await OperationAreaService.getById(Number(id));
+      if (!operationArea) {
+        return res
+          .status(HTTP_STATUS.NOT_FOUND)
+          .json(
+            formatResponse([], { message: "Operation area ID not found." })
+          );
+      }
+      return res.status(HTTP_STATUS.OK).json(formatResponse(operationArea));
     } catch (error) {
       next(error);
     }

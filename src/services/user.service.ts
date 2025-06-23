@@ -5,6 +5,7 @@ const prisma = new PrismaClient();
 export const UserService = {
   getAll: async () => {
     const users = await prisma.users.findMany({
+      where: { active: true },
       orderBy: { id: "asc" },
     });
     return users;
@@ -12,27 +13,27 @@ export const UserService = {
 
   getById: async (id: number) => {
     const user = await prisma.users.findUnique({
-      where: { id },
+      where: { id, active: true },
     });
     return user;
   },
 
   getByEmail: async (email: string) => {
     const user = await prisma.users.findUnique({
-      where: { email },
+      where: { email, active: true },
     });
     return user;
   },
 
   getByUsername: async (username: string) => {
     const user = await prisma.users.findFirst({
-      where: { username },
+      where: { username, active: true },
     });
     return user;
   },
   getByRole: async (role: RoleEnum[]) => {
     const users = await prisma.users.findMany({
-      where: { role: { hasSome: role } },
+      where: { role: { hasSome: role }, active: true },
     });
     return users;
   },

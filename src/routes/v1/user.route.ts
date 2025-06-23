@@ -10,5 +10,6 @@ const userRouter = Router();
 
 userRouter.get("/", UserController.getAll);
 userRouter.post("/register", UserController.create);
+userRouter.patch(":id/set/active", UserController.setActive);
 
 export default userRouter;

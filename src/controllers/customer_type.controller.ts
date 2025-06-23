@@ -10,18 +10,18 @@ export const CustomerTypeController = {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const id = req.query.id ? Number(req.query.id) : undefined;
-      if (id) {
-        const customerType = await CustomerTypeService.getById(id);
-        if (!customerType) {
-          return res
-            .status(HTTP_STATUS.NOT_FOUND)
-            .json(
-              formatResponse(null, { message: "Customer type not found." })
-            );
-        }
-        return res.status(HTTP_STATUS.OK).json(formatResponse(customerType));
-      }
+      // const id = req.query.id ? Number(req.query.id) : undefined;
+      // if (id) {
+      //   const customerType = await CustomerTypeService.getById(id);
+      //   if (!customerType) {
+      //     return res
+      //       .status(HTTP_STATUS.NOT_FOUND)
+      //       .json(
+      //         formatResponse(null, { message: "Customer type not found." })
+      //       );
+      //   }
+      //   return res.status(HTTP_STATUS.OK).json(formatResponse(customerType));
+      // }
       const customerTypes = await CustomerTypeService.getAll();
       if (!customerTypes || customerTypes.length === 0) {
         return res
@@ -38,7 +38,7 @@ export const CustomerTypeController = {
     res: Response,
     next: NextFunction
   ): Promise<any> => {
-    const id = Number(req.query.id);
+    const { id } = req.params;
     try {
       const customerType = await CustomerTypeService.getById(Number(id));
       if (!customerType) {
@@ -51,24 +51,24 @@ export const CustomerTypeController = {
       next(error);
     }
   },
-  // getByName: async (
-  //   req: Request,
-  //   res: Response,
-  //   next: NextFunction
-  // ): Promise<any> => {
-  //   const { name } = req.body;
-  //   try {
-  //     const customerType = await CustomerTypeService.getByName(name);
-  //     if (!customerType) {
-  //       return res
-  //         .status(HTTP_STATUS.NOT_FOUND)
-  //         .json(formatResponse([], { message: "Customer type not found" }));
-  //     }
-  //     return res.status(HTTP_STATUS.OK).json(formatResponse(customerType));
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // },
+  getByName: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { name } = req.params;
+    try {
+      const customerType = await CustomerTypeService.getByName(name);
+      if (!customerType) {
+        return res
+          .status(HTTP_STATUS.NOT_FOUND)
+          .json(formatResponse([], { message: "Customer type not found" }));
+      }
+      return res.status(HTTP_STATUS.OK).json(formatResponse(customerType));
+    } catch (error) {
+      next(error);
+    }
+  },
   create: async (
     req: Request,
     res: Response,

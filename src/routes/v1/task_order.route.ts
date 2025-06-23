@@ -3,7 +3,14 @@ import { TaskOrderController } from "../../controllers/task_order.controller";
 
 const taskOrderRouter = Router();
 
-taskOrderRouter.put("/update", TaskOrderController.update);
-taskOrderRouter.patch("/:id/status", TaskOrderController.updateStatus);
+taskOrderRouter.get("/:assigned_id/get-task", TaskOrderController.getAssigned);
+
+taskOrderRouter.patch("/:id/update", TaskOrderController.update);
+taskOrderRouter.patch(
+  "/:id/set/all-assigned",
+  TaskOrderController.setAllAssigned
+);
+taskOrderRouter.patch("/:id/set/status", TaskOrderController.setStatus);
+taskOrderRouter.patch("/:id/set/active", TaskOrderController.setActive);
 
 export default taskOrderRouter;
