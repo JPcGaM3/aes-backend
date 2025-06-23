@@ -8,6 +8,7 @@ import mitrRouter from "./mitr.route";
 import customerTypeRouter from "./customer_type.route";
 import operationAreaRouter from "./operation_area.route";
 import companyFarmRouter from "./company_farm.route";
+import carRouter from "./car.route";
 
 const apiRouter = Router();
 
@@ -19,5 +20,6 @@ apiRouter.use("/mitr-portal", mitrRouter);
 apiRouter.use("/customer-types", customerTypeRouter);
 apiRouter.use("/operation-areas", operationAreaRouter);
 apiRouter.use("/company-farms", companyFarmRouter);
+apiRouter.use("/cars", carRouter);
 
 export default apiRouter;

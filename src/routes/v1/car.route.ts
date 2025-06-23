@@ -1,18 +1,8 @@
-// import { Router } from "express";
-// import {
-//   getCars,
-//   getCar,
-//   createNewCar,
-//   updateExistingCar,
-//   deleteExistingCar,
-// } from "../../controllers/car_controllers";
+import { Router } from "express";
+import { CarController } from "../../controllers/car.controller";
 
-// const carRouter = Router();
+const carRouter = Router();
 
-// carRouter.get("/", getCars);
-// carRouter.get("/:id", getCar);
-// carRouter.post("/", createNewCar);
-// carRouter.put("/:id", updateExistingCar);
-// carRouter.delete("/:id", deleteExistingCar);
+carRouter.get("/", CarController.getAll);
 
-// export default carRouter;
+export default carRouter;
