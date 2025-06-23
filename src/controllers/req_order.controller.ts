@@ -15,6 +15,7 @@ import { ActivityService } from "../services/activity.service";
 import { ToolTypeService } from "../services/tool_type.service";
 import { AEAreaService } from "../services/ae_area.servive";
 import { StatusEnum } from "../../generated/prisma";
+import { AttachmentService } from "../services/attachment.service";
 
 export const RequestOrderController = {
   getAll: async (
@@ -386,6 +387,131 @@ export const RequestOrderController = {
         );
       }
       res.status(HTTP_STATUS.OK).json(formatResponse(updatedRequestOrder));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  setEvidence: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    try {
+      const { id } = req.params;
+      const { updated_by } = req.body;
+
+      if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json(
+          formatResponse([], {
+            message: "No image files uploaded",
+          })
+        );
+      }
+
+      const existingOrder = await RequestOrderService.getById(Number(id));
+      if (!existingOrder) {
+        return res.status(HTTP_STATUS.NOT_FOUND).json(
+          formatResponse([], {
+            message: "Request order not found",
+          })
+        );
+      }
+
+      const attachmentPromises = (req.files as Express.Multer.File[]).map(
+        async (file) => {
+          const fileExt = file.originalname.split(".").pop();
+          const fileName = file.originalname;
+          const filePath = file.path;
+
+          return await AttachmentService.create({
+            file_name: fileName,
+            file_path: filePath,
+            file_type: file.mimetype,
+            created_by: Number(updated_by),
+            updated_by: Number(updated_by),
+          });
+        }
+      );
+
+      const attachments = await Promise.all(attachmentPromises);
+
+      const attachmentIds = attachments.map((attachment) => attachment.id);
+
+      let updatedEvidence = [];
+      if (existingOrder.evidence && Array.isArray(existingOrder.evidence)) {
+        updatedEvidence = [...existingOrder.evidence, ...attachmentIds];
+      } else {
+        updatedEvidence = attachmentIds;
+      }
+
+      const updatedRequestOrder = await RequestOrderService.setEvidence(
+        Number(id),
+        updatedEvidence,
+        Number(updated_by)
+      );
+
+      if (!updatedRequestOrder) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json(
+          formatResponse([], {
+            message: "Failed to update evidence for request order",
+          })
+        );
+      }
+
+      return res.status(HTTP_STATUS.OK).json(
+        formatResponse(
+          {
+            requestOrder: updatedRequestOrder,
+            attachments: attachments,
+          },
+          {
+            message: `${req.files.length} evidence file(s) uploaded successfully!`,
+          }
+        )
+      );
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  getEvidence: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    try {
+      const { id } = req.params;
+      const requestOrder = await RequestOrderService.getById(Number(id));
+      if (!requestOrder) {
+        return res.status(HTTP_STATUS.NOT_FOUND).json(
+          formatResponse([], {
+            message: "Request order not found",
+          })
+        );
+      }
+      const attachment = requestOrder.evidence.map(async (id: number) => {
+        return await AttachmentService.getById(id);
+      });
+      const attachments = await Promise.all(attachment);
+      if (!attachments || attachments.length === 0) {
+        return res.status(HTTP_STATUS.NOT_FOUND).json(
+          formatResponse([], {
+            message: "No evidence files found",
+          })
+        );
+      }
+      return res.status(HTTP_STATUS.OK).json(
+        formatResponse(
+          {
+            // requestOrder,
+            attachments,
+          },
+          {
+            message: "Evidence files retrieved successfully!",
+          }
+        )
+      );
     } catch (error) {
       next(error);
     }
