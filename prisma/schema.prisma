@@ -63,6 +63,7 @@ model users {
   username      String?         @db.VarChar(255)
   email         String?         @unique @db.VarChar(255)
   fullname      String?         @db.VarChar(255)
+  employee_id   String?         @unique @db.VarChar(255)
   ae_area       ae_area?        @relation(fields: [ae_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   requestorders requestorders[]
   taskorders    taskorders[]

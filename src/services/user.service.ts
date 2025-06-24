@@ -24,21 +24,21 @@ export const UserService = {
 
   getById: async (id: number) => {
     const user = await prisma.users.findUnique({
-      where: { id, active: true },
+      where: { id },
     });
     return user;
   },
 
   getByEmail: async (email: string) => {
     const user = await prisma.users.findUnique({
-      where: { email, active: true },
+      where: { email },
     });
     return user;
   },
 
   getByUsername: async (username: string) => {
     const user = await prisma.users.findFirst({
-      where: { username, active: true },
+      where: { username },
     });
     return user;
   },
@@ -51,6 +51,12 @@ export const UserService = {
       },
     });
     return users;
+  },
+  getByEmployeeId: async (employee_id: string) => {
+    const user = await prisma.users.findUnique({
+      where: { employee_id },
+    });
+    return user;
   },
   setActive: async (id: number, active: boolean, updatedBy: any) => {
     const updatedUser = await prisma.users.update({
