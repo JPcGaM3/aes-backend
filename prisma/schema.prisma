@@ -27,11 +27,15 @@ enum StatusEnum {
 
 enum RoleEnum {
   ADMIN
+  MANAGER
+  SUB_MANAGER
+  COMMANDER
+  SUB_COMMANDER
   DEPARTMENT_HEAD
-  UNIT_HEAD
-  DRIVER
   ACCOUNTANT
   MAINTENANCE
+  UNIT_HEAD
+  DRIVER
 }
 
 // model roles {
@@ -51,7 +55,7 @@ model users {
   ae_id         Int?
   role          RoleEnum[]
   status        StatusEnum      @default(INACTIVE)
-  active        Boolean
+  active        Boolean?        @default(true)
   created_at    DateTime?       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
   updated_at    DateTime?       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
   created_by    Int
@@ -82,7 +86,7 @@ model cars {
   acquis_val        Float?
   accum_dep         Float?
   curr_bk_val       Float?
-  active            Boolean?
+  active            Boolean?     @default(true)
   ae_id             Int?
   created_at        DateTime?    @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
   updated_at        DateTime?    @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
