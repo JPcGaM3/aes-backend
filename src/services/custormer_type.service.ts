@@ -6,16 +6,28 @@ export const CustomerTypeService = {
   getAll: async () => {
     return await prisma.customer_type.findMany({
       orderBy: { id: "asc" },
+      select: {
+        id: true,
+        name: true,
+      },
     });
   },
   getById: async (id: number) => {
     return await prisma.customer_type.findUnique({
       where: { id },
+      select: {
+        id: true,
+        name: true,
+      },
     });
   },
   getByName: async (name: string) => {
     return await prisma.customer_type.findFirst({
       where: { name },
+      select: {
+        id: true,
+        name: true,
+      },
     });
   },
   getAllIdAndName: async () => {

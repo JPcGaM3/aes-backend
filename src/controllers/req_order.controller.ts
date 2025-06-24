@@ -27,20 +27,23 @@ export const RequestOrderController = {
       const {
         ae,
         customer_type,
+        ae_id,
+        customer_type_id,
         status,
         start_month,
         end_month,
         start_year,
         end_year,
       } = req.query;
-      const ae_id = await AEAreaService.getByName(ae as string);
-      const customer_type_id = await CustomerTypeService.getByName(
-        customer_type as string
-      );
+      // const ae_id = await AEAreaService.getByName(ae as string);
+      // const customer_type_id = await CustomerTypeService.getByName(
+      //   customer_type as string
+      // );
 
       const requestOrders = await RequestOrderService.getAll(
         ae_id ? Number(ae_id) : NaN,
-        customer_type_id ? Number(customer_type_id.id) : NaN,
+        customer_type_id ? Number(customer_type_id) : NaN,
+        // customer_type_id ? Number(customer_type_id.id) : NaN,
         status ? ((status as string).toUpperCase() as StatusEnum) : undefined,
         start_month ? (start_month as string) : undefined,
         end_month ? (end_month as string) : undefined,
@@ -100,7 +103,7 @@ export const RequestOrderController = {
         ap_month,
         ap_year,
         supervisor_name,
-        user_id,
+        created_by,
       } = req.body;
       const ctm_res = await CustomerTypeService.getByName(customer_type);
       if (!ctm_res) {
@@ -127,9 +130,9 @@ export const RequestOrderController = {
         ap_month: ConvertMonthTH_ENG(ap_month),
         ap_year,
         supervisor_name,
-        unit_head_id: user_id,
-        created_by: user_id,
-        updated_by: user_id,
+        unit_head_id: created_by,
+        created_by: created_by,
+        updated_by: created_by,
       };
       const newRequestOrder = await RequestOrderService.create(reqData);
       const req_id = newRequestOrder.id;
@@ -152,8 +155,8 @@ export const RequestOrderController = {
             request_order_id: Number(req_id),
             activities_id: Number(act.id as number),
             tool_types_id: Number(tool.id as number),
-            created_by: user_id,
-            updated_by: user_id,
+            created_by: created_by,
+            updated_by: created_by,
           });
         } catch (error) {
           next(error);
@@ -179,7 +182,7 @@ export const RequestOrderController = {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const { user_id } = req.body;
+      const { created_by } = req.body;
       if (!req.files && !Array.isArray(req.files)) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json(
           formatResponse([], {
@@ -227,9 +230,9 @@ export const RequestOrderController = {
               ap_month: ConvertMonthTH_ENG(row.เดือน),
               ap_year: Number(row.ปี),
               supervisor_name: row.หัวหน้าไร่.toString(),
-              unit_head_id: Number(user_id),
-              created_by: Number(user_id),
-              updated_by: Number(user_id),
+              unit_head_id: Number(created_by),
+              created_by: Number(created_by),
+              updated_by: Number(created_by),
             };
 
             const newRequestOrder = await RequestOrderService.create(reqOrder);
@@ -258,8 +261,8 @@ export const RequestOrderController = {
                     request_order_id: Number(req_id),
                     activities_id: Number(act.id as number),
                     tool_types_id: Number(tool.id as number),
-                    created_by: Number(user_id),
-                    updated_by: Number(user_id),
+                    created_by: Number(created_by),
+                    updated_by: Number(created_by),
                   };
                   return await TaskOrderService.create(taskData);
                 } catch (error) {

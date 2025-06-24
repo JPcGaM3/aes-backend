@@ -3,6 +3,7 @@ import { HTTP_STATUS } from "../configs/constants";
 import { MitrService } from "../services/mitr.service";
 import { UserService } from "../services/user.service";
 import { formatResponse } from "../utils/response_formatter";
+import { AEAreaService } from "../services/ae_area.servive";
 
 export const MitrController = {
   getToken: async (
@@ -164,22 +165,42 @@ export const MitrController = {
           })
         );
       }
+      const ae_response = await AEAreaService.getAll();
+      if (!ae_response || ae_response.length === 0) {
+        return res
+          .status(HTTP_STATUS.NOT_FOUND)
+          .json(formatResponse([], { message: "No ae found." }));
+      }
 
-      const userData = {
-        username: username,
-        email: authen.result[0].mail || null,
-        fullname: profile.result[0].employeeName.th || null,
-        active: true,
-        created_by: 1,
-        updated_by: 1,
-      };
+      let ae = ae_response.find(
+        (item: any) => item.id === user_exist.ae_id
+      ).name;
 
-      const userResponse = await UserService.update(user_exist.id, userData);
+      if (authen.result[0].mail !== user_exist.email) {
+        const userData = {
+          username: username,
+          email: authen.result[0].mail || null,
+          fullname: profile.result[0].employeeName.th || null,
+          active: true,
+          created_by: user_exist.id,
+          updated_by: user_exist.id,
+        };
 
+        const userResponse = await UserService.update(user_exist.id, userData);
+
+        return res.status(HTTP_STATUS.OK).json(
+          formatResponse({
+            token: token,
+            user_result: { ...userResponse, ae_name: ae },
+            authen_result: authen.result[0],
+            profile_result: profile.result[0],
+          })
+        );
+      }
       return res.status(HTTP_STATUS.OK).json(
         formatResponse({
           token: token,
-          user_result: userResponse,
+          user_result: { ...user_exist, ae_name: ae },
           authen_result: authen.result[0],
           profile_result: profile.result[0],
         })

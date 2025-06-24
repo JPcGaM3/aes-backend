@@ -3,10 +3,21 @@ import { PrismaClient, RoleEnum } from "../../generated/prisma/index";
 const prisma = new PrismaClient();
 
 export const UserService = {
-  getAll: async () => {
+  getAll: async (ae_id?: number, role?: RoleEnum[]) => {
+    let orderByConditions: any = [];
+
+    if (role) {
+      orderByConditions.unshift({ role: "desc" });
+    }
+    orderByConditions.unshift({ id: "asc" });
+
     const users = await prisma.users.findMany({
-      where: { active: true },
-      orderBy: { id: "asc" },
+      where: {
+        active: true,
+        ...(ae_id && { ae_id }),
+        ...(role && { role: { hasEvery: role as RoleEnum[] } }),
+      },
+      orderBy: orderByConditions,
     });
     return users;
   },
@@ -31,9 +42,13 @@ export const UserService = {
     });
     return user;
   },
-  getByRole: async (role: RoleEnum[]) => {
+  getByRole: async (role: RoleEnum[], ae_id?: number) => {
     const users = await prisma.users.findMany({
-      where: { role: { hasSome: role }, active: true },
+      where: {
+        role: { hasEvery: role },
+        active: true,
+        ...(ae_id && { ae_id }),
+      },
     });
     return users;
   },

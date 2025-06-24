@@ -3,6 +3,7 @@ import { HTTP_STATUS } from "../configs/constants";
 import { formatResponse } from "../utils/response_formatter";
 import { UserService } from "../services/user.service";
 import { AEAreaService } from "../services/ae_area.servive";
+import { RoleEnum } from "../../generated/prisma";
 
 export const UserController = {
   create: async (
@@ -24,10 +25,27 @@ export const UserController = {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const users = await UserService.getAll();
+      var { ae, role } = req.query;
+      if (role && typeof role === "string") {
+        role = [role];
+      }
+      console.log(role);
+      const ae_response = await AEAreaService.getAll();
+      if (!ae_response || ae_response.length === 0) {
+        return res
+          .status(HTTP_STATUS.NOT_FOUND)
+          .json(formatResponse([], { message: "No ae found." }));
+      }
+
+      const users = await UserService.getAll(
+        ae
+          ? (ae_response.find((item: any) => item.name === ae).id as number)
+          : undefined,
+        role ? (role as RoleEnum[]) : undefined
+      );
       if (!users || users.length === 0) {
         return res
-          .status(HTTP_STATUS.OK)
+          .status(HTTP_STATUS.NOT_FOUND)
           .json(formatResponse([], { message: "No users found." }));
       }
       const enhancedUsers = await Promise.all(
@@ -38,10 +56,10 @@ export const UserController = {
               ae_name: null,
             };
           }
-          const ae = await AEAreaService.getById(user.ae_id as number);
+          let ae = ae_response.find((item: any) => item.id === user.ae_id).name;
           return {
             ...user,
-            ae_name: ae?.name,
+            ae_name: ae,
           };
         })
       );

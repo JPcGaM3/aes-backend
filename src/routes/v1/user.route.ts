@@ -9,7 +9,9 @@ const userRouter = Router();
 // const requireJWTAuth = passport.authenticate("jwt", { session: false });
 
 userRouter.get("/", UserController.getAll);
+
 userRouter.post("/register", UserController.create);
+
 userRouter.patch(":id/set/active", UserController.setActive);
 
 export default userRouter;

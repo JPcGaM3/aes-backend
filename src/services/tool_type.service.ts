@@ -19,4 +19,18 @@ export const ToolTypeService = {
     });
     return toolType;
   },
+
+  getPrice: async (id: number) => {
+    const toolType = await prisma.tool_types.findFirst({
+      where: { id },
+      select: {
+        price_ct_fm: true,
+        price_ct_rdc: true,
+        price_ne1_fm: true,
+        price_ne1_res: true,
+        price_suffix: true,
+      },
+    });
+    return toolType;
+  },
 };
