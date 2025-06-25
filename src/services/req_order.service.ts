@@ -2,6 +2,17 @@ import { PrismaClient, StatusEnum } from "../../generated/prisma/index";
 
 const prisma = new PrismaClient();
 
+const defaultInclude = {
+  customer_type: true,
+  ae_area: true,
+  users: true,
+  _count: {
+    select: {
+      taskorders: true,
+    },
+  },
+};
+
 export const RequestOrderService = {
   getAll: async (
     ae_id?: number,
@@ -34,6 +45,7 @@ export const RequestOrderService = {
           }),
         active: true,
       },
+      include: defaultInclude,
       orderBy: [
         {
           status: "desc",
@@ -54,24 +66,56 @@ export const RequestOrderService = {
         ...(ae_id && { ae_id }),
         ...(customer_type_id && { customer_type_id }),
       },
+      include: defaultInclude,
     });
     return requestOrder;
   },
 
-  getByStatus: async (
-    status: StatusEnum,
-    ae_id?: number,
-    customer_type_id?: number
-  ): Promise<any> => {
-    const requestOrders = await prisma.requestorders.findMany({
+  // getByStatus: async (
+  //   status: StatusEnum,
+  //   ae_id?: number,
+  //   customer_type_id?: number
+  // ): Promise<any> => {
+  //   const requestOrders = await prisma.requestorders.findMany({
+  //     where: {
+  //       status,
+  //       active: true,
+  //       ...(ae_id && { ae_id }),
+  //       ...(customer_type_id && { customer_type_id }),
+  //     },
+  //     include: {
+  //       customer_type: true,
+  //       ae_area: true,
+  //       users: true,
+  //       _count: {
+  //         select: {
+  //           taskorders: true,
+  //         },
+  //       },
+  //     },
+  //   });
+  //   return requestOrders;
+  // },
+
+  getByIdWithAllTask: async (id: number): Promise<any> => {
+    const requestOrderWithTasks = await prisma.requestorders.findFirst({
       where: {
-        status,
+        id,
         active: true,
-        ...(ae_id && { ae_id }),
-        ...(customer_type_id && { customer_type_id }),
+      },
+      include: {
+        ...defaultInclude,
+        taskorders: {
+          include: {
+            users: true,
+            activities: true,
+            tool_type: true,
+            cars: true,
+          },
+        },
       },
     });
-    return requestOrders;
+    return requestOrderWithTasks;
   },
 
   getEvidence: async (id: number): Promise<any> => {
@@ -115,6 +159,7 @@ export const RequestOrderService = {
 
     const newRequestOrder = await prisma.requestorders.create({
       data: transformedData,
+      include: defaultInclude,
     });
     return newRequestOrder;
   },
@@ -130,6 +175,7 @@ export const RequestOrderService = {
     const updatedRequestOrder = await prisma.requestorders.update({
       where: { id },
       data,
+      include: defaultInclude,
     });
     return updatedRequestOrder;
   },
@@ -137,6 +183,7 @@ export const RequestOrderService = {
   delete: async (id: number): Promise<any> => {
     const deletedRequestOrder = await prisma.requestorders.delete({
       where: { id },
+      include: defaultInclude,
     });
     return deletedRequestOrder;
   },
@@ -149,6 +196,7 @@ export const RequestOrderService = {
     const updatedRequestOrder = await prisma.requestorders.update({
       where: { id },
       data: { active: isActive, updated_by },
+      include: defaultInclude,
     });
     return updatedRequestOrder;
   },
@@ -161,6 +209,7 @@ export const RequestOrderService = {
     const updatedRequestOrder = await prisma.requestorders.update({
       where: { id },
       data: { status, updated_by },
+      include: defaultInclude,
     });
     return updatedRequestOrder;
   },
@@ -172,6 +221,7 @@ export const RequestOrderService = {
     const updatedRequestOrder = await prisma.requestorders.update({
       where: { id },
       data: { comment, updated_by },
+      include: defaultInclude,
     });
     return updatedRequestOrder;
   },
@@ -184,6 +234,7 @@ export const RequestOrderService = {
     const updatedRequestOrder = await prisma.requestorders.update({
       where: { id },
       data: { evidence, updated_by },
+      include: defaultInclude,
     });
     return updatedRequestOrder;
   },

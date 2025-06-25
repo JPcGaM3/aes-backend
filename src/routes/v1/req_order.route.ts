@@ -13,7 +13,7 @@ reqOrderRouter.post(
   RequestOrderController.createFromExcel
 );
 reqOrderRouter.patch("/:id/update", RequestOrderController.update);
-reqOrderRouter.post("/:id/get-task", RequestOrderController.getByIdAndTask);
+reqOrderRouter.post("/:id/get-task", RequestOrderController.getByIdWithTasks);
 reqOrderRouter.patch("/:id/set/status", RequestOrderController.setStatus);
 
 reqOrderRouter.post(

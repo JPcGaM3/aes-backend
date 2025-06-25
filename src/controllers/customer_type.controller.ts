@@ -10,18 +10,6 @@ export const CustomerTypeController = {
     next: NextFunction
   ): Promise<any> => {
     try {
-      // const id = req.query.id ? Number(req.query.id) : undefined;
-      // if (id) {
-      //   const customerType = await CustomerTypeService.getById(id);
-      //   if (!customerType) {
-      //     return res
-      //       .status(HTTP_STATUS.NOT_FOUND)
-      //       .json(
-      //         formatResponse(null, { message: "Customer type not found." })
-      //       );
-      //   }
-      //   return res.status(HTTP_STATUS.OK).json(formatResponse(customerType));
-      // }
       const customerTypes = await CustomerTypeService.getAll();
       if (!customerTypes || customerTypes.length === 0) {
         return res

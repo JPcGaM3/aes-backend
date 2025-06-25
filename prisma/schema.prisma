@@ -272,7 +272,7 @@ model requestorders {
   company_farm      company_farm?   @relation(fields: [company_farm_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   ae_area           ae_area?        @relation(fields: [ae_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   locations         locations?      @relation(fields: [location_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users             users?          @relation(fields: [supervisor_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users             users?          @relation(fields: [unit_head_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   taskorders        taskorders[]
   bills             bills[]
 

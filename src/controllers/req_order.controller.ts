@@ -25,8 +25,6 @@ export const RequestOrderController = {
   ): Promise<any> => {
     try {
       const {
-        ae,
-        customer_type,
         ae_id,
         customer_type_id,
         status,
@@ -35,15 +33,10 @@ export const RequestOrderController = {
         start_year,
         end_year,
       } = req.query;
-      // const ae_id = await AEAreaService.getByName(ae as string);
-      // const customer_type_id = await CustomerTypeService.getByName(
-      //   customer_type as string
-      // );
 
-      const requestOrders = await RequestOrderService.getAll(
+      const resquestOrders = await RequestOrderService.getAll(
         ae_id ? Number(ae_id) : NaN,
         customer_type_id ? Number(customer_type_id) : NaN,
-        // customer_type_id ? Number(customer_type_id.id) : NaN,
         status ? ((status as string).toUpperCase() as StatusEnum) : undefined,
         start_month ? (start_month as string) : undefined,
         end_month ? (end_month as string) : undefined,
@@ -51,12 +44,13 @@ export const RequestOrderController = {
         end_year ? Number(end_year) : undefined
       );
 
-      if (!requestOrders || requestOrders.length === 0) {
+      if (!resquestOrders || resquestOrders.length === 0) {
         return res
           .status(HTTP_STATUS.NOT_FOUND)
           .json(formatResponse([], { message: "No request orders found." }));
       }
-      return res.status(HTTP_STATUS.OK).json(formatResponse(requestOrders));
+
+      return res.status(HTTP_STATUS.OK).json(formatResponse(resquestOrders));
     } catch (error) {
       next(error);
     }
@@ -130,6 +124,7 @@ export const RequestOrderController = {
         ap_month: ConvertMonthTH_ENG(ap_month),
         ap_year,
         supervisor_name,
+        ae_id: created_by,
         unit_head_id: created_by,
         created_by: created_by,
         updated_by: created_by,
@@ -182,7 +177,7 @@ export const RequestOrderController = {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const { created_by } = req.body;
+      const { ae_id, created_by } = req.body;
       if (!req.files && !Array.isArray(req.files)) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json(
           formatResponse([], {
@@ -230,6 +225,7 @@ export const RequestOrderController = {
               ap_month: ConvertMonthTH_ENG(row.เดือน),
               ap_year: Number(row.ปี),
               supervisor_name: row.หัวหน้าไร่.toString(),
+              ae_id: ae_id,
               unit_head_id: Number(created_by),
               created_by: Number(created_by),
               updated_by: Number(created_by),
@@ -342,28 +338,25 @@ export const RequestOrderController = {
     }
   },
 
-  getByIdAndTask: async (
+  getByIdWithTasks: async (
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<any> => {
     try {
       const { id } = req.params;
-      const requestOrder = await RequestOrderService.getById(Number(id));
-      if (!requestOrder) {
-        return res
-          .status(HTTP_STATUS.NOT_FOUND)
-          .json(formatResponse([], { message: "Request order not found" }));
-      }
-      const taskOrders = await TaskOrderService.getByRequestOrderId(Number(id));
-      if (!taskOrders || taskOrders.length === 0) {
-        return res
-          .status(HTTP_STATUS.NOT_FOUND)
-          .json(formatResponse([], { message: "Task orders not found" }));
+      const requestOrderWithTasks =
+        await RequestOrderService.getByIdWithAllTask(Number(id));
+      if (!requestOrderWithTasks) {
+        return res.status(HTTP_STATUS.NOT_FOUND).json(
+          formatResponse([], {
+            message: "Request order or task order not found",
+          })
+        );
       }
       return res
         .status(HTTP_STATUS.OK)
-        .json(formatResponse({ requestOrder, taskOrders }));
+        .json(formatResponse(requestOrderWithTasks));
     } catch (error) {
       next(error);
     }
