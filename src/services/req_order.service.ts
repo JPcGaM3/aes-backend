@@ -142,7 +142,6 @@ export const RequestOrderService = {
       supervisor_name: data.supervisor_name,
       active: data.active ?? true,
       status: data.status ?? StatusEnum.CREATED,
-      unit_head_id: data.unit_head_id,
       created_by: data.created_by,
       updated_by: data.updated_by,
       evidence: Array.isArray(data.evidence) ? data.evidence : [],
@@ -155,11 +154,13 @@ export const RequestOrderService = {
       company_farm: data.company_farm_id
         ? { connect: { id: data.company_farm_id } }
         : undefined,
+      users: data.unit_head_id
+        ? { connect: { id: data.unit_head_id } }
+        : undefined,
     };
 
     const newRequestOrder = await prisma.requestorders.create({
       data: transformedData,
-      include: defaultInclude,
     });
     return newRequestOrder;
   },
@@ -175,7 +176,6 @@ export const RequestOrderService = {
     const updatedRequestOrder = await prisma.requestorders.update({
       where: { id },
       data,
-      include: defaultInclude,
     });
     return updatedRequestOrder;
   },
@@ -183,7 +183,6 @@ export const RequestOrderService = {
   delete: async (id: number): Promise<any> => {
     const deletedRequestOrder = await prisma.requestorders.delete({
       where: { id },
-      include: defaultInclude,
     });
     return deletedRequestOrder;
   },
@@ -196,7 +195,6 @@ export const RequestOrderService = {
     const updatedRequestOrder = await prisma.requestorders.update({
       where: { id },
       data: { active: isActive, updated_by },
-      include: defaultInclude,
     });
     return updatedRequestOrder;
   },
@@ -209,7 +207,6 @@ export const RequestOrderService = {
     const updatedRequestOrder = await prisma.requestorders.update({
       where: { id },
       data: { status, updated_by },
-      include: defaultInclude,
     });
     return updatedRequestOrder;
   },
@@ -221,7 +218,6 @@ export const RequestOrderService = {
     const updatedRequestOrder = await prisma.requestorders.update({
       where: { id },
       data: { comment, updated_by },
-      include: defaultInclude,
     });
     return updatedRequestOrder;
   },
@@ -234,7 +230,6 @@ export const RequestOrderService = {
     const updatedRequestOrder = await prisma.requestorders.update({
       where: { id },
       data: { evidence, updated_by },
-      include: defaultInclude,
     });
     return updatedRequestOrder;
   },

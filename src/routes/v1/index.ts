@@ -11,19 +11,24 @@ import carRouter from "./car.route";
 import taskOrderRouter from "./task_order.route";
 import toolTypeRouter from "./tool_type.route";
 import aeAreaRouter from "./ae_area.route";
+import activityRouter from "./activity.route";
 
 const apiRouter = Router();
 
 apiRouter.use("/auth", authRouter);
-apiRouter.use("/users", userRouter);
-apiRouter.use("/request-orders", reqOrderRouter);
-apiRouter.use("/task-orders", taskOrderRouter);
 apiRouter.use("/mitr-portal", mitrRouter);
+
+apiRouter.use("/users", userRouter);
+
+apiRouter.use("/ae-areas", aeAreaRouter);
 apiRouter.use("/customer-types", customerTypeRouter);
 apiRouter.use("/operation-areas", operationAreaRouter);
 apiRouter.use("/company-farms", companyFarmRouter);
-apiRouter.use("/cars", carRouter);
+apiRouter.use("/activities", activityRouter);
 apiRouter.use("/tool-types", toolTypeRouter);
-apiRouter.use("/ae-areas", aeAreaRouter);
+apiRouter.use("/cars", carRouter);
+
+apiRouter.use("/request-orders", reqOrderRouter);
+apiRouter.use("/task-orders", taskOrderRouter);
 
 export default apiRouter;

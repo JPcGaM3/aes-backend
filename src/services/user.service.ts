@@ -81,7 +81,6 @@ export const UserService = {
   create: async (userData: any) => {
     const newUser = await prisma.users.create({
       data: userData,
-      include: defaultInclude,
     });
     return newUser;
   },
@@ -90,7 +89,6 @@ export const UserService = {
     const updatedUser = await prisma.users.update({
       where: { id },
       data: userData,
-      include: defaultInclude,
     });
     return updatedUser;
   },
@@ -98,7 +96,6 @@ export const UserService = {
   delete: async (id: number) => {
     const deletedUser = await prisma.users.delete({
       where: { id },
-      include: defaultInclude,
     });
     return deletedUser;
   },

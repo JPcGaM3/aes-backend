@@ -2,6 +2,13 @@ import { PrismaClient, StatusEnum } from "../../generated/prisma/index";
 
 const prisma = new PrismaClient();
 
+const defaultInclude = {
+  users: true,
+  activities: true,
+  tool_type: true,
+  cars: true,
+};
+
 export const TaskOrderService = {
   create: async (data: any): Promise<any> => {
     const newTaskOrder = await prisma.taskorders.create({
@@ -15,6 +22,7 @@ export const TaskOrderService = {
         request_order_id: requestOrderId,
         active: true,
       },
+      include: defaultInclude,
     });
     return taskOrders;
   },
@@ -33,6 +41,7 @@ export const TaskOrderService = {
         ...(startDate &&
           !endDate && { ap_date: { gte: startDate, lte: startDate } }),
       },
+      include: defaultInclude,
       orderBy: [
         {
           ap_date: "asc",
