@@ -3,7 +3,6 @@ import { HTTP_STATUS } from "../configs/constants";
 import { MitrService } from "../services/mitr.service";
 import { UserService } from "../services/user.service";
 import { formatResponse } from "../utils/response_formatter";
-import { AEAreaService } from "../services/ae_area.servive";
 
 export const MitrController = {
   getToken: async (
@@ -111,18 +110,6 @@ export const MitrController = {
   ): Promise<any> => {
     const { username, email, password } = req.body;
     try {
-      const user_exist = username
-        ? await UserService.getByUsername(username)
-        : await UserService.getByEmail(email);
-
-      if (!user_exist) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json(
-          formatResponse([], {
-            message: "Permission denied.",
-          })
-        );
-      }
-
       var token = await MitrService.token();
       if (!token || !token.access_token) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json(
@@ -165,42 +152,45 @@ export const MitrController = {
           })
         );
       }
-      const ae_response = await AEAreaService.getAll();
-      if (!ae_response || ae_response.length === 0) {
-        return res
-          .status(HTTP_STATUS.NOT_FOUND)
-          .json(formatResponse([], { message: "No ae found." }));
-      }
 
-      let ae = ae_response.find(
-        (item: any) => item.id === user_exist.ae_id
-      ).name;
+      const user_exist = await UserService.getByEmployeeId(
+        //TODO: Change!
+        // profile.result[0].id
+        "Test"
+      );
 
-      if (authen.result[0].mail !== user_exist.email) {
-        const userData = {
-          username: username,
-          email: authen.result[0].mail || null,
-          fullname: profile.result[0].employeeName.th || null,
-          active: true,
-          created_by: user_exist.id,
-          updated_by: user_exist.id,
-        };
-
-        const userResponse = await UserService.update(user_exist.id, userData);
-
-        return res.status(HTTP_STATUS.OK).json(
-          formatResponse({
-            token: token,
-            user_result: { ...userResponse, ae_name: ae },
-            authen_result: authen.result[0],
-            profile_result: profile.result[0],
+      if (!user_exist) {
+        return res.status(HTTP_STATUS.UNAUTHORIZED).json(
+          formatResponse([], {
+            message: "Permission denied.",
           })
         );
       }
+
+      const userData = {
+        username: username,
+        email: authen.result[0].mail || null,
+        fullname: profile.result[0].employeeName.th || null,
+        // employee_id: profile.result[0].id || null,
+        // active: true,
+        // created_by: user_exist.id,
+        updated_by: user_exist.id,
+      };
+
+      const userResponse = await UserService.update(user_exist.id, userData);
+
+      if (!userResponse) {
+        return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json(
+          formatResponse([], {
+            message: "Failed to update user.",
+          })
+        );
+      }
+
       return res.status(HTTP_STATUS.OK).json(
         formatResponse({
           token: token,
-          user_result: { ...user_exist, ae_name: ae },
+          user_result: userResponse,
           authen_result: authen.result[0],
           profile_result: profile.result[0],
         })
