@@ -171,9 +171,6 @@ export const MitrController = {
         username: username,
         email: authen.result[0].mail || null,
         fullname: profile.result[0].employeeName.th || null,
-        // employee_id: profile.result[0].id || null,
-        // active: true,
-        // created_by: user_exist.id,
         updated_by: user_exist.id,
       };
 

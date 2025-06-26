@@ -31,11 +31,11 @@ export const CarController = {
   ): Promise<any> => {
     try {
       const { id } = req.params;
-      const { is_active, updated_by } = req.body;
+      const { active, user_id } = req.body;
       const updatedCar = await CarService.setActive(
         Number(id),
-        is_active,
-        updated_by
+        active,
+        user_id
       );
       if (!updatedCar) {
         return res

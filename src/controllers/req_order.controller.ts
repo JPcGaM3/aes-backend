@@ -83,11 +83,12 @@ export const RequestOrderController = {
   ): Promise<any> => {
     try {
       const {
-        customer_type,
+        customer_type_id,
         phone,
-        operation_area,
+        operation_area_id,
         zone,
         quota_number,
+        ae_id,
         farmer_name,
         target_area,
         land_number,
@@ -97,37 +98,26 @@ export const RequestOrderController = {
         ap_month,
         ap_year,
         supervisor_name,
-        created_by,
+        user_id,
       } = req.body;
-      const ctm_res = await CustomerTypeService.getByName(customer_type);
-      if (!ctm_res) {
-        return res
-          .status(HTTP_STATUS.NOT_FOUND)
-          .json(formatResponse([], { message: "Customer type not found" }));
-      }
-      const opa_res = await OperationAreaService.getByName(operation_area);
-      if (!opa_res) {
-        return res
-          .status(HTTP_STATUS.NOT_FOUND)
-          .json(formatResponse([], { message: "Operation area not found" }));
-      }
+
       const reqData = {
-        customer_type_id: Number(ctm_res.id),
+        customer_type_id: Number(customer_type_id),
         phone,
-        operation_area_id: Number(opa_res.id),
+        operation_area_id: Number(operation_area_id),
+        ae_id: Number(ae_id),
         zone,
         quota_number,
         farmer_name,
         target_area,
         land_number,
         location_xy,
-        ap_month: ConvertMonthTH_ENG(ap_month),
+        ap_month: ap_month,
         ap_year,
         supervisor_name,
-        ae_id: created_by,
-        unit_head_id: created_by,
-        created_by: created_by,
-        updated_by: created_by,
+        unit_head_id: Number(user_id),
+        created_by: Number(user_id),
+        updated_by: Number(user_id),
       };
       const newRequestOrder = await RequestOrderService.create(reqData);
       const req_id = newRequestOrder.id;
@@ -150,8 +140,8 @@ export const RequestOrderController = {
             request_order_id: Number(req_id),
             activities_id: Number(act.id as number),
             tool_types_id: Number(tool.id as number),
-            created_by: created_by,
-            updated_by: created_by,
+            created_by: Number(user_id),
+            updated_by: Number(user_id),
           });
         } catch (error) {
           next(error);
@@ -177,7 +167,7 @@ export const RequestOrderController = {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const { ae_id, created_by } = req.body;
+      const { ae_id, user_id } = req.body;
       if (!req.files && !Array.isArray(req.files)) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json(
           formatResponse([], {
@@ -225,10 +215,10 @@ export const RequestOrderController = {
               ap_month: ConvertMonthTH_ENG(row.เดือน),
               ap_year: Number(row.ปี),
               supervisor_name: row.หัวหน้าไร่.toString(),
-              ae_id: ae_id,
-              unit_head_id: Number(created_by),
-              created_by: Number(created_by),
-              updated_by: Number(created_by),
+              ae_id: Number(ae_id),
+              unit_head_id: Number(user_id),
+              created_by: Number(user_id),
+              updated_by: Number(user_id),
             };
 
             const newRequestOrder = await RequestOrderService.create(reqOrder);
@@ -257,8 +247,8 @@ export const RequestOrderController = {
                     request_order_id: Number(req_id),
                     activities_id: Number(act.id as number),
                     tool_types_id: Number(tool.id as number),
-                    created_by: Number(created_by),
-                    updated_by: Number(created_by),
+                    created_by: Number(user_id),
+                    updated_by: Number(user_id),
                   };
                   return await TaskOrderService.create(taskData);
                 } catch (error) {
@@ -308,6 +298,8 @@ export const RequestOrderController = {
   ): Promise<any> => {
     try {
       const { id } = req.params;
+      const { user_id } = req.body;
+      req.body.updated_by = Number(user_id);
       const updatedRequestOrder = await RequestOrderService.update(
         Number(id),
         req.body
@@ -369,11 +361,12 @@ export const RequestOrderController = {
   ): Promise<any> => {
     try {
       const { id } = req.params;
-      const { status, updated_by } = req.body;
+      const { status, comment, user_id } = req.body;
       const updatedRequestOrder = await RequestOrderService.setStatus(
         Number(id),
         status,
-        updated_by
+        Number(user_id),
+        comment ? (comment as string) : undefined
       );
       if (!updatedRequestOrder) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json(
@@ -382,7 +375,37 @@ export const RequestOrderController = {
           })
         );
       }
-      res.status(HTTP_STATUS.OK).json(formatResponse(updatedRequestOrder));
+      return res
+        .status(HTTP_STATUS.OK)
+        .json(formatResponse(updatedRequestOrder));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  setActive: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    try {
+      const { id } = req.params;
+      const { active, user_id } = req.body;
+      const updatedRequestOrder = await RequestOrderService.setActive(
+        Number(id),
+        active as boolean,
+        Number(user_id)
+      );
+      if (!updatedRequestOrder) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json(
+          formatResponse([], {
+            message: "Failed to update status of request order",
+          })
+        );
+      }
+      return res
+        .status(HTTP_STATUS.OK)
+        .json(formatResponse(updatedRequestOrder));
     } catch (error) {
       next(error);
     }
@@ -395,7 +418,7 @@ export const RequestOrderController = {
   ): Promise<any> => {
     try {
       const { id } = req.params;
-      const { updated_by } = req.body;
+      const { user_id } = req.body;
 
       if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json(
@@ -424,8 +447,8 @@ export const RequestOrderController = {
             file_name: fileName,
             file_path: filePath,
             file_type: file.mimetype,
-            created_by: Number(updated_by),
-            updated_by: Number(updated_by),
+            created_by: Number(user_id),
+            updated_by: Number(user_id),
           });
         }
       );
@@ -444,7 +467,7 @@ export const RequestOrderController = {
       const updatedRequestOrder = await RequestOrderService.setEvidence(
         Number(id),
         updatedEvidence,
-        Number(updated_by)
+        Number(user_id)
       );
 
       if (!updatedRequestOrder) {

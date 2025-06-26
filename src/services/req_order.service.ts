@@ -1,3 +1,4 @@
+import { empty } from "@prisma/client/runtime/library";
 import { PrismaClient, StatusEnum } from "../../generated/prisma/index";
 
 const prisma = new PrismaClient();
@@ -157,6 +158,7 @@ export const RequestOrderService = {
       users: data.unit_head_id
         ? { connect: { id: data.unit_head_id } }
         : undefined,
+      ae_area: data.ae_id ? { connect: { id: data.ae_id } } : undefined,
     };
 
     const newRequestOrder = await prisma.requestorders.create({
@@ -202,22 +204,16 @@ export const RequestOrderService = {
   setStatus: async (
     id: number,
     status: StatusEnum,
-    updated_by: number
+    updated_by: number,
+    comment?: string
   ): Promise<any> => {
     const updatedRequestOrder = await prisma.requestorders.update({
       where: { id },
-      data: { status, updated_by },
-    });
-    return updatedRequestOrder;
-  },
-  setComment: async (
-    id: number,
-    comment: string,
-    updated_by: number
-  ): Promise<any> => {
-    const updatedRequestOrder = await prisma.requestorders.update({
-      where: { id },
-      data: { comment, updated_by },
+      data: {
+        status,
+        ...(comment ? { comment } : { comment: undefined }),
+        updated_by,
+      },
     });
     return updatedRequestOrder;
   },

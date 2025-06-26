@@ -25,22 +25,13 @@ export const UserController = {
     next: NextFunction
   ): Promise<any> => {
     try {
-      var { ae, role } = req.query;
+      var { ae_id, role } = req.query;
       if (role && typeof role === "string") {
         role = [role];
       }
-      console.log(role);
-      const ae_response = await AEAreaService.getAll();
-      if (!ae_response || ae_response.length === 0) {
-        return res
-          .status(HTTP_STATUS.NOT_FOUND)
-          .json(formatResponse([], { message: "No ae found." }));
-      }
 
       const users = await UserService.getAll(
-        ae
-          ? (ae_response.find((item: any) => item.name === ae).id as number)
-          : undefined,
+        Number(ae_id),
         role ? (role as RoleEnum[]) : undefined
       );
       if (!users || users.length === 0) {
@@ -48,22 +39,7 @@ export const UserController = {
           .status(HTTP_STATUS.NOT_FOUND)
           .json(formatResponse([], { message: "No users found." }));
       }
-      const enhancedUsers = await Promise.all(
-        users.map(async (user) => {
-          if (!user.ae_id) {
-            return {
-              ...user,
-              ae_name: null,
-            };
-          }
-          let ae = ae_response.find((item: any) => item.id === user.ae_id).name;
-          return {
-            ...user,
-            ae_name: ae,
-          };
-        })
-      );
-      return res.status(HTTP_STATUS.OK).json(formatResponse(enhancedUsers));
+      return res.status(HTTP_STATUS.OK).json(formatResponse(users));
     } catch (error) {
       next(error);
     }
@@ -106,11 +82,11 @@ export const UserController = {
   ): Promise<any> => {
     try {
       const { id } = req.params;
-      const { is_active, updated_by } = req.body;
+      const { active, user_id } = req.body;
       const updatedUser = await UserService.setActive(
         Number(id),
-        is_active,
-        updated_by
+        active as boolean,
+        Number(user_id)
       );
       if (!updatedUser) {
         return res

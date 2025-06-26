@@ -6,6 +6,8 @@ import { uploadImages } from "../../middlewares/image_upload.middleware";
 const reqOrderRouter = Router();
 
 reqOrderRouter.get("/", RequestOrderController.getAll);
+reqOrderRouter.get("/:id/get-task", RequestOrderController.getByIdWithTasks);
+
 reqOrderRouter.post("/create/key-in", RequestOrderController.createFormKeyIn);
 reqOrderRouter.post(
   "/create/excel",
@@ -13,8 +15,8 @@ reqOrderRouter.post(
   RequestOrderController.createFromExcel
 );
 reqOrderRouter.patch("/:id/update", RequestOrderController.update);
-reqOrderRouter.post("/:id/get-task", RequestOrderController.getByIdWithTasks);
 reqOrderRouter.patch("/:id/set/status", RequestOrderController.setStatus);
+reqOrderRouter.patch("/:id/set/active", RequestOrderController.setActive);
 
 reqOrderRouter.post(
   "/:id/set/evidence",
