@@ -1,5 +1,3 @@
-// import { PrismaClient, StatusEnum } from "../../generated/prisma/index";
-// const prisma = new PrismaClient();
 import { StatusEnum } from "../../generated/prisma/index";
 import prisma from "../middlewares/prisma.middleware";
 

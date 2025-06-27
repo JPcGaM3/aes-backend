@@ -114,6 +114,7 @@ export const MitrService = {
       throw error;
     }
   },
+
   getProfileAD: async (token: string, username?: string, email?: string) => {
     try {
       const response = await axios.post(

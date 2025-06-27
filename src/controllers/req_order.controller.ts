@@ -18,64 +18,6 @@ import { StatusEnum } from "../../generated/prisma";
 import { AttachmentService } from "../services/attachment.service";
 
 export const RequestOrderController = {
-  getAll: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<any> => {
-    try {
-      const {
-        ae_id,
-        customer_type_id,
-        status,
-        start_month,
-        end_month,
-        start_year,
-        end_year,
-      } = req.query;
-
-      const resquestOrders = await RequestOrderService.getAll(
-        ae_id ? Number(ae_id) : NaN,
-        customer_type_id ? Number(customer_type_id) : NaN,
-        status ? ((status as string).toUpperCase() as StatusEnum) : undefined,
-        start_month ? (start_month as string) : undefined,
-        end_month ? (end_month as string) : undefined,
-        start_year ? Number(start_year) : undefined,
-        end_year ? Number(end_year) : undefined
-      );
-
-      if (!resquestOrders || resquestOrders.length === 0) {
-        return res
-          .status(HTTP_STATUS.NOT_FOUND)
-          .json(formatResponse([], { message: "No request orders found." }));
-      }
-
-      return res.status(HTTP_STATUS.OK).json(formatResponse(resquestOrders));
-    } catch (error) {
-      next(error);
-    }
-  },
-
-  getById: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<any> => {
-    const { id } = req.params;
-    try {
-      const requestOrder = await RequestOrderService.getById(Number(id));
-      if (requestOrder) {
-        res.status(HTTP_STATUS.OK).json(formatResponse(requestOrder));
-      } else {
-        res
-          .status(HTTP_STATUS.NOT_FOUND)
-          .json(formatResponse([], { message: "Request order not found" }));
-      }
-    } catch (error) {
-      next(error);
-    }
-  },
-
   createFormKeyIn: async (
     req: Request,
     res: Response,
@@ -101,8 +43,19 @@ export const RequestOrderController = {
         user_id,
       } = req.body;
 
+      let runNumber = await RequestOrderService.getRunNumber(ap_year);
+
+      if (!runNumber && runNumber !== 0) {
+        return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json(
+          formatResponse([], {
+            message: "Run number not found",
+          })
+        );
+      }
+
       const reqData = {
         customer_type_id: Number(customer_type_id),
+        run_number: (runNumber += 1).toString().padStart(5, "0"),
         phone,
         operation_area_id: Number(operation_area_id),
         ae_id: Number(ae_id),
@@ -178,6 +131,7 @@ export const RequestOrderController = {
 
       const files = req.files as Express.Multer.File[];
       const processedData: any[] = [];
+      const runNumberMap: Record<number, number> = {};
 
       for (const file of files) {
         const data = await ReadExcelFile(file.buffer);
@@ -202,8 +156,28 @@ export const RequestOrderController = {
               return null;
             }
 
+            const year = Number(row.ปี) - 543;
+
+            if (!runNumberMap.hasOwnProperty(year)) {
+              const initialRunNumber = await RequestOrderService.getRunNumber(
+                Number(year)
+              );
+              if (initialRunNumber === undefined && initialRunNumber !== 0) {
+                return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json(
+                  formatResponse([], {
+                    message: `Run number not found for year: ${year}`,
+                  })
+                );
+              }
+              runNumberMap[year] = initialRunNumber;
+            }
+
+            runNumberMap[year] += 1;
+            // console.log(runNumberMap[year].toString().padStart(5, "0"));
+
             const reqOrder = {
               customer_type_id: Number(ctm_res.id),
+              run_number: runNumberMap[year].toString().padStart(5, "0"),
               phone: row.เบอร์ติดต่อ.toString(),
               operation_area_id: Number(opa_res.id),
               zone: row.รหัสไร่.toString(),
@@ -213,7 +187,7 @@ export const RequestOrderController = {
               land_number: Number(row.เลขที่แปลง),
               location_xy: row.สถานที่ทำงานใส่พิกัดXY.toString(),
               ap_month: ConvertMonthTH_ENG(row.เดือน),
-              ap_year: Number(row.ปี),
+              ap_year: Number(row.ปี) - 543,
               supervisor_name: row.หัวหน้าไร่.toString(),
               ae_id: Number(ae_id),
               unit_head_id: Number(user_id),
@@ -325,6 +299,64 @@ export const RequestOrderController = {
         Number(req.params.id)
       );
       res.status(HTTP_STATUS.OK).json(formatResponse(deletedRequestOrder));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  getAll: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    try {
+      const {
+        ae_id,
+        customer_type_id,
+        status,
+        start_month,
+        end_month,
+        start_year,
+        end_year,
+      } = req.query;
+
+      const resquestOrders = await RequestOrderService.getAll(
+        ae_id ? Number(ae_id) : NaN,
+        customer_type_id ? Number(customer_type_id) : NaN,
+        status ? ((status as string).toUpperCase() as StatusEnum) : undefined,
+        start_month ? (start_month as string) : undefined,
+        end_month ? (end_month as string) : undefined,
+        start_year ? Number(start_year) : undefined,
+        end_year ? Number(end_year) : undefined
+      );
+
+      if (!resquestOrders || resquestOrders.length === 0) {
+        return res
+          .status(HTTP_STATUS.NOT_FOUND)
+          .json(formatResponse([], { message: "No request orders found." }));
+      }
+
+      return res.status(HTTP_STATUS.OK).json(formatResponse(resquestOrders));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  getById: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { id } = req.params;
+    try {
+      const requestOrder = await RequestOrderService.getById(Number(id));
+      if (requestOrder) {
+        res.status(HTTP_STATUS.OK).json(formatResponse(requestOrder));
+      } else {
+        res
+          .status(HTTP_STATUS.NOT_FOUND)
+          .json(formatResponse([], { message: "Request order not found" }));
+      }
     } catch (error) {
       next(error);
     }

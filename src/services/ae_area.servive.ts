@@ -1,9 +1,19 @@
-// import { PrismaClient } from "../../generated/prisma/index";
-
-// const prisma = new PrismaClient();
 import prisma from "../middlewares/prisma.middleware";
 
 export const AEAreaService = {
+  create: async (data: any): Promise<any> => {
+    const newArea = await prisma.ae_area.create({
+      data,
+    });
+    return newArea;
+  },
+  update: async (id: number, data: any): Promise<any> => {
+    const updatedArea = await prisma.ae_area.update({
+      where: { id },
+      data,
+    });
+    return updatedArea;
+  },
   getAll: async (): Promise<any> => {
     const aeAreas = await prisma.ae_area.findMany({
       select: {

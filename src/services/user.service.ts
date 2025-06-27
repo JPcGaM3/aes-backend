@@ -52,6 +52,7 @@ export const UserService = {
     });
     return user;
   },
+
   getByRole: async (role: RoleEnum[], ae_id?: number) => {
     const users = await prisma.users.findMany({
       where: {
@@ -63,6 +64,7 @@ export const UserService = {
     });
     return users;
   },
+
   getByEmployeeId: async (employee_id: string) => {
     const user = await prisma.users.findUnique({
       where: { employee_id },
@@ -70,6 +72,7 @@ export const UserService = {
     });
     return user;
   },
+
   setActive: async (id: number, active: boolean, updatedBy: any) => {
     const updatedUser = await prisma.users.update({
       where: { id },
@@ -80,6 +83,7 @@ export const UserService = {
     });
     return updatedUser;
   },
+
   create: async (userData: any) => {
     const transformedData = {
       username: userData.username,

@@ -1,5 +1,3 @@
-// import { PrismaClient, StatusEnum } from "../../generated/prisma/index";
-// const prisma = new PrismaClient();
 import { StatusEnum } from "../../generated/prisma/index";
 import prisma from "../middlewares/prisma.middleware";
 
@@ -15,6 +13,67 @@ const defaultInclude = {
 };
 
 export const RequestOrderService = {
+  create: async (data: any) => {
+    const transformedData = {
+      run_number: data.run_number,
+      phone: data.phone,
+      zone: data.zone,
+      quota_number: data.quota_number,
+      farmer_name: data.farmer_name,
+      target_area: data.target_area,
+      land_number: data.land_number,
+      location_xy: data.location_xy,
+      ap_month: data.ap_month,
+      ap_year: data.ap_year,
+      supervisor_name: data.supervisor_name,
+      active: data.active ?? true,
+      status: data.status ?? StatusEnum.CREATED,
+      created_by: data.created_by,
+      updated_by: data.updated_by,
+      evidence: Array.isArray(data.evidence) ? data.evidence : [],
+      customer_type: data.customer_type_id
+        ? { connect: { id: data.customer_type_id } }
+        : undefined,
+      operation_area: data.operation_area_id
+        ? { connect: { id: data.operation_area_id } }
+        : undefined,
+      company_farm: data.company_farm_id
+        ? { connect: { id: data.company_farm_id } }
+        : undefined,
+      users: data.unit_head_id
+        ? { connect: { id: data.unit_head_id } }
+        : undefined,
+      ae_area: data.ae_id ? { connect: { id: data.ae_id } } : undefined,
+    };
+
+    const newRequestOrder = await prisma.requestorders.create({
+      data: transformedData,
+    });
+    return newRequestOrder;
+  },
+
+  // create: async (data: any): Promise<any> => {
+  //   const newRequestOrder = await prisma.requestorders.create({
+  //     data,
+  //   });
+  //   return newRequestOrder;
+  // },
+
+  update: async (id: number, data: any): Promise<any> => {
+    const updatedRequestOrder = await prisma.requestorders.update({
+      where: { id },
+      data,
+    });
+    return updatedRequestOrder;
+  },
+
+  delete: async (id: number): Promise<any> => {
+    const deletedRequestOrder = await prisma.requestorders.delete({
+      where: { id },
+    });
+    return deletedRequestOrder;
+  },
+
   getAll: async (
     ae_id?: number,
     customer_type_id?: number,
@@ -55,6 +114,7 @@ export const RequestOrderService = {
     });
     return requestOrders;
   },
+
   getById: async (
     id: number,
     ae_id?: number,
@@ -119,6 +179,15 @@ export const RequestOrderService = {
     return requestOrderWithTasks;
   },
 
+  getRunNumber: async (year: number): Promise<any> => {
+    const runNumber = await prisma.requestorders.count({
+      where: {
+        ap_year: year,
+      },
+    });
+    return runNumber || 0;
+  },
+
   getEvidence: async (id: number): Promise<any> => {
     const requestOrders = await prisma.requestorders.findFirst({
       where: { id, active: true },
@@ -127,66 +196,6 @@ export const RequestOrderService = {
       },
     });
     return requestOrders;
-  },
-
-  create: async (data: any) => {
-    const transformedData = {
-      phone: data.phone,
-      zone: data.zone,
-      quota_number: data.quota_number,
-      farmer_name: data.farmer_name,
-      target_area: data.target_area,
-      land_number: data.land_number,
-      location_xy: data.location_xy,
-      ap_month: data.ap_month,
-      ap_year: data.ap_year,
-      supervisor_name: data.supervisor_name,
-      active: data.active ?? true,
-      status: data.status ?? StatusEnum.CREATED,
-      created_by: data.created_by,
-      updated_by: data.updated_by,
-      evidence: Array.isArray(data.evidence) ? data.evidence : [],
-      customer_type: data.customer_type_id
-        ? { connect: { id: data.customer_type_id } }
-        : undefined,
-      operation_area: data.operation_area_id
-        ? { connect: { id: data.operation_area_id } }
-        : undefined,
-      company_farm: data.company_farm_id
-        ? { connect: { id: data.company_farm_id } }
-        : undefined,
-      users: data.unit_head_id
-        ? { connect: { id: data.unit_head_id } }
-        : undefined,
-      ae_area: data.ae_id ? { connect: { id: data.ae_id } } : undefined,
-    };
-
-    const newRequestOrder = await prisma.requestorders.create({
-      data: transformedData,
-    });
-    return newRequestOrder;
-  },
-
-  // create: async (data: any): Promise<any> => {
-  //   const newRequestOrder = await prisma.requestorders.create({
-  //     data,
-  //   });
-  //   return newRequestOrder;
-  // },
-
-  update: async (id: number, data: any): Promise<any> => {
-    const updatedRequestOrder = await prisma.requestorders.update({
-      where: { id },
-      data,
-    });
-    return updatedRequestOrder;
-  },
-
-  delete: async (id: number): Promise<any> => {
-    const deletedRequestOrder = await prisma.requestorders.delete({
-      where: { id },
-    });
-    return deletedRequestOrder;
   },
 
   setActive: async (

@@ -9,8 +9,10 @@ export const requestLogger = (
 
   res.on("finish", () => {
     const duration = Date.now() - start;
+    const now = new Date();
+    const bangkokTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
     console.log(
-      `[${new Date().toISOString()}] ${req.method} ${req.originalUrl} → ${
+      `[${bangkokTime.toISOString()}] ${req.method} ${req.originalUrl} → ${
         res.statusCode
       } (${duration}ms)`
     );

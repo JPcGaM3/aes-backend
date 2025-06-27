@@ -21,4 +21,53 @@ export const AEAreaController = {
       next(error);
     }
   },
+  create: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    try {
+      const { user_id, ...data } = req.body;
+      const newArea = await AEAreaService.create({
+        ...data,
+        created_by: user_id,
+        updated_by: user_id,
+      });
+      if (!newArea) {
+        return res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .json(formatResponse([], { message: "Failed to create area" }));
+      }
+      return res.status(HTTP_STATUS.CREATED).json(formatResponse(newArea));
+    } catch (error) {
+      next(error);
+    }
+  },
+  update: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    try {
+      const { id } = req.params;
+      const { user_id, ...data } = req.body;
+      if (!id) {
+        return res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .json(formatResponse([], { message: "Invalid area ID" }));
+      }
+      const updatedArea = await AEAreaService.update(Number(id), {
+        ...data,
+        updated_by: user_id,
+      });
+      if (!updatedArea) {
+        return res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .json(formatResponse([], { message: "Failed to update area" }));
+      }
+      return res.status(HTTP_STATUS.OK).json(formatResponse(updatedArea));
+    } catch (error) {
+      next(error);
+    }
+  },
 };
