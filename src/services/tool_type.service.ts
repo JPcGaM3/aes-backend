@@ -1,10 +1,15 @@
-import { PrismaClient } from "../../generated/prisma/index";
+// import { PrismaClient } from "../../generated/prisma/index";
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
+
+import prisma from "../middlewares/prisma.middleware";
 
 export const ToolTypeService = {
-  getAllIdAndName: async () => {
+  getAllIdAndName: async (activity_id?: number) => {
     const toolTypes = await prisma.tool_types.findMany({
+      where: {
+        ...(activity_id && { activity_id }),
+      },
       select: {
         id: true,
         tool_type_name: true,

@@ -4,6 +4,7 @@ import { ToolTypeController } from "../../controllers/tool_type.controller";
 const toolTypeRouter = Router();
 
 toolTypeRouter.get("/", ToolTypeController.getAll);
+toolTypeRouter.get("/:activity_id", ToolTypeController.getByActivity);
 toolTypeRouter.get("/:id/price", ToolTypeController.getPrice);
 
 export default toolTypeRouter;

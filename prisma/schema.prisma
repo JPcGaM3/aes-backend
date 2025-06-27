@@ -38,16 +38,6 @@ enum RoleEnum {
   DRIVER
 }
 
-// model roles {
-//   id         Int       @id @default(autoincrement())
-//   name       RoleEnum
-//   created_at DateTime? @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
-//   updated_at DateTime? @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
-//   created_by Int
-//   updated_by Int
-//   users      users[]
-// }
-
 model users {
   id            Int             @id @default(autoincrement())
   phone         String?         @db.VarChar(15)
@@ -56,8 +46,8 @@ model users {
   role          RoleEnum[]
   status        StatusEnum      @default(INACTIVE)
   active        Boolean?        @default(true)
-  created_at    DateTime?       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
-  updated_at    DateTime?       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+  created_at    DateTime?
+  updated_at    DateTime?
   created_by    Int
   updated_by    Int
   username      String?         @db.VarChar(255)
@@ -89,8 +79,8 @@ model cars {
   curr_bk_val       Float?
   active            Boolean?     @default(true)
   ae_id             Int?
-  created_at        DateTime?    @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
-  updated_at        DateTime?    @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+  created_at        DateTime?
+  updated_at        DateTime?
   created_by        Int
   updated_by        Int
   ae_area           ae_area?     @relation(fields: [ae_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -105,8 +95,8 @@ model locations {
   land_number     Int?
   location_xy     String
   is_new_location Boolean?        @default(false)
-  created_at      DateTime?       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
-  updated_at      DateTime?       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+  created_at      DateTime?
+  updated_at      DateTime?
   created_by      Int
   updated_by      Int
   requestorders   requestorders[]
@@ -115,8 +105,8 @@ model locations {
 model activities {
   id              Int          @id @default(autoincrement())
   name            String       @db.VarChar(255)
-  created_at      DateTime?    @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
-  updated_at      DateTime?    @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+  created_at      DateTime?
+  updated_at      DateTime?
   created_by      Int
   updated_by      Int
   activity_number Int
@@ -126,8 +116,8 @@ model activities {
 
 model tool_types {
   id               Int          @id @default(autoincrement())
-  created_at       DateTime?    @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
-  updated_at       DateTime?    @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+  created_at       DateTime?
+  updated_at       DateTime?
   created_by       Int
   updated_by       Int
   activity_id      Int
@@ -152,8 +142,8 @@ model tools {
   year           Int?
   capitalized_on DateTime     @db.Date
   status         StatusEnum   @default(INACTIVE)
-  created_at     DateTime?    @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
-  updated_at     DateTime?    @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+  created_at     DateTime?
+  updated_at     DateTime?
   created_by     Int
   updated_by     Int
   ae_id          Int?
@@ -169,8 +159,8 @@ model tools {
 model ae_area {
   id             Int              @id @default(autoincrement())
   name           String?          @db.VarChar(255)
-  created_at     DateTime?        @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
-  updated_at     DateTime?        @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+  created_at     DateTime?
+  updated_at     DateTime?
   created_by     Int
   updated_by     Int
   operation_area operation_area[]
@@ -184,8 +174,8 @@ model operation_area {
   id               Int             @id @default(autoincrement())
   operation_area   String?         @db.VarChar(255)
   area_number      Int?            @unique
-  created_at       DateTime?       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
-  updated_at       DateTime?       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+  created_at       DateTime?
+  updated_at       DateTime?
   created_by       Int
   updated_by       Int
   ae_id            Int?
@@ -204,8 +194,8 @@ model company_farm {
   area_number    Int
   zone           String?         @db.VarChar(255)
   farm_name      String?
-  created_at     DateTime?       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
-  updated_at     DateTime?       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+  created_at     DateTime?
+  updated_at     DateTime?
   created_by     Int
   updated_by     Int
   operation_area operation_area  @relation(fields: [area_number], references: [area_number], onDelete: NoAction)
@@ -217,8 +207,8 @@ model company_farm {
 model customer_type {
   id             Int              @id @default(autoincrement())
   name           String?          @db.VarChar(255)
-  created_at     DateTime?        @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
-  updated_at     DateTime?        @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+  created_at     DateTime?
+  updated_at     DateTime?
   created_by     Int
   updated_by     Int
   operation_area operation_area[]
@@ -231,8 +221,8 @@ model attachment {
   file_path  String?   @db.VarChar(255)
   file_type  String?   @db.VarChar(255)
   file_data  Bytes?    @db.ByteA
-  created_at DateTime? @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
-  updated_at DateTime? @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+  created_at DateTime?
+  updated_at DateTime?
   created_by Int
   updated_by Int
 }
@@ -263,8 +253,8 @@ model requestorders {
   location_id       Int?
   unit_head_id      Int?
   comment           String?
-  created_at        DateTime?       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
-  updated_at        DateTime?       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+  created_at        DateTime?
+  updated_at        DateTime?
   created_by        Int
   updated_by        Int
   customer_type     customer_type?  @relation(fields: [customer_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -308,8 +298,8 @@ model taskorders {
   status           StatusEnum     @default(CREATED)
   comment          String?
   active           Boolean?       @default(true)
-  created_at       DateTime?      @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
-  updated_at       DateTime?      @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+  created_at       DateTime?
+  updated_at       DateTime?
   created_by       Int
   updated_by       Int
   users            users?         @relation(fields: [assigned_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -333,9 +323,19 @@ model bills {
   actual_price     Float?         @default(0)
   status           StatusEnum     @default(CREATED)
   request_order_id Int?
-  created_at       DateTime?      @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
-  updated_at       DateTime?      @default(dbgenerated("(now() AT TIME ZONE 'Asia/Bangkok'::text)")) @db.Timestamptz(6)
+  created_at       DateTime?
+  updated_at       DateTime?
   created_by       Int
   updated_by       Int
   requestorders    requestorders? @relation(fields: [request_order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
+
+// model roles {
+//   id         Int       @id @default(autoincrement())
+//   name       RoleEnum
+//   created_at DateTime? 
+//   updated_at DateTime? 
+//   created_by Int
+//   updated_by Int
+//   users      users[]
+// }

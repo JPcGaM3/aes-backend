@@ -1,6 +1,7 @@
-import { PrismaClient } from "../../generated/prisma/index";
+import prisma from "../middlewares/prisma.middleware";
+// import { PrismaClient } from "../../generated/prisma/index";
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 
 export const ActivityService = {
   getAllIdAndName: async (): Promise<any> => {
@@ -8,6 +9,12 @@ export const ActivityService = {
       select: {
         id: true,
         name: true,
+        tool_types: {
+          select: {
+            id: true,
+            tool_type_name: true,
+          },
+        },
       },
     });
     return activities;

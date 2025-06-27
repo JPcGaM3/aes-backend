@@ -12,7 +12,12 @@ export const UserController = {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const user = await UserService.create(req.body);
+      const data = req.body;
+      const user = await UserService.create({
+        ...data,
+        created_by: Number(data.user_id),
+        updated_by: Number(data.user_id),
+      });
       return res.status(HTTP_STATUS.CREATED).json(formatResponse(user));
     } catch (error) {
       next(error);

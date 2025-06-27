@@ -1,6 +1,7 @@
-import { PrismaClient } from "../../generated/prisma/index";
+// import { PrismaClient } from "../../generated/prisma/index";
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
+import prisma from "../middlewares/prisma.middleware";
 
 export const CustomerTypeService = {
   getAll: async () => {

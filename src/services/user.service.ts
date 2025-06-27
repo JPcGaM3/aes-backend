@@ -1,6 +1,8 @@
-import { PrismaClient, RoleEnum } from "../../generated/prisma/index";
+// import { PrismaClient, RoleEnum } from "../../generated/prisma/index";
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
+import { RoleEnum, StatusEnum } from "../../generated/prisma/index";
+import prisma from "../middlewares/prisma.middleware";
 
 const defaultInclude = {
   ae_area: true,
@@ -79,8 +81,25 @@ export const UserService = {
     return updatedUser;
   },
   create: async (userData: any) => {
+    const transformedData = {
+      username: userData.username,
+      email: userData.email,
+      fullname: userData.fullname,
+      unit: userData.unit,
+      phone: userData.phone,
+      role: Array.isArray(userData.role) ? userData.role : [],
+      status: userData.status ?? StatusEnum.INACTIVE,
+      active: userData.active ?? true,
+      employee_id: userData.employee_id,
+      created_by: userData.created_by,
+      updated_by: userData.updated_by,
+      ae_area: userData.ae_id
+        ? { connect: { id: Number(userData.ae_id) } }
+        : undefined,
+    };
+
     const newUser = await prisma.users.create({
-      data: userData,
+      data: transformedData,
     });
     return newUser;
   },
