@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../configs/constants";
+import jwt from "jsonwebtoken";
 import { MitrService } from "../services/mitr.service";
 import { UserService } from "../services/user.service";
 import { formatResponse } from "../utils/response_formatter";
+import { users } from "../../generated/prisma";
 
 export const MitrController = {
   getToken: async (
@@ -118,9 +120,9 @@ export const MitrController = {
           })
         );
       }
-      token = token.access_token;
+      const userToken = token.access_token;
       const authen = await MitrService.authen(
-        token,
+        userToken,
         password,
         username || null,
         email || null
@@ -135,7 +137,7 @@ export const MitrController = {
 
       //TODO: Have to change
       const profile = await MitrService.getProfile(
-        token,
+        userToken,
         "JetsadapornB",
         email || null
       );
@@ -184,9 +186,25 @@ export const MitrController = {
         );
       }
 
+      const currentUser: users & { token: string } = {
+        ...userResponse,
+        token: userToken,
+        employee_id: profile.result[0].id,
+        username: profile.result[0].username,
+        email: authen.result[0].mail,
+        fullname: profile.result[0].employeeName.th,
+        role: userResponse.role,
+        ae_id: Number(userResponse.ae_id),
+      };
+
+      const jwtToken = jwt.sign(currentUser, process.env.JWT_SECRET as string, {
+        expiresIn: "1h",
+      });
+
       return res.status(HTTP_STATUS.OK).json(
         formatResponse({
-          token: token,
+          token: jwtToken,
+          // token: userToken,
           user_result: userResponse,
           authen_result: authen.result[0],
           profile_result: profile.result[0],

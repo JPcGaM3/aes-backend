@@ -1,12 +1,13 @@
 import { Router } from "express";
 import { AEAreaController } from "../../controllers/ae_area.controller";
+import { AuthMiddleware } from "../../middlewares/current_user.middleware";
 
 const aeAreaRouter = Router();
 
-aeAreaRouter.post("/", AEAreaController.create);
+aeAreaRouter.post("/", AuthMiddleware, AEAreaController.create);
 
-aeAreaRouter.patch("/:id", AEAreaController.update);
+aeAreaRouter.patch("/:id", AuthMiddleware, AEAreaController.update);
 
-aeAreaRouter.get("/", AEAreaController.getAll);
+aeAreaRouter.get("/", AuthMiddleware, AEAreaController.getAll);
 
 export default aeAreaRouter;

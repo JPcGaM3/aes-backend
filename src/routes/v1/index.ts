@@ -1,7 +1,6 @@
 import { Router } from "express";
 
 import userRouter from "./user.route";
-import authRouter from "./auth.route";
 import reqOrderRouter from "./req_order.route";
 import mitrRouter from "./mitr.route";
 import customerTypeRouter from "./customer_type.route";
@@ -15,7 +14,6 @@ import activityRouter from "./activity.route";
 
 const apiRouter = Router();
 
-apiRouter.use("/auth", authRouter);
 apiRouter.use("/mitr-portal", mitrRouter);
 
 apiRouter.use("/users", userRouter);

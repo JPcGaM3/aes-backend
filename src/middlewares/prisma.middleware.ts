@@ -1,10 +1,11 @@
 import { PrismaClient } from "../../generated/prisma/index";
 
+import { DateTime } from "luxon";
+
 const prisma = new PrismaClient();
 
 prisma.$use(async (params: any, next: any) => {
-  const now = new Date();
-  const bangkokTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+  const bangkokTime = DateTime.now().setZone("Asia/Bangkok").toISO();
 
   if (
     params.model &&
