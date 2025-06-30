@@ -4,7 +4,7 @@ import { AuthMiddleware } from "../../middlewares/current_user.middleware";
 
 const operationAreaRouter = Router();
 
-operationAreaRouter.get("/", AuthMiddleware, OperationAreaController.getAll);
+operationAreaRouter.get("/", OperationAreaController.getAll);
 operationAreaRouter.get(
   "/:id",
   AuthMiddleware,

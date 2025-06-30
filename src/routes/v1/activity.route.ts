@@ -4,6 +4,6 @@ import { AuthMiddleware } from "../../middlewares/current_user.middleware";
 
 const activityRouter = Router();
 
-activityRouter.get("/", AuthMiddleware, ActivityController.getAll);
+activityRouter.get("/", ActivityController.getAll);
 
 export default activityRouter;

@@ -27,11 +27,11 @@ export const AEAreaController = {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const { user_id, ...data } = req.body;
+      const { data } = req.body;
       const newArea = await AEAreaService.create({
         ...data,
-        created_by: user_id,
-        updated_by: user_id,
+        created_by: Number(req.currentUser.id),
+        updated_by: Number(req.currentUser.id),
       });
       if (!newArea) {
         return res
@@ -50,7 +50,7 @@ export const AEAreaController = {
   ): Promise<any> => {
     try {
       const { id } = req.params;
-      const { user_id, ...data } = req.body;
+      const { data } = req.body;
       if (!id) {
         return res
           .status(HTTP_STATUS.BAD_REQUEST)
@@ -58,7 +58,7 @@ export const AEAreaController = {
       }
       const updatedArea = await AEAreaService.update(Number(id), {
         ...data,
-        updated_by: user_id,
+        updated_by: Number(req.currentUser.id),
       });
       if (!updatedArea) {
         return res

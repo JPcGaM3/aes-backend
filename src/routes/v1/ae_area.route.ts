@@ -8,6 +8,6 @@ aeAreaRouter.post("/", AuthMiddleware, AEAreaController.create);
 
 aeAreaRouter.patch("/:id", AuthMiddleware, AEAreaController.update);
 
-aeAreaRouter.get("/", AuthMiddleware, AEAreaController.getAll);
+aeAreaRouter.get("/", AEAreaController.getAll);
 
 export default aeAreaRouter;

@@ -64,7 +64,11 @@ export const CustomerTypeController = {
   ): Promise<any> => {
     const { name } = req.body;
     try {
-      const newCustomerType = await CustomerTypeService.create({ name });
+      const newCustomerType = await CustomerTypeService.create({
+        name,
+        created_by: Number(req.currentUser.id),
+        updated_by: Number(req.currentUser.id),
+      });
       return res
         .status(HTTP_STATUS.CREATED)
         .json(formatResponse(newCustomerType));
@@ -82,6 +86,7 @@ export const CustomerTypeController = {
     try {
       const updatedCustomerType = await CustomerTypeService.update(Number(id), {
         name,
+        updated_by: Number(req.currentUser.id),
       });
       if (!updatedCustomerType) {
         return res

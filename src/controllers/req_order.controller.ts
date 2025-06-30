@@ -13,7 +13,6 @@ import { OperationAreaService } from "../services/operation_area.service";
 import { TaskOrderService } from "../services/task_order.service";
 import { ActivityService } from "../services/activity.service";
 import { ToolTypeService } from "../services/tool_type.service";
-import { AEAreaService } from "../services/ae_area.servive";
 import { StatusEnum } from "../../generated/prisma";
 import { AttachmentService } from "../services/attachment.service";
 
@@ -40,7 +39,6 @@ export const RequestOrderController = {
         ap_month,
         ap_year,
         supervisor_name,
-        user_id,
       } = req.body;
 
       let runNumber = await RequestOrderService.getRunNumber(ap_year);
@@ -68,9 +66,9 @@ export const RequestOrderController = {
         ap_month: ap_month,
         ap_year,
         supervisor_name,
-        unit_head_id: Number(user_id),
-        created_by: Number(user_id),
-        updated_by: Number(user_id),
+        unit_head_id: Number(req.currentUser.id),
+        created_by: Number(req.currentUser.id),
+        updated_by: Number(req.currentUser.id),
       };
       const newRequestOrder = await RequestOrderService.create(reqData);
       const req_id = newRequestOrder.id;
@@ -93,8 +91,8 @@ export const RequestOrderController = {
             request_order_id: Number(req_id),
             activities_id: Number(act.id as number),
             tool_types_id: Number(tool.id as number),
-            created_by: Number(user_id),
-            updated_by: Number(user_id),
+            created_by: Number(req.currentUser.id),
+            updated_by: Number(req.currentUser.id),
           });
         } catch (error) {
           next(error);
@@ -120,7 +118,7 @@ export const RequestOrderController = {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const { ae_id, user_id } = req.body;
+      const { ae_id } = req.body;
       if (!req.files && !Array.isArray(req.files)) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json(
           formatResponse([], {
@@ -149,10 +147,12 @@ export const RequestOrderController = {
             }
 
             let opa_res = opa.find(
-              (item: any) => item.operation_area === row.สังกัด
+              (item: any) => item.operation_area === row.พื้นที่ปฏิบัติงาน
             );
             if (!opa_res) {
-              console.error(`Operation area not found: ${row.สังกัด}`);
+              console.error(
+                `Operation area not found: ${row.พื้นที่ปฏิบัติงาน}`
+              );
               return null;
             }
 
@@ -173,7 +173,6 @@ export const RequestOrderController = {
             }
 
             runNumberMap[year] += 1;
-            // console.log(runNumberMap[year].toString().padStart(5, "0"));
 
             const reqOrder = {
               customer_type_id: Number(ctm_res.id),
@@ -190,9 +189,9 @@ export const RequestOrderController = {
               ap_year: Number(row.ปี) - 543,
               supervisor_name: row.หัวหน้าไร่.toString(),
               ae_id: Number(ae_id),
-              unit_head_id: Number(user_id),
-              created_by: Number(user_id),
-              updated_by: Number(user_id),
+              unit_head_id: Number(req.currentUser.id),
+              created_by: Number(req.currentUser.id),
+              updated_by: Number(req.currentUser.id),
             };
 
             const newRequestOrder = await RequestOrderService.create(reqOrder);
@@ -221,8 +220,8 @@ export const RequestOrderController = {
                     request_order_id: Number(req_id),
                     activities_id: Number(act.id as number),
                     tool_types_id: Number(tool.id as number),
-                    created_by: Number(user_id),
-                    updated_by: Number(user_id),
+                    created_by: Number(req.currentUser.id),
+                    updated_by: Number(req.currentUser.id),
                   };
                   return await TaskOrderService.create(taskData);
                 } catch (error) {
@@ -272,8 +271,7 @@ export const RequestOrderController = {
   ): Promise<any> => {
     try {
       const { id } = req.params;
-      const { user_id } = req.body;
-      req.body.updated_by = Number(user_id);
+      req.body.updated_by = Number(req.currentUser.id);
       const updatedRequestOrder = await RequestOrderService.update(
         Number(id),
         req.body
