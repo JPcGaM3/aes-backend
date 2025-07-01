@@ -74,7 +74,16 @@ export const MitrController = {
           .json(formatResponse([], { message: "Unauthorized" }));
       }
 
-      const profile = await MitrService.getProfile(token, username, email);
+      var profile = await MitrService.getProfile(token, username, email);
+
+      //TODO: Test Only
+      if (email === "L.Kritsada@mitrphol.com") {
+        profile = await MitrService.getProfile(
+          token,
+          "JetsadapornB",
+          undefined
+        );
+      }
 
       if (!profile || profile.code !== 200) {
         return res
@@ -113,7 +122,16 @@ export const MitrController = {
           .json(formatResponse([], { message: "Unauthorized" }));
       }
 
-      const profile = await MitrService.getProfileAD(token, username, email);
+      var profile = await MitrService.getProfileAD(token, username, email);
+
+      //TODO: Test Only
+      if (email === "L.Kritsada@mitrphol.com") {
+        profile = await MitrService.getProfileAD(
+          token,
+          "JetsadapornB",
+          undefined
+        );
+      }
 
       if (!profile || profile.code !== 200) {
         return res
@@ -166,17 +184,20 @@ export const MitrController = {
         );
       }
 
-      //TODO: Have to change
-      // const profile = await MitrService.getProfile(
-      //   userToken,
-      //   "JetsadapornB",
-      //   email || null
-      // );
-      const profile = await MitrService.getProfile(
+      var profile = await MitrService.getProfile(
         userToken,
         username || null,
         email || null
       );
+
+      //TODO: Test Only
+      if (username === "L.Kritsada") {
+        profile = await MitrService.getProfile(
+          userToken,
+          "JetsadapornB",
+          email || null
+        );
+      }
 
       if (!profile || profile.code !== 200) {
         return res.status(HTTP_STATUS.NOT_FOUND).json(
@@ -186,11 +207,12 @@ export const MitrController = {
         );
       }
 
-      const user_exist = await UserService.getByEmployeeId(
-        //TODO: Change!
-        profile.result[0].id
-        // "Test"
-      );
+      var user_exist = await UserService.getByEmployeeId(profile.result[0].id);
+
+      //TODO: Test Only
+      if (username === "L.Kritsada") {
+        user_exist = await UserService.getByEmployeeId("Test");
+      }
 
       if (!user_exist) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json(
