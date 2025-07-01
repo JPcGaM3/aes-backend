@@ -80,6 +80,30 @@ export const UserController = {
       next(error);
     }
   },
+  getOperationArea: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    try {
+      const { id } = req.currentUser;
+      if (!id) {
+        return res
+          .status(HTTP_STATUS.UNAUTHORIZED)
+          .json(formatResponse([], { message: "Unauthorized" }));
+      }
+      const operationArea = await UserService.getOperationArea(id);
+      if (!operationArea || operationArea.length <= 0) {
+        return res
+          .status(HTTP_STATUS.NOT_FOUND)
+          .json(formatResponse([], { message: "Operation area not found." }));
+      }
+      return res.status(HTTP_STATUS.OK).json(formatResponse(operationArea));
+    } catch (error) {
+      next(error);
+    }
+  },
+
   setActive: async (
     req: Request,
     res: Response,

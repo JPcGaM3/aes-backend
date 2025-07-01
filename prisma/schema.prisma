@@ -46,24 +46,25 @@ enum RoleEnum {
 }
 
 model users {
-  id            Int             @id @default(autoincrement())
-  phone         String?         @db.VarChar(15)
-  unit          Int?
-  ae_id         Int?
-  role          RoleEnum[]
-  status        StatusEnum      @default(INACTIVE)
-  active        Boolean?        @default(true)
-  created_at    DateTime?       @default(now())
-  updated_at    DateTime?       @default(now())
-  created_by    Int
-  updated_by    Int
-  username      String?         @db.VarChar(255)
-  email         String?         @unique @db.VarChar(255)
-  fullname      String?         @db.VarChar(255)
-  employee_id   String?         @unique @db.VarChar(255)
-  ae_area       ae_area?        @relation(fields: [ae_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  requestorders requestorders[]
-  taskorders    taskorders[]
+  id                  Int                   @id @default(autoincrement())
+  phone               String?               @db.VarChar(15)
+  unit                Int?
+  ae_id               Int?
+  role                RoleEnum[]
+  status              StatusEnum            @default(INACTIVE)
+  active              Boolean?              @default(true)
+  created_at          DateTime?             @default(now())
+  updated_at          DateTime?             @default(now())
+  created_by          Int
+  updated_by          Int
+  username            String?               @db.VarChar(255)
+  email               String?               @unique @db.VarChar(255)
+  fullname            String?               @db.VarChar(255)
+  employee_id         String?               @unique @db.VarChar(255)
+  ae_area             ae_area?              @relation(fields: [ae_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  requestorders       requestorders[]
+  taskorders          taskorders[]
+  user_operation_area user_operation_area[]
 
   @@index([ae_id])
 }
@@ -178,19 +179,21 @@ model ae_area {
 }
 
 model operation_area {
-  id               Int             @id @default(autoincrement())
-  operation_area   String?         @db.VarChar(255)
-  area_number      Int?            @unique
-  created_at       DateTime?       @default(now())
-  updated_at       DateTime?       @default(now())
-  created_by       Int
-  updated_by       Int
-  ae_id            Int?
-  customer_type_id Int
-  company_farm     company_farm[]
-  ae_area          ae_area?        @relation(fields: [ae_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  customer_type    customer_type   @relation(fields: [customer_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  requestorders    requestorders[]
+  id                     Int                   @id @default(autoincrement())
+  operation_area         String?               @db.VarChar(255)
+  area_number            Int?                  @unique
+  created_at             DateTime?             @default(now())
+  updated_at             DateTime?             @default(now())
+  created_by             Int
+  updated_by             Int
+  ae_id                  Int?
+  customer_type_id       Int
+  company_farm           company_farm[]
+  ae_area                ae_area?              @relation(fields: [ae_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  customer_type          customer_type         @relation(fields: [customer_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user_operation_area    user_operation_area[]
+  requestorders          requestorders[]       @relation(name: "RequestOrdersToOperationArea")
+  customer_requestorders requestorders[]       @relation(name: "CustomerRequestOrdersToOperationArea")
 
   @@index([ae_id])
   @@index([customer_type_id])
@@ -235,43 +238,45 @@ model attachment {
 }
 
 model requestorders {
-  id                Int             @id @default(autoincrement())
-  run_number        String?         @db.VarChar(255)
-  phone             String?         @db.VarChar(15)
-  customer_type_id  Int?
-  operation_area_id Int?
-  quota_number      String?         @db.VarChar(255)
-  company_farm_id   Int?
-  zone              String?         @db.VarChar(255)
-  farmer_name       String?         @db.VarChar(255)
-  land_number       Int?
-  ap_month          String?         @db.VarChar(255)
-  ap_year           Int?
-  ae_id             Int?
-  target_area       Float?          @default(0)
-  actual_area       Float?          @default(0)
-  active            Boolean?        @default(true)
-  evidence          Int[]
-  sale              Float?
-  status            StatusEnum      @default(CREATED)
-  supervisor_name   String?
-  supervisor_id     Int?
-  location_xy       String?
-  location_id       Int?
-  unit_head_id      Int?
-  comment           String?
-  created_at        DateTime?       @default(now())
-  updated_at        DateTime?       @default(now())
-  created_by        Int
-  updated_by        Int
-  customer_type     customer_type?  @relation(fields: [customer_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  operation_area    operation_area? @relation(fields: [operation_area_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  company_farm      company_farm?   @relation(fields: [company_farm_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  ae_area           ae_area?        @relation(fields: [ae_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  locations         locations?      @relation(fields: [location_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users             users?          @relation(fields: [unit_head_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  taskorders        taskorders[]
-  bills             bills[]
+  id                         Int             @id @default(autoincrement())
+  run_number                 String?         @db.VarChar(255)
+  phone                      String?         @db.VarChar(15)
+  customer_type_id           Int?
+  customer_operation_area_id Int?
+  operation_area_id          Int?
+  quota_number               String?         @db.VarChar(255)
+  company_farm_id            Int?
+  zone                       String?         @db.VarChar(255)
+  farmer_name                String?         @db.VarChar(255)
+  land_number                Int?
+  ap_month                   String?         @db.VarChar(255)
+  ap_year                    Int?
+  ae_id                      Int?
+  target_area                Float?          @default(0)
+  actual_area                Float?          @default(0)
+  active                     Boolean?        @default(true)
+  evidence                   Int[]
+  sale                       Float?
+  status                     StatusEnum      @default(CREATED)
+  supervisor_name            String?
+  supervisor_id              Int?
+  location_xy                String?
+  location_id                Int?
+  unit_head_id               Int?
+  comment                    String?
+  created_at                 DateTime?       @default(now())
+  updated_at                 DateTime?       @default(now())
+  created_by                 Int
+  updated_by                 Int
+  customer_type              customer_type?  @relation(fields: [customer_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  operation_area             operation_area? @relation(name: "RequestOrdersToOperationArea", fields: [operation_area_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  customer_operation_area    operation_area? @relation(name: "CustomerRequestOrdersToOperationArea", fields: [customer_operation_area_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  company_farm               company_farm?   @relation(fields: [company_farm_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  ae_area                    ae_area?        @relation(fields: [ae_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  locations                  locations?      @relation(fields: [location_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users                      users?          @relation(fields: [unit_head_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  taskorders                 taskorders[]
+  bills                      bills[]
 
   @@index([ae_id])
   @@index([supervisor_id])
@@ -335,6 +340,22 @@ model bills {
   created_by       Int
   updated_by       Int
   requestorders    requestorders? @relation(fields: [request_order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model user_operation_area {
+  id                Int             @id @default(autoincrement())
+  user_id           Int?
+  operation_area_id Int?
+  active            Boolean?        @default(false)
+  created_at        DateTime?       @default(now())
+  updated_at        DateTime?       @default(now())
+  created_by        Int
+  updated_by        Int
+  users             users?          @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  operation_area    operation_area? @relation(fields: [operation_area_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([user_id])
+  @@index([operation_area_id])
 }
 
 // Role Managment

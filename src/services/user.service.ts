@@ -1,6 +1,3 @@
-// import { PrismaClient, RoleEnum } from "../../generated/prisma/index";
-
-// const prisma = new PrismaClient();
 import { RoleEnum, StatusEnum } from "../../generated/prisma/index";
 import prisma from "../middlewares/prisma.middleware";
 
@@ -71,6 +68,24 @@ export const UserService = {
       include: defaultInclude,
     });
     return user;
+  },
+
+  getOperationArea: async (user_id: number) => {
+    const operationArea = await prisma.user_operation_area.findMany({
+      where: { user_id, active: true },
+      select: {
+        operation_area: {
+          select: {
+            id: true,
+            operation_area: true,
+          },
+        },
+      },
+      orderBy: {
+        operation_area_id: "asc",
+      },
+    });
+    return operationArea;
   },
 
   setActive: async (id: number, active: boolean, updatedBy: any) => {
