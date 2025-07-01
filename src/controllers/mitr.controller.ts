@@ -33,8 +33,16 @@ export const MitrController = {
     res: Response,
     next: NextFunction
   ): Promise<any> => {
-    const { token, username, email, password } = req.body;
     try {
+      const { username, email, password } = req.body;
+      const { token } = req.currentUser;
+
+      if (!token) {
+        return res
+          .status(HTTP_STATUS.UNAUTHORIZED)
+          .json(formatResponse([], { message: "Unauthorized" }));
+      }
+
       const response = await MitrService.authen(
         token,
         username,
@@ -55,39 +63,52 @@ export const MitrController = {
       next(error);
     }
   },
+
   getProfile: async (
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<any> => {
-    const { token, username, email } = req.body;
-
     try {
+      const { token, username, email } = req.currentUser;
+
+      if (!token || !(username && email)) {
+        return res
+          .status(HTTP_STATUS.UNAUTHORIZED)
+          .json(formatResponse([], { message: "Unauthorized" }));
+      }
+
       const profile = await MitrService.getProfile(token, username, email);
 
       if (!profile || profile.code !== 200) {
-        return res.status(HTTP_STATUS.NOT_FOUND).json({
-          status: "error",
-          message: "Profile not found.",
-        });
+        return res
+          .status(HTTP_STATUS.NOT_FOUND)
+          .json(formatResponse([], { message: "Profile not found." }));
       }
 
-      return res.status(HTTP_STATUS.OK).json({
-        status: "success",
-        data: profile,
-      });
+      return res
+        .status(HTTP_STATUS.OK)
+        .json(formatResponse({ profile: profile.result[0] }));
     } catch (error) {
       next(error);
     }
   },
+
   getProfileAD: async (
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<any> => {
-    const { token, username, email } = req.body;
-
     try {
+      const { token, username, email } = req.currentUser;
+
+      if (!token || !(username && email)) {
+        return res.status(HTTP_STATUS.NOT_FOUND).json({
+          status: "error",
+          message: "Token or username or email not found.",
+        });
+      }
+
       const profile = await MitrService.getProfileAD(token, username, email);
 
       if (!profile || profile.code !== 200) {
@@ -136,16 +157,16 @@ export const MitrController = {
       }
 
       //TODO: Have to change
+      // const profile = await MitrService.getProfile(
+      //   userToken,
+      //   "JetsadapornB",
+      //   email || null
+      // );
       const profile = await MitrService.getProfile(
         userToken,
-        "JetsadapornB",
+        username || null,
         email || null
       );
-      //   const profile = await MitrService.getProfile(
-      //     token,
-      //     username || null,
-      //     email || null
-      //   );
 
       if (!profile || profile.code !== 200) {
         return res.status(HTTP_STATUS.NOT_FOUND).json(
@@ -157,8 +178,8 @@ export const MitrController = {
 
       const user_exist = await UserService.getByEmployeeId(
         //TODO: Change!
-        // profile.result[0].id
-        "Test"
+        profile.result[0].id
+        // "Test"
       );
 
       if (!user_exist) {
@@ -186,15 +207,15 @@ export const MitrController = {
         );
       }
 
-      const currentUser: users & { token: string } = {
-        ...userResponse,
+      const currentUser = {
         token: userToken,
+        id: userResponse.id,
+        ae_id: Number(userResponse.ae_id),
+        role: userResponse.role,
+        unit: userResponse.unit,
         employee_id: profile.result[0].id,
         username: profile.result[0].username,
         email: authen.result[0].mail,
-        fullname: profile.result[0].employeeName.th,
-        role: userResponse.role,
-        ae_id: Number(userResponse.ae_id),
       };
 
       const jwtToken = jwt.sign(currentUser, process.env.JWT_SECRET as string, {
@@ -204,10 +225,9 @@ export const MitrController = {
       return res.status(HTTP_STATUS.OK).json(
         formatResponse({
           token: jwtToken,
-          // token: userToken,
-          user_result: userResponse,
-          authen_result: authen.result[0],
-          profile_result: profile.result[0],
+          // user_result: userResponse,
+          // authen_result: authen.result[0],
+          // profile_result: profile.result[0],
         })
       );
     } catch (error) {

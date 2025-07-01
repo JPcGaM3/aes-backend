@@ -5,6 +5,11 @@ import { AuthMiddleware } from "../../middlewares/current_user.middleware";
 const userRouter = Router();
 
 userRouter.get("/", AuthMiddleware, UserController.getAll);
+userRouter.get(
+  "/operation-area",
+  AuthMiddleware,
+  UserController.getOperationArea
+);
 
 userRouter.post("/register", AuthMiddleware, UserController.create);
 
