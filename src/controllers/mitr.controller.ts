@@ -15,15 +15,13 @@ export const MitrController = {
     try {
       const token = await MitrService.token();
       if (!token || !token.access_token) {
-        return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-          status: "error",
-          message: "Failed to retrieve access token.",
-        });
+        return res
+          .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+          .json(
+            formatResponse([], { message: "Failed to retrieve access token." })
+          );
       }
-      return res.status(HTTP_STATUS.OK).json({
-        status: "success",
-        data: token,
-      });
+      return res.status(HTTP_STATUS.OK).json(formatResponse(token));
     } catch (error) {
       next(error);
     }
@@ -50,15 +48,13 @@ export const MitrController = {
         password
       );
       if (!response || response.code !== 200) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          status: "error",
-          message: "Authentication failed.",
-        });
+        return res
+          .status(HTTP_STATUS.UNAUTHORIZED)
+          .json(formatResponse([], { message: "Authentication failed." }));
       }
-      return res.status(HTTP_STATUS.OK).json({
-        status: "success",
-        data: { authenresult: response.result[0] },
-      });
+      return res
+        .status(HTTP_STATUS.OK)
+        .json(formatResponse({ authenresult: response.result[0] }));
     } catch (error) {
       next(error);
     }
@@ -70,9 +66,9 @@ export const MitrController = {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const { token, username, email } = req.currentUser;
+      const { token, username, email, id } = req.currentUser;
 
-      if (!token || !(username && email)) {
+      if (!token || !(username && email) || !id) {
         return res
           .status(HTTP_STATUS.UNAUTHORIZED)
           .json(formatResponse([], { message: "Unauthorized" }));
@@ -86,9 +82,18 @@ export const MitrController = {
           .json(formatResponse([], { message: "Profile not found." }));
       }
 
+      const user = await UserService.getById(id);
+      if (!user) {
+        return res
+          .status(HTTP_STATUS.NOT_FOUND)
+          .json(formatResponse([], { message: "User not found." }));
+      }
+
       return res
         .status(HTTP_STATUS.OK)
-        .json(formatResponse({ profile: profile.result[0] }));
+        .json(
+          formatResponse({ profile: profile.result[0], user_result: user })
+        );
     } catch (error) {
       next(error);
     }
@@ -100,28 +105,33 @@ export const MitrController = {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const { token, username, email } = req.currentUser;
+      const { token, username, email, id } = req.currentUser;
 
-      if (!token || !(username && email)) {
-        return res.status(HTTP_STATUS.NOT_FOUND).json({
-          status: "error",
-          message: "Token or username or email not found.",
-        });
+      if (!token || !(username && email) || !id) {
+        return res
+          .status(HTTP_STATUS.NOT_FOUND)
+          .json(formatResponse([], { message: "Unauthorized" }));
       }
 
       const profile = await MitrService.getProfileAD(token, username, email);
 
       if (!profile || profile.code !== 200) {
-        return res.status(HTTP_STATUS.NOT_FOUND).json({
-          status: "error",
-          message: "Profile not found.",
-        });
+        return res
+          .status(HTTP_STATUS.NOT_FOUND)
+          .json(formatResponse([], { message: "Profile not found." }));
+      }
+      const user = await UserService.getById(id);
+      if (!user) {
+        return res
+          .status(HTTP_STATUS.NOT_FOUND)
+          .json(formatResponse([], { message: "User not found." }));
       }
 
-      return res.status(HTTP_STATUS.OK).json({
-        status: "success",
-        data: profile,
-      });
+      return res
+        .status(HTTP_STATUS.OK)
+        .json(
+          formatResponse({ profile: profile.result[0], user_result: user })
+        );
     } catch (error) {
       next(error);
     }
