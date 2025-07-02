@@ -27,9 +27,9 @@ export const RequestOrderController = {
         customer_type_id,
         phone,
         operation_area_id,
+        customer_operation_area_id,
         zone,
         quota_number,
-        ae_id,
         farmer_name,
         target_area,
         land_number,
@@ -51,12 +51,25 @@ export const RequestOrderController = {
         );
       }
 
+      const opa_response = await OperationAreaService.getById(
+        operation_area_id
+      );
+
+      if (!opa_response) {
+        return res.status(HTTP_STATUS.NOT_FOUND).json(
+          formatResponse([], {
+            message: "AE area not found",
+          })
+        );
+      }
+
       const reqData = {
         customer_type_id: Number(customer_type_id),
         run_number: (runNumber += 1).toString().padStart(5, "0"),
         phone,
         operation_area_id: Number(operation_area_id),
-        ae_id: Number(ae_id),
+        customer_operation_area_id: Number(customer_operation_area_id),
+        ae_id: Number(opa_response.ae_id),
         zone,
         quota_number,
         farmer_name,
@@ -70,6 +83,7 @@ export const RequestOrderController = {
         created_by: Number(req.currentUser.id),
         updated_by: Number(req.currentUser.id),
       };
+
       const newRequestOrder = await RequestOrderService.create(reqData);
       const req_id = newRequestOrder.id;
       const allActivities = SplitWords(activities);
@@ -118,8 +132,8 @@ export const RequestOrderController = {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const { ae_id } = req.body;
-      if (!req.files && !Array.isArray(req.files)) {
+      const { operation_area_id } = req.body;
+      if (!req.files || !Array.isArray(req.files)) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json(
           formatResponse([], {
             message: "No Excel files uploaded",
@@ -129,56 +143,72 @@ export const RequestOrderController = {
 
       const files = req.files as Express.Multer.File[];
       const processedData: any[] = [];
+      const errorRows: any[] = [];
       const runNumberMap: Record<number, number> = {};
+
+      const ctm = await CustomerTypeService.getAllIdAndName();
+      const opa = await OperationAreaService.getAllIdAndName();
+      const act_id_name = await ActivityService.getAllIdAndName();
+      const tool_id_name = await ToolTypeService.getAllIdAndName();
 
       for (const file of files) {
         const data = await ReadExcelFile(file.buffer);
-        const ctm = await CustomerTypeService.getAllIdAndName();
-        const opa = await OperationAreaService.getAllIdAndName();
 
-        const reqDataPromises = data.map(async (row) => {
+        const reqData: any[] = [];
+
+        for (const row of data) {
           try {
-            let ctm_res = ctm.find(
+            const ctm_res = ctm.find(
               (item: any) => item.name === row.หัวตารางแจ้งงาน
             );
+
             if (!ctm_res) {
-              console.error(`Customer type not found: ${row.หัวตารางแจ้งงาน}`);
-              return null;
+              errorRows.push({ row, error: "Customer type not found" });
+              continue;
             }
 
-            let opa_res = opa.find(
+            const customer_opa_res = opa.find(
               (item: any) => item.operation_area === row.พื้นที่ปฏิบัติงาน
             );
+
+            if (!customer_opa_res) {
+              errorRows.push({
+                row,
+                error: "Customer operation area not found",
+              });
+              continue;
+            }
+
+            const opa_res = opa.find(
+              (item: any) => item.id === Number(operation_area_id)
+            );
+
             if (!opa_res) {
-              console.error(
-                `Operation area not found: ${row.พื้นที่ปฏิบัติงาน}`
-              );
-              return null;
+              errorRows.push({
+                row,
+                error: "Operation area for user not found",
+              });
+              continue;
             }
 
             const year = Number(row.ปี) - 543;
 
             if (!runNumberMap.hasOwnProperty(year)) {
-              const initialRunNumber = await RequestOrderService.getRunNumber(
+              let initialRunNumber = await RequestOrderService.getRunNumber(
                 Number(year)
               );
-              if (initialRunNumber === undefined && initialRunNumber !== 0) {
-                return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json(
-                  formatResponse([], {
-                    message: `Run number not found for year: ${year}`,
-                  })
-                );
-              }
-              runNumberMap[year] = initialRunNumber;
+              runNumberMap[year] = initialRunNumber ? initialRunNumber + 1 : 1;
             }
 
+            const currentRunNumber = runNumberMap[year];
             runNumberMap[year] += 1;
 
             const reqOrder = {
               customer_type_id: Number(ctm_res.id),
-              run_number: runNumberMap[year].toString().padStart(5, "0"),
+              run_number: currentRunNumber.toString().padStart(5, "0"),
               phone: row.เบอร์ติดต่อ.toString(),
-              operation_area_id: Number(opa_res.id),
+              operation_area_id: Number(operation_area_id),
+              customer_operation_area_id: Number(customer_opa_res.id),
               zone: row.รหัสไร่.toString(),
               quota_number: row.โควต้าไร่.toString(),
               farmer_name: row.ชื่อไร่.toString(),
@@ -186,63 +216,72 @@ export const RequestOrderController = {
               land_number: Number(row.เลขที่แปลง),
               location_xy: row.สถานที่ทำงานใส่พิกัดXY.toString(),
               ap_month: ConvertMonthTH_ENG(row.เดือน),
-              ap_year: Number(row.ปี) - 543,
+              ap_year: year,
               supervisor_name: row.หัวหน้าไร่.toString(),
-              ae_id: Number(ae_id),
+              ae_id: Number(opa_res.ae_id),
               unit_head_id: Number(req.currentUser.id),
               created_by: Number(req.currentUser.id),
               updated_by: Number(req.currentUser.id),
             };
 
+            console.log(
+              `[Controller] Creating order for year ${year} with run_number: ${reqOrder.run_number}`
+            );
+
             const newRequestOrder = await RequestOrderService.create(reqOrder);
+
             if (!newRequestOrder) {
-              console.error("Failed to create new request order");
-              return null;
+              errorRows.push({ row, error: "Failed to create request order" });
+              runNumberMap[year] -= 1;
+              continue;
             }
+
             const req_id = newRequestOrder.id;
             const allActivities = SplitWords(row.กิจกรรม);
             const allToolTypes = SplitWords(row.เครื่องมือ);
-            const act_id_name = await ActivityService.getAllIdAndName();
-            const tool_id_name = await ToolTypeService.getAllIdAndName();
-            const taskOrderPromises = allActivities.map(
-              async (activity, index) => {
-                try {
-                  let act = act_id_name.find(
-                    (item: any) => item.name === allActivities[index]
-                  );
-                  let tool = tool_id_name.find(
-                    (item: any) => item.tool_type_name === allToolTypes[index]
-                  );
-                  if (!act || !tool) {
-                    return null;
-                  }
-                  let taskData = {
-                    request_order_id: Number(req_id),
-                    activities_id: Number(act.id as number),
-                    tool_types_id: Number(tool.id as number),
-                    created_by: Number(req.currentUser.id),
-                    updated_by: Number(req.currentUser.id),
-                  };
-                  return await TaskOrderService.create(taskData);
-                } catch (error) {
-                  next(error);
-                }
+
+            const newTaskOrders: any[] = [];
+
+            for (let i = 0; i < allActivities.length; i++) {
+              const act = act_id_name.find(
+                (item: any) => item.name === allActivities[i]
+              );
+              const tool = tool_id_name.find(
+                (item: any) => item.tool_type_name === allToolTypes[i]
+              );
+
+              if (!act || !tool) {
+                errorRows.push({
+                  row,
+                  error: `Activity or tool not found at index ${i}`,
+                });
+                continue;
               }
-            );
 
-            const newTaskOrders = await Promise.all(taskOrderPromises);
+              const taskData = {
+                request_order_id: Number(req_id),
+                activities_id: Number(act.id),
+                tool_types_id: Number(tool.id),
+                created_by: Number(req.currentUser.id),
+                updated_by: Number(req.currentUser.id),
+              };
 
-            return {
+              const newTaskOrder = await TaskOrderService.create(taskData);
+              if (newTaskOrder) newTaskOrders.push(newTaskOrder);
+            }
+
+            reqData.push({
               Request_order: newRequestOrder,
               Task_orders: newTaskOrders,
-            };
-          } catch (error) {
+            });
+          } catch (error: any) {
             console.error("Error processing Excel row:", error);
-            return null;
+            errorRows.push({
+              row,
+              error: `Processing error: ${error.message}`,
+            });
           }
-        });
-
-        const reqData = await Promise.all(reqDataPromises);
+        }
 
         const validReqData = reqData.filter((item) => item !== null);
 
@@ -250,7 +289,9 @@ export const RequestOrderController = {
           fileName: file.originalname,
           validRows: validReqData.length,
           totalRows: data.length,
-          data: validReqData.slice(0, 2),
+          errorRows: errorRows.length,
+          data: validReqData,
+          errorData: errorRows,
         });
       }
 
