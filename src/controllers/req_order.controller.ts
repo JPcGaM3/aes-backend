@@ -40,8 +40,13 @@ export const RequestOrderController = {
         ap_year,
         supervisor_name,
       } = req.body;
-
-      let runNumber = await RequestOrderService.getRunNumber(ap_year);
+      const currentYear = new Date().getFullYear();
+      const startDate = new Date(`${currentYear}-01-01T00:00:00.000Z`);
+      const endDate = new Date(`${currentYear + 1}-01-01T00:00:00.000Z`);
+      let runNumber = await RequestOrderService.getRunNumber(
+        startDate,
+        endDate
+      );
 
       if (!runNumber && runNumber !== 0) {
         return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json(
@@ -150,6 +155,9 @@ export const RequestOrderController = {
       const opa = await OperationAreaService.getAllIdAndName();
       const act_id_name = await ActivityService.getAllIdAndName();
       const tool_id_name = await ToolTypeService.getAllIdAndName();
+      const currentYear = new Date().getFullYear();
+      const startDate = new Date(`${currentYear}-01-01T00:00:00.000Z`);
+      const endDate = new Date(`${currentYear + 1}-01-01T00:00:00.000Z`);
 
       for (const file of files) {
         const data = await ReadExcelFile(file.buffer);
@@ -191,17 +199,18 @@ export const RequestOrderController = {
               continue;
             }
 
-            const year = Number(row.ปี) - 543;
-
-            if (!runNumberMap.hasOwnProperty(year)) {
+            if (!runNumberMap.hasOwnProperty(currentYear)) {
               let initialRunNumber = await RequestOrderService.getRunNumber(
-                Number(year)
+                startDate,
+                endDate
               );
-              runNumberMap[year] = initialRunNumber ? initialRunNumber + 1 : 1;
+              runNumberMap[currentYear] = initialRunNumber
+                ? initialRunNumber + 1
+                : 1;
             }
 
-            const currentRunNumber = runNumberMap[year];
-            runNumberMap[year] += 1;
+            const currentRunNumber = runNumberMap[currentYear];
+            runNumberMap[currentYear] += 1;
 
             const reqOrder = {
               customer_type_id: Number(ctm_res.id),
@@ -216,7 +225,7 @@ export const RequestOrderController = {
               land_number: Number(row.เลขที่แปลง),
               location_xy: row.สถานที่ทำงานใส่พิกัดXY.toString(),
               ap_month: ConvertMonthTH_ENG(row.เดือน),
-              ap_year: year,
+              ap_year: Number(row.ปี) - 543,
               supervisor_name: row.หัวหน้าไร่.toString(),
               ae_id: Number(opa_res.ae_id),
               unit_head_id: Number(req.currentUser.id),
@@ -225,14 +234,14 @@ export const RequestOrderController = {
             };
 
             console.log(
-              `[Controller] Creating order for year ${year} with run_number: ${reqOrder.run_number}`
+              `[Controller] Creating order for year ${currentYear} with run_number: ${reqOrder.run_number}`
             );
 
             const newRequestOrder = await RequestOrderService.create(reqOrder);
 
             if (!newRequestOrder) {
               errorRows.push({ row, error: "Failed to create request order" });
-              runNumberMap[year] -= 1;
+              runNumberMap[currentYear] -= 1;
               continue;
             }
 

@@ -4,6 +4,8 @@ import prisma from "../middlewares/prisma.middleware";
 const defaultInclude = {
   customer_type: true,
   ae_area: true,
+  operation_area: true,
+  customer_operation_area: true,
   users: true,
   _count: {
     select: {
@@ -149,12 +151,16 @@ export const RequestOrderService = {
     return requestOrderWithTasks;
   },
 
-  getRunNumber: async (year: number): Promise<any> => {
+  getRunNumber: async (startDate: Date, endDate: Date): Promise<any> => {
     const runNumber = await prisma.requestorders.count({
       where: {
-        ap_year: year,
+        created_at: {
+          gte: startDate,
+          lt: endDate,
+        },
       },
     });
+
     return runNumber || 0;
   },
 

@@ -4,8 +4,6 @@ COPY package*.json ./
 RUN npm install
 COPY . .
 
-RUN npm install -g nodemon
-
 EXPOSE 8080
 
 ENV HOST=http://localhost
