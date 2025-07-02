@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import * as XLSX from "xlsx";
 
 export const CheckRole = (role: string | null) => {
@@ -114,4 +115,25 @@ export const ConvertToChristianDate = (buddhistDateString: string): Date => {
   const date = new Date(buddhistDateString);
   date.setFullYear(date.getFullYear() - 543);
   return date;
+};
+
+export const convertUTCtoTH = (utcInput: DateTime | string): DateTime => {
+  const utcDateTime =
+    typeof utcInput === "string"
+      ? DateTime.fromISO(utcInput, { zone: "utc" })
+      : utcInput.setZone("utc");
+
+  return utcDateTime.setZone("Asia/Bangkok");
+};
+
+export const convertTHtoUTC = (thInput: DateTime | string): DateTime => {
+  let thDateTime: DateTime;
+
+  if (typeof thInput === "string") {
+    thDateTime = DateTime.fromISO(thInput, { zone: "Asia/Bangkok" });
+  } else {
+    thDateTime = thInput.setZone("Asia/Bangkok");
+  }
+
+  return thDateTime.toUTC();
 };

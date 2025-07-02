@@ -5,19 +5,19 @@ import { DateTime } from "luxon";
 const prisma = new PrismaClient();
 
 prisma.$use(async (params: any, next: any) => {
-  const bangkokTime = DateTime.now().setZone("Asia/Bangkok").toISO();
+  const utcTime = DateTime.now().setZone("UTC").toISO();
 
   if (
     params.model &&
     (params.action === "create" || params.action === "update")
   ) {
     if (params.action === "create") {
-      params.args.data.created_at = bangkokTime;
-      params.args.data.updated_at = bangkokTime;
+      params.args.data.created_at = utcTime;
+      params.args.data.updated_at = utcTime;
     }
 
     if (params.action === "update") {
-      params.args.data.updated_at = bangkokTime;
+      params.args.data.updated_at = utcTime;
     }
   }
 

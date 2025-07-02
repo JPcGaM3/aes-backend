@@ -55,13 +55,6 @@ export const RequestOrderService = {
     return newRequestOrder;
   },
 
-  // create: async (data: any): Promise<any> => {
-  //   const newRequestOrder = await prisma.requestorders.create({
-  //     data,
-  //   });
-  //   return newRequestOrder;
-  // },
-
   update: async (id: number, data: any): Promise<any> => {
     const updatedRequestOrder = await prisma.requestorders.update({
       where: { id },
@@ -135,32 +128,6 @@ export const RequestOrderService = {
     return requestOrder;
   },
 
-  // getByStatus: async (
-  //   status: StatusEnum,
-  //   ae_id?: number,
-  //   customer_type_id?: number
-  // ): Promise<any> => {
-  //   const requestOrders = await prisma.requestorders.findMany({
-  //     where: {
-  //       status,
-  //       active: true,
-  //       ...(ae_id && { ae_id }),
-  //       ...(customer_type_id && { customer_type_id }),
-  //     },
-  //     include: {
-  //       customer_type: true,
-  //       ae_area: true,
-  //       users: true,
-  //       _count: {
-  //         select: {
-  //           taskorders: true,
-  //         },
-  //       },
-  //     },
-  //   });
-  //   return requestOrders;
-  // },
-
   getByIdWithAllTask: async (id: number): Promise<any> => {
     const requestOrderWithTasks = await prisma.requestorders.findFirst({
       where: {
@@ -188,7 +155,6 @@ export const RequestOrderService = {
         ap_year: year,
       },
     });
-    console.log(`[getRunNumber] For year ${year}, returned: ${runNumber || 0}`);
     return runNumber || 0;
   },
 
