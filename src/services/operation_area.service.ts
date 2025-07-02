@@ -20,6 +20,7 @@ export const OperationAreaService = {
       select: {
         id: true,
         operation_area: true,
+        ae_id: true,
       },
     });
   },

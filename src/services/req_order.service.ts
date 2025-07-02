@@ -37,6 +37,9 @@ export const RequestOrderService = {
       operation_area: data.operation_area_id
         ? { connect: { id: data.operation_area_id } }
         : undefined,
+      customer_operation_area: data.customer_operation_area_id
+        ? { connect: { id: data.customer_operation_area_id } }
+        : undefined,
       company_farm: data.company_farm_id
         ? { connect: { id: data.company_farm_id } }
         : undefined,
@@ -185,6 +188,7 @@ export const RequestOrderService = {
         ap_year: year,
       },
     });
+    console.log(`[getRunNumber] For year ${year}, returned: ${runNumber || 0}`);
     return runNumber || 0;
   },
 

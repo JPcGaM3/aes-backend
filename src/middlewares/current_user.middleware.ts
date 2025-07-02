@@ -33,11 +33,3 @@ export const AuthMiddleware = (
       .json(formatResponse([], { message: "Invalid or expired token" }));
   }
 };
-
-// export const userAuthen = (req: Request, res: Response, next: NextFunction) => {
-//   if (!req.currentUser) {
-//     req.currentUser = {} as users & { token: string };
-//   }
-
-//   next();
-// };
