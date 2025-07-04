@@ -6,22 +6,41 @@ const defaultInclude = {
 };
 
 export const UserService = {
-  getAll: async (ae_id?: number, role?: RoleEnum[]) => {
-    let orderByConditions: any = [];
-
-    if (role) {
-      orderByConditions.unshift({ role: "desc" });
-    }
-    orderByConditions.unshift({ id: "asc" });
-
+  getAll: async (ae_id?: number, role_id?: number[]) => {
     const users = await prisma.users.findMany({
       where: {
         active: true,
         ...(ae_id && { ae_id }),
-        ...(role && { role: { hasEvery: role as RoleEnum[] } }),
+        ...(role_id && {
+          user_role: {
+            some: {
+              role_id: {
+                in: role_id,
+              },
+            },
+          },
+        }),
       },
-      include: defaultInclude,
-      orderBy: orderByConditions,
+      include: {
+        ae_area: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        user_role: {
+          select: {
+            id: true,
+            role: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { id: "asc" },
     });
     return users;
   },
@@ -29,7 +48,25 @@ export const UserService = {
   getById: async (id: number) => {
     const user = await prisma.users.findUnique({
       where: { id },
-      include: defaultInclude,
+      include: {
+        ae_area: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        user_role: {
+          select: {
+            id: true,
+            role: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
     });
     return user;
   },
@@ -65,7 +102,25 @@ export const UserService = {
   getByEmployeeId: async (employee_id: string) => {
     const user = await prisma.users.findUnique({
       where: { employee_id },
-      include: defaultInclude,
+      include: {
+        ae_area: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        user_role: {
+          select: {
+            id: true,
+            role: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
     });
     return user;
   },

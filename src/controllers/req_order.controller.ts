@@ -15,6 +15,7 @@ import { ActivityService } from "../services/activity.service";
 import { ToolTypeService } from "../services/tool_type.service";
 import { StatusEnum } from "../../generated/prisma";
 import { AttachmentService } from "../services/attachment.service";
+import moment from "moment-timezone";
 
 export const RequestOrderController = {
   createFormKeyIn: async (
@@ -24,7 +25,6 @@ export const RequestOrderController = {
   ): Promise<any> => {
     try {
       const {
-        customer_type_id,
         phone,
         operation_area_id,
         customer_operation_area_id,
@@ -40,9 +40,12 @@ export const RequestOrderController = {
         ap_year,
         supervisor_name,
       } = req.body;
-      const currentYear = new Date().getFullYear();
-      const startDate = new Date(`${currentYear}-01-01T00:00:00.000Z`);
-      const endDate = new Date(`${currentYear + 1}-01-01T00:00:00.000Z`);
+      // const currentYear = new Date().getFullYear();
+      // const startDate = new Date(`${currentYear}-01-01T00:00:00.000Z`);
+      // const endDate = new Date(`${currentYear}-12-31T23:59:59.999Z`);
+      const now = moment.tz("Asia/Bangkok");
+      const startDate = now.clone().startOf("year").toDate();
+      const endDate = now.clone().endOf("year").toDate();
       let runNumber = await RequestOrderService.getRunNumber(
         startDate,
         endDate
@@ -56,25 +59,31 @@ export const RequestOrderController = {
         );
       }
 
-      const opa_response = await OperationAreaService.getById(
-        operation_area_id
-      );
+      const opa_response = await OperationAreaService.getAllNeed();
 
       if (!opa_response) {
         return res.status(HTTP_STATUS.NOT_FOUND).json(
           formatResponse([], {
-            message: "AE area not found",
+            message: "Fail to fetch operation area.",
           })
         );
       }
 
+      const opa = opa_response.find(
+        (item: any) => item.id === operation_area_id
+      );
+
+      const customer_opa = opa_response.find(
+        (item: any) => item.id === customer_operation_area_id
+      );
+
       const reqData = {
-        customer_type_id: Number(customer_type_id),
+        customer_type_id: Number(customer_opa.customer_type_id),
         run_number: (runNumber += 1).toString().padStart(5, "0"),
         phone,
         operation_area_id: Number(operation_area_id),
-        customer_operation_area_id: Number(customer_operation_area_id),
-        ae_id: Number(opa_response.ae_id),
+        customer_operation_area_id: Number(customer_opa.id),
+        ae_id: Number(opa.ae_id),
         zone,
         quota_number,
         farmer_name,
@@ -151,13 +160,14 @@ export const RequestOrderController = {
       const errorRows: any[] = [];
       const runNumberMap: Record<number, number> = {};
 
-      const ctm = await CustomerTypeService.getAllIdAndName();
-      const opa = await OperationAreaService.getAllIdAndName();
+      const opa = await OperationAreaService.getAllNeed();
       const act_id_name = await ActivityService.getAllIdAndName();
       const tool_id_name = await ToolTypeService.getAllIdAndName();
-      const currentYear = new Date().getFullYear();
-      const startDate = new Date(`${currentYear}-01-01T00:00:00.000Z`);
-      const endDate = new Date(`${currentYear + 1}-01-01T00:00:00.000Z`);
+
+      const now = moment.tz("Asia/Bangkok");
+      const currentYear = now.year();
+      const startDate = now.clone().startOf("year").toDate();
+      const endDate = now.clone().endOf("year").toDate();
 
       for (const file of files) {
         const data = await ReadExcelFile(file.buffer);
@@ -166,15 +176,6 @@ export const RequestOrderController = {
 
         for (const row of data) {
           try {
-            const ctm_res = ctm.find(
-              (item: any) => item.name === row.หัวตารางแจ้งงาน
-            );
-
-            if (!ctm_res) {
-              errorRows.push({ row, error: "Customer type not found" });
-              continue;
-            }
-
             const customer_opa_res = opa.find(
               (item: any) => item.operation_area === row.พื้นที่ปฏิบัติงาน
             );
@@ -213,7 +214,7 @@ export const RequestOrderController = {
             runNumberMap[currentYear] += 1;
 
             const reqOrder = {
-              customer_type_id: Number(ctm_res.id),
+              customer_type_id: Number(customer_opa_res.customer_type_id),
               run_number: currentRunNumber.toString().padStart(5, "0"),
               phone: row.เบอร์ติดต่อ.toString(),
               operation_area_id: Number(operation_area_id),
@@ -361,6 +362,7 @@ export const RequestOrderController = {
       const {
         ae_id,
         customer_type_id,
+        operation_area_id,
         status,
         start_month,
         end_month,
@@ -371,6 +373,7 @@ export const RequestOrderController = {
       const resquestOrders = await RequestOrderService.getAll(
         ae_id ? Number(ae_id) : NaN,
         customer_type_id ? Number(customer_type_id) : NaN,
+        operation_area_id ? Number(operation_area_id) : NaN,
         status ? ((status as string).toUpperCase() as StatusEnum) : undefined,
         start_month ? (start_month as string) : undefined,
         end_month ? (end_month as string) : undefined,

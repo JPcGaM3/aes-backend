@@ -1,9 +1,5 @@
 import prisma from "../middlewares/prisma.middleware";
 
-const defaultInclude = {
-  ae_area: true,
-};
-
 export const OperationAreaService = {
   getAll: async (customer_type_id?: number, ae_id?: number): Promise<any> => {
     return await prisma.operation_area.findMany({
@@ -11,23 +7,51 @@ export const OperationAreaService = {
         ...(customer_type_id && { customer_type_id }),
         ...(ae_id && { ae_id }),
       },
-      include: defaultInclude,
+      include: {
+        ae_area: true,
+      },
       orderBy: { id: "asc" },
     });
   },
-  getAllIdAndName: async (): Promise<any> => {
+  getAllNeed: async (
+    customer_type_id?: number,
+    ae_id?: number
+  ): Promise<any> => {
     return await prisma.operation_area.findMany({
+      where: {
+        ...(customer_type_id && { customer_type_id }),
+        ...(ae_id && { ae_id }),
+      },
       select: {
         id: true,
         operation_area: true,
         ae_id: true,
+        customer_type_id: true,
+        ae_area: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
+      orderBy: { id: "asc" },
     });
   },
   getById: async (id: number): Promise<any> => {
-    return await prisma.operation_area.findUnique({
+    return await prisma.operation_area.findFirst({
       where: { id },
-      include: defaultInclude,
+      select: {
+        id: true,
+        operation_area: true,
+        ae_id: true,
+        customer_type_id: true,
+        ae_area: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
   },
   getByCustomerType: async (
@@ -36,14 +60,36 @@ export const OperationAreaService = {
   ): Promise<any> => {
     return await prisma.operation_area.findMany({
       where: { customer_type_id, ae_id },
-      include: defaultInclude,
+      select: {
+        id: true,
+        operation_area: true,
+        ae_id: true,
+        customer_type_id: true,
+        ae_area: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
       orderBy: { id: "asc" },
     });
   },
   getByName: async (name: string): Promise<any> => {
     return await prisma.operation_area.findFirst({
       where: { operation_area: name },
-      include: defaultInclude,
+      select: {
+        id: true,
+        operation_area: true,
+        ae_id: true,
+        customer_type_id: true,
+        ae_area: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
   },
   create: async (data: any): Promise<any> => {

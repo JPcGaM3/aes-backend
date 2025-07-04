@@ -98,11 +98,17 @@ export const MitrController = {
           .json(formatResponse([], { message: "User not found." }));
       }
 
-      return res
-        .status(HTTP_STATUS.OK)
-        .json(
-          formatResponse({ profile: profile.result[0], user_result: user })
-        );
+      const roles: string[] = [];
+      user.user_role.forEach((role: any) => {
+        roles.push(role.role.name as string);
+      });
+
+      return res.status(HTTP_STATUS.OK).json(
+        formatResponse({
+          profile: profile.result[0],
+          user_result: { ...user, role: roles },
+        })
+      );
     } catch (error) {
       next(error);
     }
@@ -145,10 +151,18 @@ export const MitrController = {
           .json(formatResponse([], { message: "User not found." }));
       }
 
+      const roles: string[] = [];
+      user.user_role.forEach((role: any) => {
+        roles.push(role.role.name as string);
+      });
+
       return res
         .status(HTTP_STATUS.OK)
         .json(
-          formatResponse({ profile: profile.result[0], user_result: user })
+          formatResponse({
+            profile: profile.result[0],
+            user_result: { ...user, role: roles },
+          })
         );
     } catch (error) {
       next(error);
@@ -239,6 +253,11 @@ export const MitrController = {
         );
       }
 
+      const roles: string[] = [];
+      user_exist.user_role.forEach((role: any) => {
+        roles.push(role.role.name as string);
+      });
+
       const currentUser = {
         token: userToken,
         id: userResponse.id,
@@ -257,6 +276,8 @@ export const MitrController = {
       return res.status(HTTP_STATUS.OK).json(
         formatResponse({
           token: jwtToken,
+          id: userResponse.id,
+          role: roles,
           // user_result: userResponse,
           // authen_result: authen.result[0],
           // profile_result: profile.result[0],

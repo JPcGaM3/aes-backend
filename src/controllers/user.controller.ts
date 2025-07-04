@@ -4,6 +4,7 @@ import { formatResponse } from "../utils/response_formatter";
 import { UserService } from "../services/user.service";
 import { AEAreaService } from "../services/ae_area.servive";
 import { RoleEnum } from "../../generated/prisma";
+import { RBACService } from "../services/rbac.service";
 
 export const UserController = {
   create: async (
@@ -31,13 +32,32 @@ export const UserController = {
   ): Promise<any> => {
     try {
       var { ae_id, role } = req.query;
-      if (role && typeof role === "string") {
-        role = [role];
+      let roleArray: string[] = [];
+      if (role) {
+        if (Array.isArray(role)) {
+          roleArray = role.map((r) => String(r));
+        } else {
+          roleArray = [String(role)];
+        }
       }
+
+      const role_res = await RBACService.getRoles();
+      if (!role_res) {
+        return res
+          .status(HTTP_STATUS.NOT_FOUND)
+          .json(formatResponse([], { message: "No roles found." }));
+      }
+      const role_id: number[] = [];
+      roleArray.forEach((r: string) => {
+        const foundRole = role_res.find((role) => role.name === r);
+        if (foundRole) {
+          role_id.push(foundRole.id);
+        }
+      });
 
       const users = await UserService.getAll(
         Number(ae_id),
-        role ? (role as RoleEnum[]) : undefined
+        role_id.length > 0 ? role_id : undefined
       );
       if (!users || users.length === 0) {
         return res

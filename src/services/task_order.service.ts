@@ -6,6 +6,7 @@ const defaultInclude = {
   activities: true,
   tool_type: true,
   cars: true,
+  requestorders: true,
 };
 
 export const TaskOrderService = {
@@ -39,6 +40,7 @@ export const TaskOrderService = {
 
   getByAssigned: async (
     assignedId: number,
+    status?: StatusEnum,
     startDate?: Date,
     endDate?: Date
   ): Promise<any> => {
@@ -50,6 +52,7 @@ export const TaskOrderService = {
           endDate && { ap_date: { gte: startDate, lte: endDate } }),
         ...(startDate &&
           !endDate && { ap_date: { gte: startDate, lte: startDate } }),
+        ...(status && { status }),
       },
       include: defaultInclude,
       orderBy: [

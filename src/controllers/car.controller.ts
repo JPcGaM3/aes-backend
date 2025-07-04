@@ -11,7 +11,12 @@ export const CarController = {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const { ae_id } = req.query;
+      const { ae_id } = req.currentUser;
+      if (!ae_id) {
+        return res
+          .status(HTTP_STATUS.UNAUTHORIZED)
+          .json(formatResponse([], { message: "Unauthorized." }));
+      }
       const cars = await CarService.getAll(ae_id ? Number(ae_id) : undefined);
       if (!cars || cars.length === 0) {
         return res

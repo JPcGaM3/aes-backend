@@ -4,6 +4,7 @@ import { formatResponse } from "../utils/response_formatter";
 import { create } from "domain";
 import { TaskOrderService } from "../services/task_order.service";
 import { ConvertToChristianDate } from "../utils/functions";
+import { StatusEnum } from "../../generated/prisma";
 
 export const TaskOrderController = {
   create: async (
@@ -130,9 +131,10 @@ export const TaskOrderController = {
   ): Promise<any> => {
     try {
       const { assigned_id } = req.params;
-      const { start_date, end_date } = req.query;
+      const { status, start_date, end_date } = req.query;
       const assignedTaskOrders = await TaskOrderService.getByAssigned(
         Number(assigned_id),
+        status ? ((status as string).toUpperCase() as StatusEnum) : undefined,
         start_date ? new Date(start_date as string) : undefined,
         end_date ? new Date(end_date as string) : undefined
       );

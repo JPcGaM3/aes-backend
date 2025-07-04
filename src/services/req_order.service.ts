@@ -75,6 +75,7 @@ export const RequestOrderService = {
   getAll: async (
     ae_id?: number,
     customer_type_id?: number,
+    operation_area_id?: number,
     status?: StatusEnum,
     startMonth?: string,
     endMonth?: string,
@@ -85,6 +86,7 @@ export const RequestOrderService = {
       where: {
         ...(ae_id && { ae_id }),
         ...(customer_type_id && { customer_type_id }),
+        ...(operation_area_id && { operation_area_id }),
         ...(status && { status }),
         ...(startMonth &&
           endMonth && {
