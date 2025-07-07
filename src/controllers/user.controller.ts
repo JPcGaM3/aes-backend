@@ -124,6 +124,30 @@ export const UserController = {
     }
   },
 
+  getAEArea: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    try {
+      const { id } = req.currentUser;
+      if (!id) {
+        return res
+          .status(HTTP_STATUS.UNAUTHORIZED)
+          .json(formatResponse([], { message: "Unauthorized" }));
+      }
+      const aeArea = await UserService.getAEArea(id);
+      if (!aeArea || aeArea.length <= 0) {
+        return res
+          .status(HTTP_STATUS.NOT_FOUND)
+          .json(formatResponse([], { message: "AE area not found." }));
+      }
+      return res.status(HTTP_STATUS.OK).json(formatResponse(aeArea));
+    } catch (error) {
+      next(error);
+    }
+  },
+
   setActive: async (
     req: Request,
     res: Response,

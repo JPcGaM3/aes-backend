@@ -22,16 +22,21 @@ export const UserService = {
         }),
       },
       include: {
-        ae_area: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
         user_role: {
           select: {
             id: true,
             role: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+        user_ae_area: {
+          select: {
+            id: true,
+            ae_area: {
               select: {
                 id: true,
                 name: true,
@@ -103,16 +108,21 @@ export const UserService = {
     const user = await prisma.users.findUnique({
       where: { employee_id },
       include: {
-        ae_area: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
         user_role: {
           select: {
             id: true,
             role: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+        user_ae_area: {
+          select: {
+            id: true,
+            ae_area: {
               select: {
                 id: true,
                 name: true,
@@ -141,6 +151,24 @@ export const UserService = {
       },
     });
     return operationArea;
+  },
+
+  getAEArea: async (user_id: number) => {
+    const aeArea = await prisma.user_ae_area.findMany({
+      where: { user_id, active: true },
+      select: {
+        ae_area: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      orderBy: {
+        ae_id: "asc",
+      },
+    });
+    return aeArea;
   },
 
   setActive: async (id: number, active: boolean, updatedBy: any) => {

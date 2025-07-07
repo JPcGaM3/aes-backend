@@ -10,6 +10,7 @@ userRouter.get(
   AuthMiddleware,
   UserController.getOperationArea
 );
+userRouter.get("/ae-area", AuthMiddleware, UserController.getAEArea);
 
 userRouter.post("/register", AuthMiddleware, UserController.create);
 

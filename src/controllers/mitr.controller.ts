@@ -156,14 +156,12 @@ export const MitrController = {
         roles.push(role.role.name as string);
       });
 
-      return res
-        .status(HTTP_STATUS.OK)
-        .json(
-          formatResponse({
-            profile: profile.result[0],
-            user_result: { ...user, role: roles },
-          })
-        );
+      return res.status(HTTP_STATUS.OK).json(
+        formatResponse({
+          profile: profile.result[0],
+          user_result: { ...user, role: roles },
+        })
+      );
     } catch (error) {
       next(error);
     }
@@ -173,9 +171,18 @@ export const MitrController = {
     res: Response,
     next: NextFunction
   ): Promise<any> => {
+    const { ae_id } = req.query;
     const { username, email, password } = req.body;
     try {
-      var token = await MitrService.token();
+      if (!ae_id) {
+        return res.status(HTTP_STATUS.UNAUTHORIZED).json(
+          formatResponse([], {
+            message: "Failed to retrieve AE area.",
+          })
+        );
+      }
+
+      const token = await MitrService.token();
       if (!token || !token.access_token) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json(
           formatResponse([], {
@@ -221,6 +228,7 @@ export const MitrController = {
         );
       }
 
+      //TODO: Change to const
       var user_exist = await UserService.getByEmployeeId(profile.result[0].id);
 
       //TODO: Test Only
@@ -229,6 +237,19 @@ export const MitrController = {
       }
 
       if (!user_exist) {
+        return res.status(HTTP_STATUS.UNAUTHORIZED).json(
+          formatResponse([], {
+            message: "Permission denied.",
+          })
+        );
+      }
+
+      const ae_areas: number[] = [];
+      user_exist.user_ae_area.forEach((ae: any) => {
+        ae_areas.push(Number(ae.ae_area.id));
+      });
+
+      if (!(Number(ae_id) in ae_areas)) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json(
           formatResponse([], {
             message: "Permission denied.",
