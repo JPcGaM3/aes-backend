@@ -1,16 +1,16 @@
 // Define interfaces for a clearer response structure
 interface SuccessResponse<T> {
-  success: true;
-  message: string | null;
-  length?: number;
-  data: T;
+	success: true;
+	message: string | null;
+	length?: number;
+	data: T;
 }
 
 interface ErrorResponse {
-  success: false;
-  message: string;
-  code?: string; // Optional: A specific error code (e.g., 'VALIDATION_FAILED')
-  details?: any; // Optional: More details about the error (e.g., validation errors)
+	success: false;
+	message: string;
+	code?: string; // Optional: A specific error code (e.g., 'VALIDATION_FAILED')
+	details?: any; // Optional: More details about the error (e.g., validation errors)
 }
 
 // Union type for the possible return shapes
@@ -28,42 +28,42 @@ export type ApiResponse<T> = SuccessResponse<T> | ErrorResponse;
  * @returns {ApiResponse<T>} A formatted response object.
  */
 export const formatResponse = <T>(
-  data: T | null,
-  options: {
-    message?: string;
-    isError?: boolean;
-    code?: string;
-    details?: any;
-  } = {}
+	data: T | null,
+	options: {
+		message?: string;
+		isError?: boolean;
+		code?: string;
+		details?: any;
+	} = {}
 ): ApiResponse<T> => {
-  const { message, isError = false, code, details } = options;
+	const { message, isError = false, code, details } = options;
 
-  if (isError) {
-    // This is an error response
-    if (!message) {
-      throw new Error("Error responses must have a message.");
-    }
-    return {
-      success: false,
-      message: message,
-      ...(code && { code }),
-      ...(details && { details }),
-    };
-  } else {
-    // This is a success response
-    const hasData: boolean = Array.isArray(data) ? data.length > 0 : !!data;
-    const responseMessage = message || (hasData ? "Success" : "No data found");
+	if (isError) {
+		// This is an error response
+		if (!message) {
+			throw new Error("Error responses must have a message.");
+		}
+		return {
+			success: false,
+			message: message,
+			...(code && { code }),
+			...(details && { details }),
+		};
+	} else {
+		// This is a success response
+		const hasData: boolean = Array.isArray(data) ? data.length > 0 : !!data;
+		const responseMessage = message || (hasData ? "Success" : "No data found");
 
-    const successRes: SuccessResponse<T> = {
-      success: true,
-      message: responseMessage,
-      data: data as T, // Cast data to T, as it's a success response
-    };
+		const successRes: SuccessResponse<T> = {
+			success: true,
+			message: responseMessage,
+			data: data as T, // Cast data to T, as it's a success response
+		};
 
-    if (Array.isArray(data)) {
-      successRes.length = data.length;
-    }
+		if (Array.isArray(data)) {
+			successRes.length = data.length;
+		}
 
-    return successRes;
-  }
+		return successRes;
+	}
 };

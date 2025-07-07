@@ -6,9 +6,9 @@ const toolTypeRouter = Router();
 
 toolTypeRouter.get("/", AuthMiddleware, ToolTypeController.getAll);
 toolTypeRouter.get(
-  "/:activity_id",
-  AuthMiddleware,
-  ToolTypeController.getByActivity
+	"/:activity_id",
+	AuthMiddleware,
+	ToolTypeController.getByActivity
 );
 toolTypeRouter.get("/:id/price", AuthMiddleware, ToolTypeController.getPrice);
 

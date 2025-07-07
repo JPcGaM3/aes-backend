@@ -7,9 +7,9 @@ const customerTypeRouter = Router();
 customerTypeRouter.get("/", AuthMiddleware, CustomerTypeController.getAll);
 customerTypeRouter.get("/:id", AuthMiddleware, CustomerTypeController.getById);
 customerTypeRouter.get(
-  "/:name",
-  AuthMiddleware,
-  CustomerTypeController.getByName
+	"/:name",
+	AuthMiddleware,
+	CustomerTypeController.getByName
 );
 
 export default customerTypeRouter;

@@ -6,9 +6,9 @@ const userRouter = Router();
 
 userRouter.get("/", AuthMiddleware, UserController.getAll);
 userRouter.get(
-  "/operation-area",
-  AuthMiddleware,
-  UserController.getOperationArea
+	"/operation-area",
+	AuthMiddleware,
+	UserController.getOperationArea
 );
 userRouter.get("/ae-area", AuthMiddleware, UserController.getAEArea);
 

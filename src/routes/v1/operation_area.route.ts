@@ -6,14 +6,14 @@ const operationAreaRouter = Router();
 
 operationAreaRouter.get("/", OperationAreaController.getAll);
 operationAreaRouter.get(
-  "/:id",
-  AuthMiddleware,
-  OperationAreaController.getById
+	"/:id",
+	AuthMiddleware,
+	OperationAreaController.getById
 );
 operationAreaRouter.get(
-  "/match-customer-type",
-  AuthMiddleware,
-  OperationAreaController.getByCustomerType
+	"/match-customer-type",
+	AuthMiddleware,
+	OperationAreaController.getByCustomerType
 );
 
 export default operationAreaRouter;

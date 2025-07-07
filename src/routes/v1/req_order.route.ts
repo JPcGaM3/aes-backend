@@ -8,54 +8,54 @@ import { checkPermission } from "../../middlewares/rbac.middleware";
 const reqOrderRouter = Router();
 
 reqOrderRouter.get(
-  "/",
-  AuthMiddleware,
-  checkPermission("requestorders", "READ"),
-  RequestOrderController.getAll
+	"/",
+	AuthMiddleware,
+	checkPermission("requestorders", "READ"),
+	RequestOrderController.getAll
 );
 reqOrderRouter.get(
-  "/:id/get-task",
-  AuthMiddleware,
-  RequestOrderController.getByIdWithTasks
+	"/:id/get-task",
+	AuthMiddleware,
+	RequestOrderController.getByIdWithTasks
 );
 
 reqOrderRouter.post(
-  "/create/key-in",
-  AuthMiddleware,
-  RequestOrderController.createFormKeyIn
+	"/create/key-in",
+	AuthMiddleware,
+	RequestOrderController.createFormKeyIn
 );
 reqOrderRouter.post(
-  "/create/excel",
-  AuthMiddleware,
-  uploadExcels.array("files", 5),
-  RequestOrderController.createFromExcel
+	"/create/excel",
+	AuthMiddleware,
+	uploadExcels.array("files", 5),
+	RequestOrderController.createFromExcel
 );
 reqOrderRouter.patch(
-  "/:id/update",
-  AuthMiddleware,
-  RequestOrderController.update
+	"/:id/update",
+	AuthMiddleware,
+	RequestOrderController.update
 );
 reqOrderRouter.patch(
-  "/:id/set/status",
-  AuthMiddleware,
-  RequestOrderController.setStatus
+	"/:id/set/status",
+	AuthMiddleware,
+	RequestOrderController.setStatus
 );
 reqOrderRouter.patch(
-  "/:id/set/active",
-  AuthMiddleware,
-  RequestOrderController.setActive
+	"/:id/set/active",
+	AuthMiddleware,
+	RequestOrderController.setActive
 );
 
 reqOrderRouter.post(
-  "/:id/set/evidence",
-  AuthMiddleware,
-  uploadImages.array("files", 5),
-  RequestOrderController.setEvidence
+	"/:id/set/evidence",
+	AuthMiddleware,
+	uploadImages.array("files", 5),
+	RequestOrderController.setEvidence
 );
 reqOrderRouter.get(
-  "/:id/get/evidence",
-  AuthMiddleware,
-  RequestOrderController.getEvidence
+	"/:id/get/evidence",
+	AuthMiddleware,
+	RequestOrderController.getEvidence
 );
 
 export default reqOrderRouter;
