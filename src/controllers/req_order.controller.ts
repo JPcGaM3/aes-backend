@@ -24,10 +24,17 @@ export const RequestOrderController = {
     next: NextFunction
   ): Promise<any> => {
     try {
+      const { id } = req.currentUser;
+
+      if (!id) {
+        return res
+          .status(HTTP_STATUS.UNAUTHORIZED)
+          .json(formatResponse([], { message: "Unauthorized." }));
+      }
+
       const {
         phone,
         operation_area_id,
-        customer_operation_area_id,
         zone,
         quota_number,
         farmer_name,
@@ -39,13 +46,12 @@ export const RequestOrderController = {
         ap_month,
         ap_year,
         supervisor_name,
+        ae_id,
       } = req.body;
-      // const currentYear = new Date().getFullYear();
-      // const startDate = new Date(`${currentYear}-01-01T00:00:00.000Z`);
-      // const endDate = new Date(`${currentYear}-12-31T23:59:59.999Z`);
       const now = moment.tz("Asia/Bangkok");
       const startDate = now.clone().startOf("year").toDate();
       const endDate = now.clone().endOf("year").toDate();
+
       let runNumber = await RequestOrderService.getRunNumber(
         startDate,
         endDate
@@ -59,7 +65,9 @@ export const RequestOrderController = {
         );
       }
 
-      const opa_response = await OperationAreaService.getAllNeed();
+      const opa_response = await OperationAreaService.getById(
+        operation_area_id
+      );
 
       if (!opa_response) {
         return res.status(HTTP_STATUS.NOT_FOUND).json(
@@ -69,21 +77,12 @@ export const RequestOrderController = {
         );
       }
 
-      const opa = opa_response.find(
-        (item: any) => item.id === operation_area_id
-      );
-
-      const customer_opa = opa_response.find(
-        (item: any) => item.id === customer_operation_area_id
-      );
-
       const reqData = {
-        customer_type_id: Number(customer_opa.customer_type_id),
+        customer_type_id: Number(opa_response.customer_type_id),
         run_number: (runNumber += 1).toString().padStart(5, "0"),
         phone,
         operation_area_id: Number(operation_area_id),
-        customer_operation_area_id: Number(customer_opa.id),
-        ae_id: Number(opa.ae_id),
+        ae_id: Number(ae_id),
         zone,
         quota_number,
         farmer_name,
@@ -93,9 +92,9 @@ export const RequestOrderController = {
         ap_month: ap_month,
         ap_year,
         supervisor_name,
-        unit_head_id: Number(req.currentUser.id),
-        created_by: Number(req.currentUser.id),
-        updated_by: Number(req.currentUser.id),
+        unit_head_id: Number(id),
+        created_by: Number(id),
+        updated_by: Number(id),
       };
 
       const newRequestOrder = await RequestOrderService.create(reqData);
@@ -146,7 +145,15 @@ export const RequestOrderController = {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const { operation_area_id } = req.body;
+      const { id } = req.currentUser;
+
+      if (!id) {
+        return res
+          .status(HTTP_STATUS.UNAUTHORIZED)
+          .json(formatResponse([], { message: "Unauthorized." }));
+      }
+
+      const { ae_id } = req.body;
       if (!req.files || !Array.isArray(req.files)) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json(
           formatResponse([], {
@@ -176,20 +183,8 @@ export const RequestOrderController = {
 
         for (const row of data) {
           try {
-            const customer_opa_res = opa.find(
-              (item: any) => item.operation_area === row.พื้นที่ปฏิบัติงาน
-            );
-
-            if (!customer_opa_res) {
-              errorRows.push({
-                row,
-                error: "Customer operation area not found",
-              });
-              continue;
-            }
-
             const opa_res = opa.find(
-              (item: any) => item.id === Number(operation_area_id)
+              (item: any) => item.operation_area === row.พื้นที่ปฏิบัติงาน
             );
 
             if (!opa_res) {
@@ -214,11 +209,10 @@ export const RequestOrderController = {
             runNumberMap[currentYear] += 1;
 
             const reqOrder = {
-              customer_type_id: Number(customer_opa_res.customer_type_id),
+              customer_type_id: Number(opa_res.customer_type_id),
               run_number: currentRunNumber.toString().padStart(5, "0"),
               phone: row.เบอร์ติดต่อ.toString(),
-              operation_area_id: Number(operation_area_id),
-              customer_operation_area_id: Number(customer_opa_res.id),
+              operation_area_id: Number(opa_res.id),
               zone: row.รหัสไร่.toString(),
               quota_number: row.โควต้าไร่.toString(),
               farmer_name: row.ชื่อไร่.toString(),
@@ -228,15 +222,11 @@ export const RequestOrderController = {
               ap_month: ConvertMonthTH_ENG(row.เดือน),
               ap_year: Number(row.ปี) - 543,
               supervisor_name: row.หัวหน้าไร่.toString(),
-              ae_id: Number(opa_res.ae_id),
-              unit_head_id: Number(req.currentUser.id),
-              created_by: Number(req.currentUser.id),
-              updated_by: Number(req.currentUser.id),
+              ae_id: Number(ae_id),
+              unit_head_id: Number(id),
+              created_by: Number(id),
+              updated_by: Number(id),
             };
-
-            console.log(
-              `[Controller] Creating order for year ${currentYear} with run_number: ${reqOrder.run_number}`
-            );
 
             const newRequestOrder = await RequestOrderService.create(reqOrder);
 

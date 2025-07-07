@@ -175,7 +175,7 @@ export const MitrController = {
     const { username, email, password } = req.body;
     try {
       if (!ae_id) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json(
+        return res.status(HTTP_STATUS.NOT_FOUND).json(
           formatResponse([], {
             message: "Failed to retrieve AE area.",
           })
