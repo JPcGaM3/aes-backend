@@ -433,12 +433,13 @@ export const RequestOrderController = {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const { id } = req.params;
-      const { status, comment, user_id } = req.body;
+      const { id: request_order_id } = req.params;
+      const { id } = req.currentUser;
+      const { status, comment } = req.body;
       const updatedRequestOrder = await RequestOrderService.setStatus(
+        Number(request_order_id),
+        status.toUpperCase(),
         Number(id),
-        status,
-        Number(user_id),
         comment ? (comment as string) : undefined
       );
       if (!updatedRequestOrder) {

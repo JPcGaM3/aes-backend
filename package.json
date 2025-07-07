@@ -1,57 +1,83 @@
 {
-  "name": "backend",
-  "version": "1.0.0",
-  "main": "index.js",
-  "type": "commonjs",
-  "scripts": {
-    "build": "tsc",
-    "dev": "nodemon --watch src --exec \"ts-node --files src/index.ts\"",
-    "prod": "node --env-file=.env dist/index.js",
-    "start": "nodemon --watch src --exec \"tsx src/index.ts\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "@prisma/client": "^6.11.1",
-    "axios": "^1.10.0",
-    "bcrypt": "^6.0.0",
-    "bcryptjs": "^3.0.2",
-    "body-parser": "^2.2.0",
-    "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
-    "express": "^5.1.0",
-    "fs": "^0.0.1-security",
-    "jsonwebtoken": "^9.0.2",
-    "luxon": "^3.6.1",
-    "moment": "^2.30.1",
-    "moment-timezone": "^0.6.0",
-    "multer": "^2.0.1",
-    "passport": "^0.7.0",
-    "passport-jwt": "^4.0.1",
-    "postgres": "^3.4.7",
-    "xlsx": "^0.18.5"
-  },
-  "devDependencies": {
-    "@types/bcrypt": "^5.0.2",
-    "@types/body-parser": "^1.19.5",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.2",
-    "@types/jsonwebtoken": "^9.0.10",
-    "@types/luxon": "^3.6.2",
-    "@types/multer": "^1.4.13",
-    "@types/node": "^24.0.1",
-    "@types/passport-jwt": "^4.0.1",
-    "cross-env": "^7.0.3",
-    "nodemon": "^3.1.10",
-    "prisma": "^6.11.1",
-    "ts-node": "^10.9.2",
-    "ts-node-dev": "^2.0.0",
-    "tsx": "^4.19.4",
-    "typescript": "^5.8.3"
-  },
-  "engines": {
-    "node": ">=22.0.0"
-  }
+	"name": "backend",
+	"version": "1.0.0",
+	"main": "index.js",
+	"type": "commonjs",
+	"prettier": {
+		"useTabs": true,
+		"tabWidth": 4,
+		"semi": true,
+		"singleQuote": false,
+		"trailingComma": "es5",
+		"bracketSpacing": true,
+		"arrowParens": "always"
+	},
+	"scripts": {
+		"build": "tsc",
+		"dev": "nodemon --watch src --exec \"ts-node --files src/index.ts\"",
+		"prod": "node --env-file=.env dist/index.js",
+		"start": "nodemon --watch src --exec \"tsx src/index.ts\"",
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+		"format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+		"lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+		"lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix"
+	},
+	"lint-staged": {
+		"*.{js,jsx,ts,tsx,json,css,scss,md}": [
+			"prettier --write",
+			"git add"
+		]
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "lint-staged"
+		}
+	},
+	"author": "",
+	"license": "ISC",
+	"description": "",
+	"dependencies": {
+		"@prisma/client": "^6.11.1",
+		"axios": "^1.10.0",
+		"bcrypt": "^6.0.0",
+		"bcryptjs": "^3.0.2",
+		"body-parser": "^2.2.0",
+		"cors": "^2.8.5",
+		"dotenv": "^16.5.0",
+		"express": "^5.1.0",
+		"fs": "^0.0.1-security",
+		"jsonwebtoken": "^9.0.2",
+		"luxon": "^3.6.1",
+		"moment": "^2.30.1",
+		"moment-timezone": "^0.6.0",
+		"multer": "^2.0.1",
+		"passport": "^0.7.0",
+		"passport-jwt": "^4.0.1",
+		"postgres": "^3.4.7",
+		"xlsx": "^0.18.5"
+	},
+	"devDependencies": {
+		"@types/bcrypt": "^5.0.2",
+		"@types/body-parser": "^1.19.5",
+		"@types/cors": "^2.8.19",
+		"@types/express": "^5.0.2",
+		"@types/jsonwebtoken": "^9.0.10",
+		"@types/luxon": "^3.6.2",
+		"@types/multer": "^1.4.13",
+		"@types/node": "^24.0.1",
+		"@types/passport-jwt": "^4.0.1",
+		"cross-env": "^7.0.3",
+		"husky": "^9.1.7",
+		"lint-staged": "^16.1.2",
+		"nodemon": "^3.1.10",
+		"prisma": "^6.11.1",
+		"ts-node": "^10.9.2",
+		"ts-node-dev": "^2.0.0",
+		"tsx": "^4.19.4",
+		"typescript": "^5.8.3"
+	},
+	"engines": {
+		"node": ">=22.0.0"
+	}
 }
