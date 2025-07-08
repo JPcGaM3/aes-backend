@@ -163,7 +163,6 @@ export const RequestOrderController = {
 
 			const files = req.files as Express.Multer.File[];
 			const processedData: any[] = [];
-			const errorRows: any[] = [];
 			const runNumberMap: Record<number, number> = {};
 
 			const opa = await OperationAreaService.getAllNeed();
@@ -179,6 +178,7 @@ export const RequestOrderController = {
 				const data = await ReadExcelFile(file.buffer);
 
 				const reqData: any[] = [];
+				const errorRows: any[] = [];
 
 				for (const row of data) {
 					try {

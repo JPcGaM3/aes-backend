@@ -68,7 +68,7 @@ export const MitrController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			const { token, username, email, id } = req.currentUser;
+			const { token, username, email, id, role } = req.currentUser;
 
 			if (!token || !(username && email) || !id) {
 				return res
@@ -100,15 +100,10 @@ export const MitrController = {
 					.json(formatResponse([], { message: "User not found." }));
 			}
 
-			const roles: string[] = [];
-			user.user_role.forEach((role: any) => {
-				roles.push(role.role.name as string);
-			});
-
 			return res.status(HTTP_STATUS.OK).json(
 				formatResponse({
 					profile: profile.result[0],
-					user_result: { ...user, role: roles },
+					user_result: { ...user, role: role },
 				})
 			);
 		} catch (error) {
@@ -122,7 +117,7 @@ export const MitrController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			const { token, username, email, id } = req.currentUser;
+			const { token, username, email, id, role } = req.currentUser;
 
 			if (!token || !(username && email) || !id) {
 				return res
@@ -153,15 +148,10 @@ export const MitrController = {
 					.json(formatResponse([], { message: "User not found." }));
 			}
 
-			const roles: string[] = [];
-			user.user_role.forEach((role: any) => {
-				roles.push(role.role.name as string);
-			});
-
 			return res.status(HTTP_STATUS.OK).json(
 				formatResponse({
 					profile: profile.result[0],
-					user_result: { ...user, role: roles },
+					user_result: { ...user, role: role },
 				})
 			);
 		} catch (error) {
@@ -285,7 +275,7 @@ export const MitrController = {
 				token: userToken,
 				id: userResponse.id,
 				ae_id: Number(userResponse.ae_id),
-				role: userResponse.role,
+				role: roles,
 				unit: userResponse.unit,
 				employee_id: profile.result[0].id,
 				username: profile.result[0].username,

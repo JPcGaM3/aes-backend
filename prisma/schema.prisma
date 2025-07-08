@@ -45,11 +45,9 @@ enum RoleEnum {
   DRIVER
 }
 
-// Role Managment
-
 model role {
   id          Int       @id @default(autoincrement())
-  name        String?
+  name        RoleEnum?
   description String?
   active      Boolean   @default(true)
   created_at  DateTime? @default(now()) @db.Timestamptz
@@ -86,7 +84,6 @@ model role_permission {
   created_by    Int
   updated_by    Int
 
-  // Relations
   role       role?       @relation(fields: [role_id], references: [id], onDelete: Cascade)
   permission permission? @relation(fields: [permission_id], references: [id], onDelete: Cascade)
 
@@ -99,12 +96,12 @@ model user_role {
   id         Int       @id @default(autoincrement())
   user_id    Int?
   role_id    Int?
+  active     Boolean?  @default(false)
   created_at DateTime? @default(now()) @db.Timestamptz
   updated_at DateTime? @updatedAt @db.Timestamptz
   created_by Int
   updated_by Int
 
-  // Relations
   user users? @relation(fields: [user_id], references: [id], onDelete: Cascade)
   role role?  @relation(fields: [role_id], references: [id], onDelete: Cascade)
 
@@ -118,7 +115,7 @@ model users {
   phone               String?               @db.VarChar(15)
   unit                Int?
   ae_id               Int?
-  role                RoleEnum[]
+  // role                RoleEnum[]
   status              StatusEnum            @default(INACTIVE)
   active              Boolean?              @default(true)
   created_at          DateTime?             @default(now()) @db.Timestamptz
