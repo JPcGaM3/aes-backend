@@ -3,7 +3,6 @@ import { users } from "../../../generated/prisma";
 interface CurrentUser {
 	token: string | null;
 	id: number | NaN;
-	ae_id: number | NaN;
 	role?: string[] | null;
 	unit: number | NaN;
 	employee_id: string | null;

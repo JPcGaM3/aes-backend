@@ -241,7 +241,7 @@ export const MitrController = {
 				ae_areas.push(Number(ae.ae_area.id));
 			});
 
-			if (!(Number(ae_id) in ae_areas)) {
+			if (!ae_areas.includes(Number(ae_id))) {
 				return res.status(HTTP_STATUS.UNAUTHORIZED).json(
 					formatResponse([], {
 						message: "Permission denied.",
@@ -274,7 +274,6 @@ export const MitrController = {
 			const currentUser = {
 				token: userToken,
 				id: userResponse.id,
-				ae_id: Number(userResponse.ae_id),
 				role: roles,
 				unit: userResponse.unit,
 				employee_id: profile.result[0].id,
