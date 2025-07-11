@@ -49,7 +49,9 @@ export const UserController = {
 			}
 			const role_id: number[] = [];
 			roleArray.forEach((r: string) => {
-				const foundRole = role_res.find((role) => role.name === r);
+				const foundRole = role_res.find(
+					(role) => role.name === r.toUpperCase()
+				);
 				if (foundRole) {
 					role_id.push(foundRole.id);
 				}
