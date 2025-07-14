@@ -9,7 +9,9 @@ const defaultInclude = {
 	users: true,
 	_count: {
 		select: {
-			taskorders: true,
+			taskorders: {
+				where: { active: true },
+			},
 		},
 	},
 };
@@ -141,11 +143,15 @@ export const RequestOrderService = {
 			include: {
 				...defaultInclude,
 				taskorders: {
+					where: { active: true },
 					include: {
 						users: true,
 						activities: true,
 						tool_type: true,
 						cars: true,
+					},
+					orderBy: {
+						ap_date: "asc",
 					},
 				},
 			},

@@ -20,8 +20,11 @@ export const RBACService = {
 			where: { active },
 			include: {
 				permissions: {
+					where: { active: true },
 					include: {
-						permission: true,
+						permission: {
+							where: { active: true },
+						},
 					},
 				},
 			},
@@ -34,7 +37,9 @@ export const RBACService = {
 			include: {
 				permissions: {
 					include: {
-						permission: true,
+						permission: {
+							where: { active: true },
+						},
 					},
 				},
 			},
@@ -102,9 +107,11 @@ export const RBACService = {
 
 	getUserRoles: async (userId: number) => {
 		return await prisma.user_role.findMany({
-			where: { user_id: userId },
+			where: { user_id: userId, active: true },
 			include: {
-				role: true,
+				role: {
+					where: { active: true },
+				},
 			},
 		});
 	},

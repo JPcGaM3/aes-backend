@@ -121,7 +121,7 @@ export const MitrController = {
 
 			if (!token || !(username && email) || !id) {
 				return res
-					.status(HTTP_STATUS.NOT_FOUND)
+					.status(HTTP_STATUS.UNAUTHORIZED)
 					.json(formatResponse([], { message: "Unauthorized" }));
 			}
 
@@ -295,6 +295,19 @@ export const MitrController = {
 					// profile_result: profile.result[0],
 				})
 			);
+		} catch (error) {
+			next(error);
+		}
+	},
+	logout: async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<any> => {
+		try {
+			return res
+				.status(HTTP_STATUS.OK)
+				.json(formatResponse({ message: "Logout successful." }));
 		} catch (error) {
 			next(error);
 		}

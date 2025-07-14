@@ -1,7 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
 import os from "os";
-import { MESSAGES } from "./configs/constants";
 import apiRouter from "./routes/v1/index";
 import {
 	notFoundHandler,
@@ -9,6 +8,7 @@ import {
 } from "./middlewares/error_handler.middleware";
 import cors from "cors";
 import { requestLogger } from "./middlewares/logger.middleware";
+import { clearPermissionsCache } from "./middlewares/rbac.middleware";
 
 dotenv.config({ path: "../.env" });
 
@@ -26,6 +26,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(requestLogger);
+
+//TODO: Dev only
+app.use("/clear-cache", (req, res) => {
+	clearPermissionsCache();
+	res.json({ message: "Permissions cache cleared" });
+});
+
 app.use("/api/v1", apiRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);

@@ -1,9 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { HTTP_STATUS } from "../configs/constants";
 import { formatResponse } from "../utils/response_formatter";
-import { create } from "domain";
 import { TaskOrderService } from "../services/task_order.service";
-import { ConvertToChristianDate } from "../utils/functions";
 import { StatusEnum } from "../../generated/prisma";
 
 export const TaskOrderController = {
@@ -13,7 +11,17 @@ export const TaskOrderController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			const newTaskOrder = await TaskOrderService.create(req.body);
+			const { id: userId } = req.currentUser;
+			if (!userId) {
+				return res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(formatResponse([], { message: "Unauthorized." }));
+			}
+			const newTaskOrder = await TaskOrderService.create({
+				...req.body,
+				created_by: Number(userId),
+				updated_by: Number(userId),
+			});
 			if (!newTaskOrder) {
 				return res.status(HTTP_STATUS.BAD_REQUEST).json(
 					formatResponse([], {
@@ -33,11 +41,18 @@ export const TaskOrderController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			const { id } = req.params;
-			const updatedTaskOrder = await TaskOrderService.update(
-				Number(id),
-				req.body
-			);
+			const { id: taskId } = req.params;
+			const { id: userId } = req.currentUser;
+			if (!userId) {
+				return res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(formatResponse([], { message: "Unauthorized." }));
+			}
+
+			const updatedTaskOrder = await TaskOrderService.update(Number(taskId), {
+				...req.body,
+				updated_by: Number(userId),
+			});
 			if (!updatedTaskOrder) {
 				return res.status(HTTP_STATUS.BAD_REQUEST).json(
 					formatResponse([], {
@@ -57,12 +72,18 @@ export const TaskOrderController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			const { id } = req.params;
-			const { status, comment, user_id } = req.body;
+			const { id: taskId } = req.params;
+			const { status, comment } = req.body;
+			const { id: userId } = req.currentUser;
+			if (!userId) {
+				return res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(formatResponse([], { message: "Unauthorized." }));
+			}
 			const updatedTaskOrder = await TaskOrderService.setStatus(
-				Number(id),
+				Number(taskId),
 				status,
-				user_id,
+				Number(userId),
 				comment ? (comment as string) : undefined
 			);
 			if (!updatedTaskOrder) {
@@ -84,12 +105,18 @@ export const TaskOrderController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			const { id } = req.params;
-			const { active, user_id } = req.body;
+			const { id: userId } = req.currentUser;
+			const { id: taskId } = req.params;
+			const { active } = req.body;
+			if (!userId) {
+				return res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(formatResponse([], { message: "Unauthorized." }));
+			}
 			const updatedTaskOrder = await TaskOrderService.setActive(
-				Number(id),
+				Number(taskId),
 				active as boolean,
-				Number(user_id)
+				Number(userId)
 			);
 			if (!updatedTaskOrder) {
 				return res.status(HTTP_STATUS.BAD_REQUEST).json(
@@ -110,15 +137,20 @@ export const TaskOrderController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			const { id } = req.params;
-			const { car_id, tool_types_id, assigned_user_id, ap_date, user_id } =
-				req.body;
+			const { id: taskId } = req.params;
+			const { car_id, tool_types_id, assigned_user_id, ap_date } = req.body;
+			const { id: userId } = req.currentUser;
+			if (!userId) {
+				return res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(formatResponse([], { message: "Unauthorized." }));
+			}
 			const updatedTaskOrder = await TaskOrderService.setAllAssigned(
-				Number(id),
-				user_id,
+				Number(taskId),
+				Number(userId),
 				car_id ? Number(car_id) : NaN,
-				tool_types_id ? Number(car_id) : NaN,
-				assigned_user_id ? Number(car_id) : NaN,
+				tool_types_id ? Number(tool_types_id) : NaN,
+				assigned_user_id ? Number(assigned_user_id) : NaN,
 				ap_date ? new Date(ap_date as string) : undefined
 			);
 			if (!updatedTaskOrder) {
@@ -169,10 +201,16 @@ export const TaskOrderController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			const { id } = req.params;
-			const { addActualArea, user_id } = req.body;
+			const { id: taskId } = req.params;
+			const { addActualArea } = req.body;
+			const { id: userId } = req.currentUser;
+			if (!userId) {
+				return res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(formatResponse([], { message: "Unauthorized." }));
+			}
 
-			const actualArea = await TaskOrderService.getById(Number(id));
+			const actualArea = await TaskOrderService.getById(Number(taskId));
 			if (!actualArea) {
 				return res
 					.status(HTTP_STATUS.NOT_FOUND)
@@ -183,8 +221,8 @@ export const TaskOrderController = {
 				Number(actualArea.actual_area) + Number(addActualArea);
 
 			const updatedActual = await TaskOrderService.setActualArea(
-				Number(id),
-				Number(user_id),
+				Number(taskId),
+				Number(userId),
 				Number(newActualArea)
 			);
 

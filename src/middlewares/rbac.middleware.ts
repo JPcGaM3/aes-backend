@@ -14,6 +14,11 @@ const checkAndClearCache = () => {
 	}
 };
 
+export const clearPermissionsCache = (): void => {
+	permissionsCache = {};
+	cacheTimestamp = Date.now();
+};
+
 export const hasPermission = async (
 	userId: number,
 	resource: string,
@@ -28,13 +33,16 @@ export const hasPermission = async (
 	}
 
 	const userPermissions = await prisma.user_role.findMany({
-		where: { user_id: userId },
+		where: { user_id: userId, active: true },
 		select: {
 			role: {
+				where: { active: true },
 				select: {
 					permissions: {
+						where: { active: true },
 						select: {
 							permission: {
+								where: { active: true },
 								select: {
 									resource: true,
 									action: true,
@@ -61,9 +69,9 @@ export const hasPermission = async (
 
 export const checkPermission = (resource: string, action: string): any => {
 	return async (req: Request, res: Response, next: NextFunction) => {
-		const { id } = req.currentUser;
+		const { id: userId } = req.currentUser;
 
-		if (!id) {
+		if (!userId) {
 			return res.status(HTTP_STATUS.UNAUTHORIZED).json(
 				formatResponse([], {
 					message: "Unauthorized: No user ID provided",
@@ -72,7 +80,7 @@ export const checkPermission = (resource: string, action: string): any => {
 		}
 
 		try {
-			const permitted = await hasPermission(Number(id), resource, action);
+			const permitted = await hasPermission(Number(userId), resource, action);
 
 			if (!permitted) {
 				return res.status(HTTP_STATUS.FORBIDDEN).json(

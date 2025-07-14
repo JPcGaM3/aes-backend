@@ -30,12 +30,20 @@ export const CarController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			const { id } = req.params;
+			const { id: carId } = req.params;
 			const { active } = req.body;
+			const { id: userId } = req.currentUser;
+
+			if (!userId) {
+				return res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(formatResponse([], { message: "Unauthorized." }));
+			}
+
 			const updatedCar = await CarService.setActive(
-				Number(id),
+				Number(carId),
 				active,
-				Number(req.currentUser.id)
+				Number(userId)
 			);
 			if (!updatedCar) {
 				return res

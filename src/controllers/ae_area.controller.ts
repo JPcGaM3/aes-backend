@@ -28,10 +28,18 @@ export const AEAreaController = {
 	): Promise<any> => {
 		try {
 			const { data } = req.body;
+			const { id: userId } = req.currentUser;
+
+			if (!userId) {
+				return res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(formatResponse([], { message: "Unauthorized." }));
+			}
+
 			const newArea = await AEAreaService.create({
 				...data,
-				created_by: Number(req.currentUser.id),
-				updated_by: Number(req.currentUser.id),
+				created_by: Number(userId),
+				updated_by: Number(userId),
 			});
 			if (!newArea) {
 				return res
@@ -49,16 +57,24 @@ export const AEAreaController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			const { id } = req.params;
+			const { id: areaId } = req.params;
 			const { data } = req.body;
-			if (!id) {
+			const { id: userId } = req.currentUser;
+
+			if (!userId) {
+				return res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(formatResponse([], { message: "Unauthorized." }));
+			}
+
+			if (!areaId) {
 				return res
 					.status(HTTP_STATUS.BAD_REQUEST)
 					.json(formatResponse([], { message: "Invalid area ID" }));
 			}
-			const updatedArea = await AEAreaService.update(Number(id), {
+			const updatedArea = await AEAreaService.update(Number(areaId), {
 				...data,
-				updated_by: Number(req.currentUser.id),
+				updated_by: Number(userId),
 			});
 			if (!updatedArea) {
 				return res

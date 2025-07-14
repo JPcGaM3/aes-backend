@@ -24,9 +24,9 @@ export const RequestOrderController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			const { id } = req.currentUser;
+			const { id: userId } = req.currentUser;
 
-			if (!id) {
+			if (!userId) {
 				return res
 					.status(HTTP_STATUS.UNAUTHORIZED)
 					.json(formatResponse([], { message: "Unauthorized." }));
@@ -91,9 +91,9 @@ export const RequestOrderController = {
 				ap_month: ap_month,
 				ap_year,
 				supervisor_name,
-				unit_head_id: Number(id),
-				created_by: Number(id),
-				updated_by: Number(id),
+				unit_head_id: Number(userId),
+				created_by: Number(userId),
+				updated_by: Number(userId),
 			};
 
 			const newRequestOrder = await RequestOrderService.create(reqData);
@@ -117,8 +117,8 @@ export const RequestOrderController = {
 						request_order_id: Number(req_id),
 						activities_id: Number(act.id as number),
 						tool_types_id: Number(tool.id as number),
-						created_by: Number(req.currentUser.id),
-						updated_by: Number(req.currentUser.id),
+						created_by: Number(userId),
+						updated_by: Number(userId),
 					});
 				} catch (error) {
 					next(error);
@@ -144,9 +144,9 @@ export const RequestOrderController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			const { id } = req.currentUser;
+			const { id: userId } = req.currentUser;
 
-			if (!id) {
+			if (!userId) {
 				return res
 					.status(HTTP_STATUS.UNAUTHORIZED)
 					.json(formatResponse([], { message: "Unauthorized." }));
@@ -222,9 +222,9 @@ export const RequestOrderController = {
 							ap_year: Number(row.ปี) - 543,
 							supervisor_name: row.หัวหน้าไร่.toString(),
 							ae_id: Number(ae_id),
-							unit_head_id: Number(id),
-							created_by: Number(id),
-							updated_by: Number(id),
+							unit_head_id: Number(userId),
+							created_by: Number(userId),
+							updated_by: Number(userId),
 						};
 
 						const newRequestOrder = await RequestOrderService.create(reqOrder);
@@ -264,8 +264,8 @@ export const RequestOrderController = {
 								request_order_id: Number(req_id),
 								activities_id: Number(act.id),
 								tool_types_id: Number(tool.id),
-								created_by: Number(req.currentUser.id),
-								updated_by: Number(req.currentUser.id),
+								created_by: Number(userId),
+								updated_by: Number(userId),
 							};
 
 							const newTaskOrder = await TaskOrderService.create(taskData);
@@ -313,11 +313,18 @@ export const RequestOrderController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			const { id } = req.params;
-			req.body.updated_by = Number(req.currentUser.id);
+			const { id: requestId } = req.params;
+			const { id: userId } = req.currentUser;
+
+			if (!userId) {
+				return res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(formatResponse([], { message: "Unauthorized." }));
+			}
+
 			const updatedRequestOrder = await RequestOrderService.update(
-				Number(id),
-				req.body
+				Number(requestId),
+				{ ...req.body, updated_by: Number(userId) }
 			);
 			if (!updatedRequestOrder) {
 				return res.status(HTTP_STATUS.NOT_FOUND).json(
@@ -338,8 +345,9 @@ export const RequestOrderController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
+			const { id: requestId } = req.params;
 			const deletedRequestOrder = await RequestOrderService.delete(
-				Number(req.params.id)
+				Number(requestId)
 			);
 			res.status(HTTP_STATUS.OK).json(formatResponse(deletedRequestOrder));
 		} catch (error) {
@@ -394,9 +402,9 @@ export const RequestOrderController = {
 		res: Response,
 		next: NextFunction
 	): Promise<any> => {
-		const { id } = req.params;
+		const { id: requestId } = req.params;
 		try {
-			const requestOrder = await RequestOrderService.getById(Number(id));
+			const requestOrder = await RequestOrderService.getById(Number(requestId));
 			if (requestOrder) {
 				res.status(HTTP_STATUS.OK).json(formatResponse(requestOrder));
 			} else {
@@ -415,9 +423,9 @@ export const RequestOrderController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			const { id } = req.params;
+			const { id: requestId } = req.params;
 			const requestOrderWithTasks =
-				await RequestOrderService.getByIdWithAllTask(Number(id));
+				await RequestOrderService.getByIdWithAllTask(Number(requestId));
 			if (!requestOrderWithTasks) {
 				return res.status(HTTP_STATUS.NOT_FOUND).json(
 					formatResponse([], {
@@ -439,13 +447,20 @@ export const RequestOrderController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			const { id: request_order_id } = req.params;
-			const { id } = req.currentUser;
+			const { id: requestId } = req.params;
+			const { id: userId } = req.currentUser;
 			const { status, comment } = req.body;
+
+			if (!userId) {
+				return res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(formatResponse([], { message: "Unauthorized." }));
+			}
+
 			const updatedRequestOrder = await RequestOrderService.setStatus(
-				Number(request_order_id),
+				Number(requestId),
 				status.toUpperCase(),
-				Number(id),
+				Number(userId),
 				comment ? (comment as string) : undefined
 			);
 			if (!updatedRequestOrder) {
@@ -469,12 +484,20 @@ export const RequestOrderController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			const { id } = req.params;
-			const { active, user_id } = req.body;
+			const { id: requestId } = req.params;
+			const { active } = req.body;
+			const { id: userId } = req.currentUser;
+
+			if (!userId) {
+				return res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(formatResponse([], { message: "Unauthorized." }));
+			}
+
 			const updatedRequestOrder = await RequestOrderService.setActive(
-				Number(id),
+				Number(requestId),
 				active as boolean,
-				Number(user_id)
+				Number(userId)
 			);
 			if (!updatedRequestOrder) {
 				return res.status(HTTP_STATUS.BAD_REQUEST).json(
@@ -497,8 +520,14 @@ export const RequestOrderController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			const { id } = req.params;
-			const { user_id } = req.body;
+			const { id: requestId } = req.params;
+			const { id: userId } = req.currentUser;
+
+			if (!userId) {
+				return res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(formatResponse([], { message: "Unauthorized." }));
+			}
 
 			if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
 				return res.status(HTTP_STATUS.BAD_REQUEST).json(
@@ -508,7 +537,9 @@ export const RequestOrderController = {
 				);
 			}
 
-			const existingOrder = await RequestOrderService.getById(Number(id));
+			const existingOrder = await RequestOrderService.getById(
+				Number(requestId)
+			);
 			if (!existingOrder) {
 				return res.status(HTTP_STATUS.NOT_FOUND).json(
 					formatResponse([], {
@@ -527,8 +558,8 @@ export const RequestOrderController = {
 						file_name: fileName,
 						file_path: filePath,
 						file_type: file.mimetype,
-						created_by: Number(user_id),
-						updated_by: Number(user_id),
+						created_by: Number(userId),
+						updated_by: Number(userId),
 					});
 				}
 			);
@@ -545,9 +576,9 @@ export const RequestOrderController = {
 			}
 
 			const updatedRequestOrder = await RequestOrderService.setEvidence(
-				Number(id),
+				Number(requestId),
 				updatedEvidence,
-				Number(user_id)
+				Number(userId)
 			);
 
 			if (!updatedRequestOrder) {
@@ -580,8 +611,8 @@ export const RequestOrderController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			const { id } = req.params;
-			const requestOrder = await RequestOrderService.getById(Number(id));
+			const { id: requestId } = req.params;
+			const requestOrder = await RequestOrderService.getById(Number(requestId));
 			if (!requestOrder) {
 				return res.status(HTTP_STATUS.NOT_FOUND).json(
 					formatResponse([], {

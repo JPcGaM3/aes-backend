@@ -14,10 +14,12 @@ export const UserController = {
 	): Promise<any> => {
 		try {
 			const data = req.body;
+			const { id: userId } = req.currentUser;
+
 			const user = await UserService.create({
 				...data,
-				created_by: Number(data.user_id),
-				updated_by: Number(data.user_id),
+				created_by: Number(userId),
+				updated_by: Number(userId),
 			});
 			return res.status(HTTP_STATUS.CREATED).json(formatResponse(user));
 		} catch (error) {
@@ -108,13 +110,13 @@ export const UserController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			const { id } = req.currentUser;
-			if (!id) {
+			const { id: userId } = req.currentUser;
+			if (!userId) {
 				return res
 					.status(HTTP_STATUS.UNAUTHORIZED)
 					.json(formatResponse([], { message: "Unauthorized" }));
 			}
-			const operationArea = await UserService.getOperationArea(id);
+			const operationArea = await UserService.getOperationArea(userId);
 			if (!operationArea || operationArea.length <= 0) {
 				return res.status(HTTP_STATUS.NOT_FOUND).json(
 					formatResponse([], {
@@ -134,13 +136,13 @@ export const UserController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			const { id } = req.currentUser;
-			if (!id) {
+			const { id: userId } = req.currentUser;
+			if (!userId) {
 				return res
 					.status(HTTP_STATUS.UNAUTHORIZED)
 					.json(formatResponse([], { message: "Unauthorized" }));
 			}
-			const aeArea = await UserService.getAEArea(id);
+			const aeArea = await UserService.getAEArea(userId);
 			if (!aeArea || aeArea.length <= 0) {
 				return res
 					.status(HTTP_STATUS.NOT_FOUND)
@@ -159,14 +161,15 @@ export const UserController = {
 	): Promise<any> => {
 		try {
 			const { id } = req.params;
-			const { active, user_id } = req.body;
+			const { active } = req.body;
+			const { id: userId } = req.currentUser;
 			const updatedUser = await UserService.setActive(
 				Number(id),
 				active as boolean,
-				Number(user_id)
+				Number(userId)
 			);
 			if (!updatedUser) {
-				return res.status(HTTP_STATUS.BADreqUEST).json(
+				return res.status(HTTP_STATUS.BAD_REQUEST).json(
 					formatResponse([], {
 						message: "Failed to update user status.",
 					})

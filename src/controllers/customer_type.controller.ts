@@ -28,9 +28,11 @@ export const CustomerTypeController = {
 		res: Response,
 		next: NextFunction
 	): Promise<any> => {
-		const { id } = req.params;
+		const { id: customerTypeId } = req.params;
 		try {
-			const customerType = await CustomerTypeService.getById(Number(id));
+			const customerType = await CustomerTypeService.getById(
+				Number(customerTypeId)
+			);
 			if (!customerType) {
 				return res.status(HTTP_STATUS.NOT_FOUND).json(
 					formatResponse([], {
@@ -69,11 +71,19 @@ export const CustomerTypeController = {
 		next: NextFunction
 	): Promise<any> => {
 		const { name } = req.body;
+		const { id: userId } = req.currentUser;
+
+		if (!userId) {
+			return res
+				.status(HTTP_STATUS.UNAUTHORIZED)
+				.json(formatResponse([], { message: "Unauthorized." }));
+		}
+
 		try {
 			const newCustomerType = await CustomerTypeService.create({
 				name,
-				created_by: Number(req.currentUser.id),
-				updated_by: Number(req.currentUser.id),
+				created_by: Number(userId),
+				updated_by: Number(userId),
 			});
 			return res
 				.status(HTTP_STATUS.CREATED)
@@ -87,13 +97,23 @@ export const CustomerTypeController = {
 		res: Response,
 		next: NextFunction
 	): Promise<any> => {
-		const { id } = req.params;
+		const { id: customerTypeId } = req.params;
 		const { name } = req.body;
+		const { id: userId } = req.currentUser;
+
+		if (!userId) {
+			return res
+				.status(HTTP_STATUS.UNAUTHORIZED)
+				.json(formatResponse([], { message: "Unauthorized." }));
+		}
 		try {
-			const updatedCustomerType = await CustomerTypeService.update(Number(id), {
-				name,
-				updated_by: Number(req.currentUser.id),
-			});
+			const updatedCustomerType = await CustomerTypeService.update(
+				Number(customerTypeId),
+				{
+					name,
+					updated_by: Number(userId),
+				}
+			);
 			if (!updatedCustomerType) {
 				return res.status(HTTP_STATUS.NOT_FOUND).json(
 					formatResponse([], {
@@ -113,9 +133,11 @@ export const CustomerTypeController = {
 		res: Response,
 		next: NextFunction
 	): Promise<any> => {
-		const { id } = req.params;
+		const { id: customerTypeId } = req.params;
 		try {
-			const deletedCustomerType = await CustomerTypeService.delete(Number(id));
+			const deletedCustomerType = await CustomerTypeService.delete(
+				Number(customerTypeId)
+			);
 			if (!deletedCustomerType) {
 				return res.status(HTTP_STATUS.NOT_FOUND).json(
 					formatResponse([], {

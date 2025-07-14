@@ -16,33 +16,42 @@ reqOrderRouter.get(
 reqOrderRouter.get(
 	"/:id/get-task",
 	AuthMiddleware,
+	checkPermission("requestorders", "READ"),
+	checkPermission("taskorders", "READ"),
 	RequestOrderController.getByIdWithTasks
 );
 
 reqOrderRouter.post(
 	"/create/key-in",
 	AuthMiddleware,
+	checkPermission("requestorders", "CREATE"),
+	checkPermission("taskorders", "CREATE"),
 	RequestOrderController.createFormKeyIn
 );
 reqOrderRouter.post(
 	"/create/excel",
 	AuthMiddleware,
 	uploadExcels.array("files", 5),
+	checkPermission("requestorders", "CREATE"),
+	checkPermission("taskorders", "CREATE"),
 	RequestOrderController.createFromExcel
 );
 reqOrderRouter.patch(
 	"/:id/update",
 	AuthMiddleware,
+	checkPermission("requestorders", "UPDATE"),
 	RequestOrderController.update
 );
 reqOrderRouter.patch(
 	"/:id/set/status",
 	AuthMiddleware,
+	checkPermission("requestorders", "UPDATE"),
 	RequestOrderController.setStatus
 );
 reqOrderRouter.patch(
 	"/:id/set/active",
 	AuthMiddleware,
+	checkPermission("requestorders", "UPDATE"),
 	RequestOrderController.setActive
 );
 
@@ -50,11 +59,14 @@ reqOrderRouter.post(
 	"/:id/set/evidence",
 	AuthMiddleware,
 	uploadImages.array("files", 5),
+	checkPermission("requestorders", "UPDATE"),
+	checkPermission("attachment", "CREATE"),
 	RequestOrderController.setEvidence
 );
 reqOrderRouter.get(
 	"/:id/get/evidence",
 	AuthMiddleware,
+	checkPermission("attachment", "READ"),
 	RequestOrderController.getEvidence
 );
 
