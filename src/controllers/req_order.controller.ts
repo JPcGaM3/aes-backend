@@ -371,8 +371,18 @@ export const RequestOrderController = {
 				start_year,
 				end_year,
 			} = req.query;
+			const { id: userId, role: userRole } = req.currentUser;
+
+			if (!userId || !userRole) {
+				return res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(formatResponse([], { message: "Unauthorized." }));
+			}
+
+			const isUnitHead = userRole.includes("UNIT_HEAD");
 
 			const resquestOrders = await RequestOrderService.getAll(
+				isUnitHead ? Number(userId) : NaN,
 				ae_id ? Number(ae_id) : NaN,
 				customer_type_id ? Number(customer_type_id) : NaN,
 				operation_area_id ? Number(operation_area_id) : NaN,

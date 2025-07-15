@@ -19,6 +19,9 @@ export const TaskOrderController = {
 			}
 			const newTaskOrder = await TaskOrderService.create({
 				...req.body,
+				ap_date: req.body.ap_date
+					? new Date(req.body.ap_date as string)
+					: undefined,
 				created_by: Number(userId),
 				updated_by: Number(userId),
 			});

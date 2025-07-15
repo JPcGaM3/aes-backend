@@ -75,6 +75,7 @@ export const RequestOrderService = {
 	},
 
 	getAll: async (
+		unit_head_id?: number,
 		ae_id?: number,
 		customer_type_id?: number,
 		operation_area_id?: number,
@@ -86,6 +87,7 @@ export const RequestOrderService = {
 	): Promise<any> => {
 		const requestOrders = await prisma.requestorders.findMany({
 			where: {
+				...(unit_head_id && { unit_head_id }),
 				...(ae_id && { ae_id }),
 				...(customer_type_id && { customer_type_id }),
 				...(operation_area_id && { operation_area_id }),
@@ -105,6 +107,7 @@ export const RequestOrderService = {
 							lte: endYear,
 						},
 					}),
+				...(startYear && !endYear && { ap_year: startYear }),
 				active: true,
 			},
 			include: defaultInclude,
