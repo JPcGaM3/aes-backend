@@ -198,6 +198,27 @@ export const TaskOrderController = {
 		}
 	},
 
+	getById: async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<any> => {
+		try {
+			const { id: taskId } = req.params;
+			const taskOrder = await TaskOrderService.getById(Number(taskId));
+			if (!taskOrder) {
+				return res.status(HTTP_STATUS.NOT_FOUND).json(
+					formatResponse([], {
+						message: "Task order not found.",
+					})
+				);
+			}
+			return res.status(HTTP_STATUS.OK).json(formatResponse(taskOrder));
+		} catch (error) {
+			next(error);
+		}
+	},
+
 	setActualArea: async (
 		req: Request,
 		res: Response,

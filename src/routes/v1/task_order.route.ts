@@ -13,6 +13,13 @@ taskOrderRouter.post(
 );
 
 taskOrderRouter.get(
+	"/:id",
+	AuthMiddleware,
+	checkPermission("taskorders", "READ"),
+	TaskOrderController.getById
+);
+
+taskOrderRouter.get(
 	"/:assigned_id/get-task",
 	AuthMiddleware,
 	checkPermission("taskorders", "READ"),
