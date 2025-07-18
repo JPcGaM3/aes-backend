@@ -98,15 +98,16 @@ export const TaskOrderService = {
 
 	setStatus: async (
 		id: number,
-		status: StatusEnum,
 		updated_by: number,
+		status?: StatusEnum,
 		comment?: string
 	): Promise<any> => {
 		const updatedTaskOrder = await prisma.taskorders.update({
 			where: { id },
 			data: {
-				status,
+				...(status ? { status } : { status: undefined }),
 				...(comment ? { comment } : { comment: undefined }),
+				...(!status && !comment && { comment: null }),
 				updated_by,
 			},
 		});

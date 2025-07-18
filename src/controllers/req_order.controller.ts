@@ -476,8 +476,8 @@ export const RequestOrderController = {
 
 			const updatedRequestOrder = await RequestOrderService.setStatus(
 				Number(requestId),
-				status.toUpperCase(),
 				Number(userId),
+				status ? status.toUpperCase() : undefined,
 				comment ? (comment as string) : undefined
 			);
 			if (!updatedRequestOrder) {

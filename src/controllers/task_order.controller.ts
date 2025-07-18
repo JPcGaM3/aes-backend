@@ -85,8 +85,8 @@ export const TaskOrderController = {
 			}
 			const updatedTaskOrder = await TaskOrderService.setStatus(
 				Number(taskId),
-				status,
 				Number(userId),
+				status ? status.toUpperCase() : undefined,
 				comment ? (comment as string) : undefined
 			);
 			if (!updatedTaskOrder) {

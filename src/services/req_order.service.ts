@@ -1,5 +1,9 @@
 import { StatusEnum } from "../../generated/prisma/index";
 import prisma from "../middlewares/prisma.middleware";
+import {
+	ConvertIndexMonth_Eng,
+	ConvertMonthIndex_Eng,
+} from "../utils/functions";
 
 const defaultInclude = {
 	customer_type: true,
@@ -85,37 +89,40 @@ export const RequestOrderService = {
 		startYear?: number,
 		endYear?: number
 	): Promise<any> => {
+		const filters: any = {
+			active: true,
+			...(unit_head_id && { unit_head_id }),
+			...(ae_id && { ae_id }),
+			...(customer_type_id && { customer_type_id }),
+			...(operation_area_id && { operation_area_id }),
+			...(status && { status }),
+		};
+		if (startYear && startMonth && endYear && endMonth) {
+			const startMonthNum = ConvertIndexMonth_Eng(startMonth);
+			const endMonthNum = ConvertIndexMonth_Eng(endMonth);
+
+			filters.OR = [];
+
+			for (let year = startYear; year <= endYear; year++) {
+				const monthStart = year === startYear ? startMonthNum : 1;
+				const monthEnd = year === endYear ? endMonthNum : 12;
+
+				for (let month = monthStart; month <= monthEnd; month++) {
+					filters.OR.push({
+						ap_year: year,
+						ap_month: ConvertMonthIndex_Eng(month - 1),
+					});
+				}
+			}
+		} else if (startYear && startMonth) {
+			filters.ap_year = startYear;
+			filters.ap_month = startMonth;
+		}
+
 		const requestOrders = await prisma.requestorders.findMany({
-			where: {
-				...(unit_head_id && { unit_head_id }),
-				...(ae_id && { ae_id }),
-				...(customer_type_id && { customer_type_id }),
-				...(operation_area_id && { operation_area_id }),
-				...(status && { status }),
-				...(startMonth &&
-					endMonth && {
-						ap_month: {
-							gte: startMonth,
-							lte: endMonth,
-						},
-					}),
-				...(startMonth && !endMonth && { ap_month: startMonth }),
-				...(startYear &&
-					endYear && {
-						ap_year: {
-							gte: startYear,
-							lte: endYear,
-						},
-					}),
-				...(startYear && !endYear && { ap_year: startYear }),
-				active: true,
-			},
+			where: filters,
 			include: defaultInclude,
-			orderBy: [
-				{
-					status: "desc",
-				},
-			],
+			orderBy: [{ status: "desc" }],
 		});
 		return requestOrders;
 	},
@@ -199,15 +206,16 @@ export const RequestOrderService = {
 
 	setStatus: async (
 		id: number,
-		status: StatusEnum,
 		updated_by: number,
+		status?: StatusEnum,
 		comment?: string
 	): Promise<any> => {
 		const updatedRequestOrder = await prisma.requestorders.update({
 			where: { id },
 			data: {
-				status,
+				...(status ? { status } : { status: undefined }),
 				...(comment ? { comment } : { comment: undefined }),
+				...(!status && !comment && { comment: null }),
 				updated_by,
 			},
 		});
