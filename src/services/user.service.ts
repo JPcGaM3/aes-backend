@@ -40,6 +40,7 @@ export const UserService = {
 							role_id: {
 								in: role_id,
 							},
+							active: true,
 						},
 					},
 				}),

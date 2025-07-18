@@ -27,12 +27,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(requestLogger);
 
-//TODO: Dev only
-app.use("/clear-cache", (req, res) => {
-	clearPermissionsCache();
-	res.json({ message: "Permissions cache cleared" });
-});
-
 app.use("/api/v1", apiRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);

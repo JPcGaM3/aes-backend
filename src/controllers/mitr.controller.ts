@@ -197,6 +197,7 @@ export const MitrController = {
 				);
 			}
 
+			//TODO: Change to const
 			var profile = await MitrService.getProfile(
 				userToken,
 				username || null,

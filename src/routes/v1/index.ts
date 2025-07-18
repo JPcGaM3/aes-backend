@@ -11,6 +11,7 @@ import taskOrderRouter from "./task_order.route";
 import toolTypeRouter from "./tool_type.route";
 import aeAreaRouter from "./ae_area.route";
 import activityRouter from "./activity.route";
+import sysctlRouter from "./system_ctl.router";
 
 const apiRouter = Router();
 
@@ -28,5 +29,7 @@ apiRouter.use("/cars", carRouter);
 
 apiRouter.use("/request-orders", reqOrderRouter);
 apiRouter.use("/task-orders", taskOrderRouter);
+
+apiRouter.use("/system-control", sysctlRouter);
 
 export default apiRouter;

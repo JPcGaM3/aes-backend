@@ -153,6 +153,13 @@ export const RequestOrderController = {
 			}
 
 			const { ae_id } = req.body;
+
+			if (!ae_id) {
+				return res
+					.status(HTTP_STATUS.BAD_REQUEST)
+					.json(formatResponse([], { message: "AE ID is required." }));
+			}
+
 			if (!req.files || !Array.isArray(req.files)) {
 				return res.status(HTTP_STATUS.BAD_REQUEST).json(
 					formatResponse([], {
