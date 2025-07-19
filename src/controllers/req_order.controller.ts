@@ -65,7 +65,6 @@ export const RequestOrderController = {
 				);
 			}
 
-			//TODO: uncomment
 			const opa_response =
 				await OperationAreaService.getById(operation_area_id);
 
