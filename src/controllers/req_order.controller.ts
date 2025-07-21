@@ -377,6 +377,7 @@ export const RequestOrderController = {
 				end_month,
 				start_year,
 				end_year,
+				quota_number,
 			} = req.query;
 			const { id: userId, role: userRole } = req.currentUser;
 
@@ -397,7 +398,8 @@ export const RequestOrderController = {
 				start_month ? (start_month as string) : undefined,
 				end_month ? (end_month as string) : undefined,
 				start_year ? Number(start_year) : undefined,
-				end_year ? Number(end_year) : undefined
+				end_year ? Number(end_year) : undefined,
+				quota_number ? (quota_number as string) : undefined
 			);
 
 			if (!resquestOrders || resquestOrders.length === 0) {

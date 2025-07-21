@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken";
 import { MitrService } from "../services/mitr.service";
 import { UserService } from "../services/user.service";
 import { formatResponse } from "../utils/response_formatter";
-import { users } from "../../generated/prisma";
 
 export const MitrController = {
 	getToken: async (
@@ -294,6 +293,60 @@ export const MitrController = {
 					// user_result: userResponse,
 					// authen_result: authen.result[0],
 					// profile_result: profile.result[0],
+				})
+			);
+		} catch (error) {
+			next(error);
+		}
+	},
+
+	refreshToken: async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<any> => {
+		try {
+			const { token } = req.currentUser;
+
+			if (!token) {
+				return res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(formatResponse([], { message: "Unauthorized" }));
+			}
+			const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+			if (!decoded || typeof decoded !== "object") {
+				return res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(formatResponse([], { message: "Token expired or invalid." }));
+			}
+			const { id, role, unit, employee_id, username, email } = decoded as any;
+
+			const mitrToken = await MitrService.token();
+			if (!mitrToken || !mitrToken.access_token) {
+				return res.status(HTTP_STATUS.UNAUTHORIZED).json(
+					formatResponse([], {
+						message: "Failed to retrieve access token.",
+					})
+				);
+			}
+
+			const currentUser = {
+				token: mitrToken.access_token,
+				id: id,
+				role: role,
+				unit: unit,
+				employee_id: employee_id,
+				username: username,
+				email: email,
+			};
+
+			const jwtToken = jwt.sign(currentUser, process.env.JWT_SECRET as string, {
+				expiresIn: "1h",
+			});
+
+			return res.status(HTTP_STATUS.OK).json(
+				formatResponse({
+					token: jwtToken,
 				})
 			);
 		} catch (error) {

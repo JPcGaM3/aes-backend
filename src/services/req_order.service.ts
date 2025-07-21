@@ -87,7 +87,8 @@ export const RequestOrderService = {
 		startMonth?: string,
 		endMonth?: string,
 		startYear?: number,
-		endYear?: number
+		endYear?: number,
+		quota_number?: string
 	): Promise<any> => {
 		const filters: any = {
 			active: true,
@@ -96,6 +97,12 @@ export const RequestOrderService = {
 			...(customer_type_id && { customer_type_id }),
 			...(operation_area_id && { operation_area_id }),
 			...(status && { status }),
+			...(quota_number && {
+				quota_number: {
+					contains: quota_number,
+					mode: "insensitive",
+				},
+			}),
 		};
 		if (startYear && startMonth && endYear && endMonth) {
 			const startMonthNum = ConvertIndexMonth_Eng(startMonth);

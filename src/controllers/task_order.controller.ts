@@ -226,7 +226,8 @@ export const TaskOrderController = {
 	): Promise<any> => {
 		try {
 			const { id: taskId } = req.params;
-			const { addActualArea } = req.body;
+			const { actual_area, start_timer, end_timer, start_mile, end_mile } =
+				req.body;
 			const { id: userId } = req.currentUser;
 			if (!userId) {
 				return res
@@ -242,12 +243,16 @@ export const TaskOrderController = {
 			}
 
 			const newActualArea =
-				Number(actualArea.actual_area) + Number(addActualArea);
+				Number(actualArea.actual_area) + Number(actual_area);
 
 			const updatedActual = await TaskOrderService.setActualArea(
 				Number(taskId),
 				Number(userId),
-				Number(newActualArea)
+				actualArea ? Number(newActualArea) : NaN,
+				start_timer ? new Date(start_timer as string) : undefined,
+				end_timer ? new Date(end_timer as string) : undefined,
+				start_mile ? Number(start_mile) : NaN,
+				end_mile ? Number(end_mile) : NaN
 			);
 
 			if (!updatedActual) {

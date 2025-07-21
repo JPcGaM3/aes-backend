@@ -138,12 +138,20 @@ export const TaskOrderService = {
 	setActualArea: async (
 		id: number,
 		updated_by: number,
-		newActualArea: number
+		newActualArea?: number,
+		start_timer?: Date,
+		end_timer?: Date,
+		start_mile?: number,
+		end_mile?: number
 	): Promise<any> => {
 		const updatedTaskOrder = await prisma.taskorders.update({
 			where: { id },
 			data: {
-				actual_area: newActualArea,
+				...(newActualArea && { actual_area: newActualArea }),
+				...(start_timer && { start_timer }),
+				...(end_timer && { end_timer }),
+				...(start_mile && { start_mile }),
+				...(end_mile && { end_mile }),
 				updated_by,
 			},
 		});
