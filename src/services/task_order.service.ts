@@ -6,7 +6,15 @@ const defaultInclude = {
 	activities: true,
 	tool_type: true,
 	cars: true,
-	requestorders: true,
+	requestorders: {
+		include: {
+			customer_type: true,
+			ae_area: true,
+			operation_area: true,
+			customer_operation_area: true,
+			users: true,
+		},
+	},
 };
 
 export const TaskOrderService = {
@@ -120,7 +128,8 @@ export const TaskOrderService = {
 		car_id?: number,
 		tool_types_id?: number,
 		assigned_user_id?: number,
-		ap_date?: Date
+		ap_date?: Date,
+		target_area?: number
 	): Promise<any> => {
 		const updatedTaskOrder = await prisma.taskorders.update({
 			where: { id },
@@ -129,6 +138,7 @@ export const TaskOrderService = {
 				...(tool_types_id && { tool_types_id }),
 				...(assigned_user_id && { assigned_user_id }),
 				...(ap_date && { ap_date }),
+				...(target_area && { target_area }),
 				updated_by,
 			},
 		});

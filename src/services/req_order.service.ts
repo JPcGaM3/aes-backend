@@ -83,7 +83,7 @@ export const RequestOrderService = {
 		ae_id?: number,
 		customer_type_id?: number,
 		operation_area_id?: number,
-		status?: StatusEnum,
+		statuses?: StatusEnum[] | undefined,
 		startMonth?: string,
 		endMonth?: string,
 		startYear?: number,
@@ -96,7 +96,12 @@ export const RequestOrderService = {
 			...(ae_id && { ae_id }),
 			...(customer_type_id && { customer_type_id }),
 			...(operation_area_id && { operation_area_id }),
-			...(status && { status }),
+			...(statuses &&
+				statuses.length > 0 && {
+					status: {
+						in: statuses,
+					},
+				}),
 			...(quota_number && {
 				quota_number: {
 					contains: quota_number,

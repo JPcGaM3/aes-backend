@@ -389,12 +389,29 @@ export const RequestOrderController = {
 
 			const isUnitHead = userRole.includes("UNIT_HEAD");
 
+			let statusArray: StatusEnum[] | undefined = undefined;
+			if (status) {
+				if (Array.isArray(status)) {
+					statusArray = status
+						.filter((s): s is string => typeof s === "string")
+						.map((s: string) => s.toUpperCase() as StatusEnum);
+				} else if (typeof status === "string") {
+					if (status.includes(",")) {
+						statusArray = status
+							.split(",")
+							.map((s: string) => s.trim().toUpperCase() as StatusEnum);
+					} else {
+						statusArray = [status.toUpperCase() as StatusEnum];
+					}
+				}
+			}
+
 			const resquestOrders = await RequestOrderService.getAll(
 				isUnitHead ? Number(userId) : NaN,
 				ae_id ? Number(ae_id) : NaN,
 				customer_type_id ? Number(customer_type_id) : NaN,
 				operation_area_id ? Number(operation_area_id) : NaN,
-				status ? ((status as string).toUpperCase() as StatusEnum) : undefined,
+				statusArray,
 				start_month ? (start_month as string) : undefined,
 				end_month ? (end_month as string) : undefined,
 				start_year ? Number(start_year) : undefined,

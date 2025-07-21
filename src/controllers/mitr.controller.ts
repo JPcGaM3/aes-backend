@@ -282,6 +282,7 @@ export const MitrController = {
 			};
 
 			const jwtToken = jwt.sign(currentUser, process.env.JWT_SECRET as string, {
+				algorithm: "HS256",
 				expiresIn: "1h",
 			});
 
@@ -290,9 +291,6 @@ export const MitrController = {
 					token: jwtToken,
 					id: userResponse.id,
 					role: roles,
-					// user_result: userResponse,
-					// authen_result: authen.result[0],
-					// profile_result: profile.result[0],
 				})
 			);
 		} catch (error) {
@@ -306,14 +304,16 @@ export const MitrController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			const { token } = req.currentUser;
+			const token = req.headers.authorization?.replace("Bearer ", "");
 
 			if (!token) {
 				return res
 					.status(HTTP_STATUS.UNAUTHORIZED)
 					.json(formatResponse([], { message: "Unauthorized" }));
 			}
-			const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+			const decoded = jwt.verify(token, process.env.JWT_SECRET as string, {
+				algorithms: ["HS256"],
+			});
 			if (!decoded || typeof decoded !== "object") {
 				return res
 					.status(HTTP_STATUS.UNAUTHORIZED)
@@ -341,6 +341,7 @@ export const MitrController = {
 			};
 
 			const jwtToken = jwt.sign(currentUser, process.env.JWT_SECRET as string, {
+				algorithm: "HS256",
 				expiresIn: "1h",
 			});
 

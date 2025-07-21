@@ -141,7 +141,8 @@ export const TaskOrderController = {
 	): Promise<any> => {
 		try {
 			const { id: taskId } = req.params;
-			const { car_id, tool_types_id, assigned_user_id, ap_date } = req.body;
+			const { car_id, tool_types_id, assigned_user_id, ap_date, target_area } =
+				req.body;
 			const { id: userId } = req.currentUser;
 			if (!userId) {
 				return res
@@ -154,7 +155,8 @@ export const TaskOrderController = {
 				car_id ? Number(car_id) : NaN,
 				tool_types_id ? Number(tool_types_id) : NaN,
 				assigned_user_id ? Number(assigned_user_id) : NaN,
-				ap_date ? new Date(ap_date as string) : undefined
+				ap_date ? new Date(ap_date as string) : undefined,
+				target_area ? Number(target_area) : NaN
 			);
 			if (!updatedTaskOrder) {
 				return res.status(HTTP_STATUS.BAD_REQUEST).json(

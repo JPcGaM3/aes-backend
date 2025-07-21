@@ -1,7 +1,7 @@
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
-  output        = "../generated/prisma"
+  provider = "prisma-client-js"
+  // binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -145,6 +145,9 @@ model cars {
   asset_class       Int?
   asset_description String?
   name              String?
+  car_brand         String?
+  car_code          String?
+  car_model         String?
   year              Int?
   capitalized_on    DateTime?    @db.Date
   service_life      Int?
