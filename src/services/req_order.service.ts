@@ -122,7 +122,7 @@ export const RequestOrderService = {
 		const requestOrders = await prisma.requestorders.findMany({
 			where: filters,
 			include: defaultInclude,
-			orderBy: [{ status: "desc" }],
+			orderBy: [{ status: "desc" }, { updated_at: "desc" }],
 		});
 		return requestOrders;
 	},
