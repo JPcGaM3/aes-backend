@@ -11,4 +11,6 @@ mitrRouter.get("/profile/ad", AuthMiddleware, MitrController.getProfileAD);
 mitrRouter.post("/login", MitrController.getLogin);
 mitrRouter.post("/logout", MitrController.logout);
 
+mitrRouter.get("/refresh-token", AuthMiddleware, MitrController.refreshToken);
+
 export default mitrRouter;
