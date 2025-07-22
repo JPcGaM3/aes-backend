@@ -2,8 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import { RequestOrderService } from "../services/req_order.service";
 import { HTTP_STATUS } from "../configs/constants";
 import { formatResponse } from "../utils/response_formatter";
-import { CustomerTypeService } from "../services/custormer_type.service";
 import {
+	ConvertIndexMonth_Eng,
 	ConvertMonthIndex_Eng,
 	ConvertMonthTH_ENG,
 	ReadExcelFile,
@@ -48,9 +48,31 @@ export const RequestOrderController = {
 				supervisor_name,
 				ae_id,
 			} = req.body;
+
 			const now = moment.tz("Asia/Bangkok");
-			const startDate = now.clone().startOf("year").toDate();
-			const endDate = now.clone().endOf("year").toDate();
+			const startDate = now.clone().tz("Asia/Bangkok").startOf("year").toDate();
+			const endDate = now.clone().tz("Asia/Bangkok").endOf("year").toDate();
+			const nowMonth = now.clone().tz("Asia/Bangkok").format("MM");
+			const nowYear = now.clone().tz("Asia/Bangkok").format("YYYY");
+
+			if (
+				parseInt(nowMonth) > ConvertIndexMonth_Eng(ap_month) ||
+				parseInt(nowYear) > ap_year
+			) {
+				return res.status(HTTP_STATUS.BAD_REQUEST).json(
+					formatResponse([], {
+						message: "AP month and year must be up to date.",
+					})
+				);
+			}
+
+			if (target_area < 0) {
+				return res.status(HTTP_STATUS.BAD_REQUEST).json(
+					formatResponse([], {
+						message: "Target area must be a positive number.",
+					})
+				);
+			}
 
 			let runNumber = await RequestOrderService.getRunNumber(
 				startDate,
@@ -79,7 +101,7 @@ export const RequestOrderController = {
 			const reqData = {
 				customer_type_id: Number(opa_response.customer_type_id),
 				run_number: (runNumber += 1).toString().padStart(5, "0"),
-				phone,
+				phone: phone.replace(/-/g, ""),
 				operation_area_id: Number(operation_area_id),
 				ae_id: Number(ae_id),
 				zone,
@@ -180,6 +202,8 @@ export const RequestOrderController = {
 			const currentYear = now.year();
 			const startDate = now.clone().startOf("year").toDate();
 			const endDate = now.clone().endOf("year").toDate();
+			const nowMonth = now.clone().tz("Asia/Bangkok").format("MM");
+			const nowYear = now.clone().tz("Asia/Bangkok").format("YYYY");
 
 			for (const file of files) {
 				const data = await ReadExcelFile(file.buffer);
@@ -189,6 +213,26 @@ export const RequestOrderController = {
 
 				for (const row of data) {
 					try {
+						if (
+							parseInt(nowMonth) >
+								ConvertIndexMonth_Eng(ConvertMonthTH_ENG(row.เดือน)) ||
+							parseInt(nowYear) > Number(row.ปี) - 543
+						) {
+							errorRows.push({
+								row,
+								error: "AP month and year must be up to date.",
+							});
+							continue;
+						}
+
+						if (Number(row.พื้นที่แจ้งจำนวนไร่) < 0) {
+							errorRows.push({
+								row,
+								error: "Target area must be a positive number.",
+							});
+							continue;
+						}
+
 						const opa_res = opa.find(
 							(item: any) => item.operation_area === row.พื้นที่ปฏิบัติงาน
 						);
@@ -329,6 +373,12 @@ export const RequestOrderController = {
 					.json(formatResponse([], { message: "Unauthorized." }));
 			}
 
+			if (!requestId) {
+				return res
+					.status(HTTP_STATUS.BAD_REQUEST)
+					.json(formatResponse([], { message: "Request ID is required." }));
+			}
+
 			const updatedRequestOrder = await RequestOrderService.update(
 				Number(requestId),
 				{ ...req.body, updated_by: Number(userId) }
@@ -353,6 +403,11 @@ export const RequestOrderController = {
 	): Promise<any> => {
 		try {
 			const { id: requestId } = req.params;
+			if (!requestId) {
+				return res
+					.status(HTTP_STATUS.BAD_REQUEST)
+					.json(formatResponse([], { message: "Request ID is required." }));
+			}
 			const deletedRequestOrder = await RequestOrderService.delete(
 				Number(requestId)
 			);
@@ -432,8 +487,13 @@ export const RequestOrderController = {
 		res: Response,
 		next: NextFunction
 	): Promise<any> => {
-		const { id: requestId } = req.params;
 		try {
+			const { id: requestId } = req.params;
+			if (!requestId) {
+				return res
+					.status(HTTP_STATUS.BAD_REQUEST)
+					.json(formatResponse([], { message: "Request ID is required." }));
+			}
 			const requestOrder = await RequestOrderService.getById(Number(requestId));
 			if (requestOrder) {
 				res.status(HTTP_STATUS.OK).json(formatResponse(requestOrder));
@@ -454,6 +514,11 @@ export const RequestOrderController = {
 	): Promise<any> => {
 		try {
 			const { id: requestId } = req.params;
+			if (!requestId) {
+				return res
+					.status(HTTP_STATUS.BAD_REQUEST)
+					.json(formatResponse([], { message: "Request ID is required." }));
+			}
 			const requestOrderWithTasks =
 				await RequestOrderService.getByIdWithAllTask(Number(requestId));
 			if (!requestOrderWithTasks) {
@@ -485,6 +550,12 @@ export const RequestOrderController = {
 				return res
 					.status(HTTP_STATUS.UNAUTHORIZED)
 					.json(formatResponse([], { message: "Unauthorized." }));
+			}
+
+			if (!requestId) {
+				return res
+					.status(HTTP_STATUS.BAD_REQUEST)
+					.json(formatResponse([], { message: "Request ID is required." }));
 			}
 
 			const updatedRequestOrder = await RequestOrderService.setStatus(
@@ -524,6 +595,12 @@ export const RequestOrderController = {
 					.json(formatResponse([], { message: "Unauthorized." }));
 			}
 
+			if (!requestId) {
+				return res
+					.status(HTTP_STATUS.BAD_REQUEST)
+					.json(formatResponse([], { message: "Request ID is required." }));
+			}
+
 			const updatedRequestOrder = await RequestOrderService.setActive(
 				Number(requestId),
 				active as boolean,
@@ -557,6 +634,12 @@ export const RequestOrderController = {
 				return res
 					.status(HTTP_STATUS.UNAUTHORIZED)
 					.json(formatResponse([], { message: "Unauthorized." }));
+			}
+
+			if (!requestId) {
+				return res
+					.status(HTTP_STATUS.BAD_REQUEST)
+					.json(formatResponse([], { message: "Request ID is required." }));
 			}
 
 			if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
@@ -642,6 +725,11 @@ export const RequestOrderController = {
 	): Promise<any> => {
 		try {
 			const { id: requestId } = req.params;
+			if (!requestId) {
+				return res
+					.status(HTTP_STATUS.BAD_REQUEST)
+					.json(formatResponse([], { message: "Request ID is required." }));
+			}
 			const requestOrder = await RequestOrderService.getById(Number(requestId));
 			if (!requestOrder) {
 				return res.status(HTTP_STATUS.NOT_FOUND).json(

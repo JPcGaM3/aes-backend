@@ -40,6 +40,12 @@ export const CarController = {
 					.json(formatResponse([], { message: "Unauthorized." }));
 			}
 
+			if (!carId) {
+				return res
+					.status(HTTP_STATUS.BAD_REQUEST)
+					.json(formatResponse([], { message: "Car ID is required." }));
+			}
+
 			const updatedCar = await CarService.setActive(
 				Number(carId),
 				active,

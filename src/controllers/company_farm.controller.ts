@@ -9,7 +9,7 @@ export const CompanyFarmController = {
 		res: Response,
 		next: NextFunction
 	): Promise<any> => {
-		const areaNumber = Number(req.query.area_number);
+		const { areaNumber } = req.query;
 		try {
 			if (!areaNumber) {
 				return res.status(HTTP_STATUS.BAD_REQUEST).json(
@@ -18,7 +18,9 @@ export const CompanyFarmController = {
 					})
 				);
 			}
-			const companyFarms = await CompanyFarmService.getByAreaNumber(areaNumber);
+			const companyFarms = await CompanyFarmService.getByAreaNumber(
+				Number(areaNumber)
+			);
 			return res.status(HTTP_STATUS.OK).json(formatResponse(companyFarms));
 		} catch (error) {
 			next(error);

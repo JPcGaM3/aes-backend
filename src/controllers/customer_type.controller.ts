@@ -28,8 +28,15 @@ export const CustomerTypeController = {
 		res: Response,
 		next: NextFunction
 	): Promise<any> => {
-		const { id: customerTypeId } = req.params;
 		try {
+			const { id: customerTypeId } = req.params;
+			if (!customerTypeId) {
+				return res.status(HTTP_STATUS.BAD_REQUEST).json(
+					formatResponse([], {
+						message: "Customer type ID is required.",
+					})
+				);
+			}
 			const customerType = await CustomerTypeService.getById(
 				Number(customerTypeId)
 			);
@@ -50,8 +57,15 @@ export const CustomerTypeController = {
 		res: Response,
 		next: NextFunction
 	): Promise<any> => {
-		const { name } = req.params;
 		try {
+			const { name } = req.params;
+			if (!name) {
+				return res.status(HTTP_STATUS.BAD_REQUEST).json(
+					formatResponse([], {
+						message: "Customer type name is required.",
+					})
+				);
+			}
 			const customerType = await CustomerTypeService.getByName(name);
 			if (!customerType) {
 				return res.status(HTTP_STATUS.NOT_FOUND).json(
@@ -97,16 +111,25 @@ export const CustomerTypeController = {
 		res: Response,
 		next: NextFunction
 	): Promise<any> => {
-		const { id: customerTypeId } = req.params;
-		const { name } = req.body;
-		const { id: userId } = req.currentUser;
-
-		if (!userId) {
-			return res
-				.status(HTTP_STATUS.UNAUTHORIZED)
-				.json(formatResponse([], { message: "Unauthorized." }));
-		}
 		try {
+			const { id: customerTypeId } = req.params;
+			const { name } = req.body;
+			const { id: userId } = req.currentUser;
+
+			if (!userId) {
+				return res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(formatResponse([], { message: "Unauthorized." }));
+			}
+
+			if (!customerTypeId) {
+				return res.status(HTTP_STATUS.BAD_REQUEST).json(
+					formatResponse([], {
+						message: "Customer type ID is required.",
+					})
+				);
+			}
+
 			const updatedCustomerType = await CustomerTypeService.update(
 				Number(customerTypeId),
 				{
@@ -133,8 +156,17 @@ export const CustomerTypeController = {
 		res: Response,
 		next: NextFunction
 	): Promise<any> => {
-		const { id: customerTypeId } = req.params;
 		try {
+			const { id: customerTypeId } = req.params;
+
+			if (!customerTypeId) {
+				return res.status(HTTP_STATUS.BAD_REQUEST).json(
+					formatResponse([], {
+						message: "Customer type ID is required.",
+					})
+				);
+			}
+
 			const deletedCustomerType = await CustomerTypeService.delete(
 				Number(customerTypeId)
 			);

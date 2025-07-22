@@ -70,7 +70,7 @@ export const AEAreaController = {
 			if (!areaId) {
 				return res
 					.status(HTTP_STATUS.BAD_REQUEST)
-					.json(formatResponse([], { message: "Invalid area ID" }));
+					.json(formatResponse([], { message: "Area ID is required." }));
 			}
 			const updatedArea = await AEAreaService.update(Number(areaId), {
 				...data,

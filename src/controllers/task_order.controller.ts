@@ -3,6 +3,7 @@ import { HTTP_STATUS } from "../configs/constants";
 import { formatResponse } from "../utils/response_formatter";
 import { TaskOrderService } from "../services/task_order.service";
 import { StatusEnum } from "../../generated/prisma";
+import moment from "moment-timezone";
 
 export const TaskOrderController = {
 	create: async (
@@ -12,16 +13,34 @@ export const TaskOrderController = {
 	): Promise<any> => {
 		try {
 			const { id: userId } = req.currentUser;
+			const { target_area, ap_date } = req.body;
 			if (!userId) {
 				return res
 					.status(HTTP_STATUS.UNAUTHORIZED)
 					.json(formatResponse([], { message: "Unauthorized." }));
 			}
+
+			const now = moment.tz("Asia/Bangkok").startOf("day").toDate();
+
+			if (ap_date && now > new Date(ap_date)) {
+				return res.status(HTTP_STATUS.BAD_REQUEST).json(
+					formatResponse([], {
+						message: "AP date must be up to date.",
+					})
+				);
+			}
+
+			if (target_area && target_area < 0) {
+				return res.status(HTTP_STATUS.BAD_REQUEST).json(
+					formatResponse([], {
+						message: "All numeric fields must be positive numbers.",
+					})
+				);
+			}
+
 			const newTaskOrder = await TaskOrderService.create({
 				...req.body,
-				ap_date: req.body.ap_date
-					? new Date(req.body.ap_date as string)
-					: undefined,
+				ap_date: ap_date ? new Date(ap_date as string) : undefined,
 				created_by: Number(userId),
 				updated_by: Number(userId),
 			});
@@ -83,6 +102,13 @@ export const TaskOrderController = {
 					.status(HTTP_STATUS.UNAUTHORIZED)
 					.json(formatResponse([], { message: "Unauthorized." }));
 			}
+
+			if (!taskId) {
+				return res
+					.status(HTTP_STATUS.BAD_REQUEST)
+					.json(formatResponse([], { message: "Task ID is required." }));
+			}
+
 			const updatedTaskOrder = await TaskOrderService.setStatus(
 				Number(taskId),
 				Number(userId),
@@ -116,6 +142,13 @@ export const TaskOrderController = {
 					.status(HTTP_STATUS.UNAUTHORIZED)
 					.json(formatResponse([], { message: "Unauthorized." }));
 			}
+
+			if (!taskId) {
+				return res
+					.status(HTTP_STATUS.BAD_REQUEST)
+					.json(formatResponse([], { message: "Task ID is required." }));
+			}
+
 			const updatedTaskOrder = await TaskOrderService.setActive(
 				Number(taskId),
 				active as boolean,
@@ -179,6 +212,22 @@ export const TaskOrderController = {
 		try {
 			const { assigned_id } = req.params;
 			const { status, start_date, end_date } = req.query;
+
+			if (!assigned_id) {
+				return res
+					.status(HTTP_STATUS.BAD_REQUEST)
+					.json(formatResponse([], { message: "Assigned ID is required." }));
+			}
+
+			const startDate = start_date ? new Date(start_date as string) : undefined;
+			const endDate = end_date ? new Date(end_date as string) : undefined;
+
+			if (startDate && endDate && startDate > endDate) {
+				return res
+					.status(HTTP_STATUS.BAD_REQUEST)
+					.json(formatResponse([], { message: "Invalid date range." }));
+			}
+
 			const assignedTaskOrders = await TaskOrderService.getByAssigned(
 				Number(assigned_id),
 				status ? ((status as string).toUpperCase() as StatusEnum) : undefined,
@@ -207,6 +256,11 @@ export const TaskOrderController = {
 	): Promise<any> => {
 		try {
 			const { id: taskId } = req.params;
+			if (!taskId) {
+				return res
+					.status(HTTP_STATUS.BAD_REQUEST)
+					.json(formatResponse([], { message: "Task ID is required." }));
+			}
 			const taskOrder = await TaskOrderService.getById(Number(taskId));
 			if (!taskOrder) {
 				return res.status(HTTP_STATUS.NOT_FOUND).json(
@@ -231,10 +285,54 @@ export const TaskOrderController = {
 			const { actual_area, start_timer, end_timer, start_mile, end_mile } =
 				req.body;
 			const { id: userId } = req.currentUser;
+
 			if (!userId) {
 				return res
 					.status(HTTP_STATUS.UNAUTHORIZED)
 					.json(formatResponse([], { message: "Unauthorized." }));
+			}
+
+			if (!taskId) {
+				return res
+					.status(HTTP_STATUS.BAD_REQUEST)
+					.json(formatResponse([], { message: "Task ID is required." }));
+			}
+
+			const now = moment.tz("Asia/Bangkok").startOf("day").toDate();
+
+			if (
+				(start_timer && now > new Date(start_timer)) ||
+				(end_timer && now > new Date(end_timer))
+			) {
+				return res.status(HTTP_STATUS.BAD_REQUEST).json(
+					formatResponse([], {
+						message: "Start and end timer must be up to date.",
+					})
+				);
+			}
+
+			if ((start_mile && start_mile < 0) || (end_mile && end_mile < 0)) {
+				return res.status(HTTP_STATUS.BAD_REQUEST).json(
+					formatResponse([], {
+						message: "Start and end mile must be positive numbers.",
+					})
+				);
+			}
+
+			if (start_mile && end_mile && start_mile > end_mile) {
+				return res.status(HTTP_STATUS.BAD_REQUEST).json(
+					formatResponse([], {
+						message: "Invalid mile range.",
+					})
+				);
+			}
+
+			if (actual_area && actual_area < 0) {
+				return res.status(HTTP_STATUS.BAD_REQUEST).json(
+					formatResponse([], {
+						message: "Actual area must be a positive number.",
+					})
+				);
 			}
 
 			const actualArea = await TaskOrderService.getById(Number(taskId));

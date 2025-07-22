@@ -165,6 +165,14 @@ export const MitrController = {
 		const { ae_id } = req.query;
 		const { username, email, password } = req.body;
 		try {
+			if (!(username || email) || !password) {
+				return res.status(HTTP_STATUS.BAD_REQUEST).json(
+					formatResponse([], {
+						message: "Missing username, email or password",
+					})
+				);
+			}
+
 			if (!ae_id) {
 				return res.status(HTTP_STATUS.NOT_FOUND).json(
 					formatResponse([], {

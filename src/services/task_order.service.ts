@@ -82,10 +82,10 @@ export const TaskOrderService = {
 			include: defaultInclude,
 			orderBy: [
 				{
-					ap_date: "asc",
+					status: "desc",
 				},
 				{
-					status: "desc",
+					ap_date: "asc",
 				},
 			],
 		});

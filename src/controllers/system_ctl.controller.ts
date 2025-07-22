@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { ToolTypeService } from "../services/tool_type.service";
 import { HTTP_STATUS } from "../configs/constants";
 import { formatResponse } from "../utils/response_formatter";
 import { clearPermissionsCache } from "../middlewares/rbac.middleware";

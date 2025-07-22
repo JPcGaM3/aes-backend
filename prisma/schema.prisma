@@ -321,7 +321,7 @@ model requestorders {
   company_farm_id            Int?
   zone                       String?         @db.VarChar(255)
   farmer_name                String?         @db.VarChar(255)
-  land_number                Int?
+  land_number                String?         @db.VarChar(255)
   ap_month                   String?         @db.VarChar(255)
   ap_year                    Int?
   ae_id                      Int?

@@ -16,6 +16,12 @@ export const UserController = {
 			const data = req.body;
 			const { id: userId } = req.currentUser;
 
+			if (!userId) {
+				return res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(formatResponse([], { message: "Unauthorized." }));
+			}
+
 			const user = await UserService.create({
 				...data,
 				created_by: Number(userId),
@@ -78,8 +84,13 @@ export const UserController = {
 		res: Response,
 		next: NextFunction
 	): Promise<any> => {
-		const username = req.params.username;
 		try {
+			const { username } = req.params;
+			if (!username) {
+				return res
+					.status(HTTP_STATUS.BAD_REQUEST)
+					.json(formatResponse([], { message: "Username is required." }));
+			}
 			const user = await UserService.getByUsername(username);
 			if (!user) {
 				return res
@@ -163,6 +174,16 @@ export const UserController = {
 			const { id } = req.params;
 			const { active } = req.body;
 			const { id: userId } = req.currentUser;
+			if (!userId) {
+				return res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(formatResponse([], { message: "Unauthorized." }));
+			}
+			if (!id) {
+				return res
+					.status(HTTP_STATUS.BAD_REQUEST)
+					.json(formatResponse([], { message: "User ID is required." }));
+			}
 			const updatedUser = await UserService.setActive(
 				Number(id),
 				active as boolean,
