@@ -389,20 +389,14 @@ export const RequestOrderController = {
 
 			const isUnitHead = userRole.includes("UNIT_HEAD");
 
-			let statusArray: StatusEnum[] | undefined = undefined;
+			let statusArray: StatusEnum[] = [];
 			if (status) {
 				if (Array.isArray(status)) {
-					statusArray = status
-						.filter((s): s is string => typeof s === "string")
-						.map((s: string) => s.toUpperCase() as StatusEnum);
-				} else if (typeof status === "string") {
-					if (status.includes(",")) {
-						statusArray = status
-							.split(",")
-							.map((s: string) => s.trim().toUpperCase() as StatusEnum);
-					} else {
-						statusArray = [status.toUpperCase() as StatusEnum];
-					}
+					statusArray = status.map(
+						(s) => String(s).toUpperCase() as StatusEnum
+					);
+				} else {
+					statusArray = [String(status).toUpperCase() as StatusEnum];
 				}
 			}
 

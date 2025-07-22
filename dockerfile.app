@@ -7,5 +7,5 @@ COPY . .
 
 EXPOSE 8080
 
-RUN npm run build && npx prisma generate
+RUN  npx prisma generate && npm run build
 CMD [ "npm", "run", "prod" ]

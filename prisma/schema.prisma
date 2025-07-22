@@ -378,8 +378,8 @@ model taskorders {
   oil_end          Float?
   car_start_hour   String?        @db.VarChar(255)
   car_end_hour     String?        @db.VarChar(255)
-  start_timer      DateTime?      @db.Date
-  end_timer        DateTime?      @db.Date
+  start_timer      DateTime?      @db.Timestamptz
+  end_timer        DateTime?      @db.Timestamptz
   status           StatusEnum     @default(CREATED)
   comment          String?
   active           Boolean?       @default(true)

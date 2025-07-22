@@ -251,8 +251,8 @@ export const TaskOrderController = {
 				Number(taskId),
 				Number(userId),
 				actualArea ? Number(newActualArea) : NaN,
-				start_timer ? new Date(start_timer as string) : undefined,
-				end_timer ? new Date(end_timer as string) : undefined,
+				start_timer ? new Date(start_timer) : undefined,
+				end_timer ? new Date(end_timer) : undefined,
 				start_mile ? Number(start_mile) : NaN,
 				end_mile ? Number(end_mile) : NaN
 			);

@@ -8,7 +8,7 @@ import {
 } from "./middlewares/error_handler.middleware";
 import cors from "cors";
 import { requestLogger } from "./middlewares/logger.middleware";
-import { clearPermissionsCache } from "./middlewares/rbac.middleware";
+import { securityMiddleware } from "./middlewares/security.middleware";
 
 dotenv.config({ path: "../.env" });
 
@@ -26,7 +26,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(requestLogger);
-
+app.use(securityMiddleware);
 app.use("/api/v1", apiRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);

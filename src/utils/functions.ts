@@ -155,3 +155,53 @@ export const ConvertIndexMonth_Eng = (month: string): number => {
 	];
 	return months.indexOf(month) + 1;
 };
+
+export const sanitizeInput = (value: any): any => {
+	if (typeof value !== "string") return value;
+	return value
+		.replace(/[<>'"]/g, "")
+		.replace(/[\x00-\x1f\x7f-\x9f]/g, "")
+		.trim();
+};
+
+export const sanitizeObject = (obj: any): any => {
+	if (typeof obj === "string") return sanitizeInput(obj);
+	if (Array.isArray(obj)) return obj.map(sanitizeObject);
+	if (typeof obj === "object" && obj !== null) {
+		const result: any = {};
+		for (const key in obj) result[key] = sanitizeObject(obj[key]);
+		return result;
+	}
+	return obj;
+};
+
+export const SQL_INJECTION_PATTERNS = [
+	/(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b)/i,
+	/('|\\'|;|--|\/\/|\*\/|\bOR\b.*\bAND\b|\bAND\b.*\bOR\b)/i,
+	/((%3D)|=)[^\n]*((%27)|'|--|%3B|;)/i,
+	/((%27)|')((%6F)|o|(%4F))((%72)|r|(%52))/i,
+	/\b(WAITFOR|DELAY)\b/i,
+	/\b(CONVERT|CAST|CHAR|ASCII)\b/i,
+];
+
+export const validateSQLInjection = (value: string): boolean => {
+	if (typeof value !== "string") return true;
+	return !SQL_INJECTION_PATTERNS.some((pattern) => pattern.test(value));
+};
+
+export const checkObjectForInjection = (
+	obj: any,
+	path: string = ""
+): string | null => {
+	for (const key in obj) {
+		if (typeof obj[key] === "string") {
+			if (!validateSQLInjection(obj[key])) {
+				return `${path}${key}`;
+			}
+		} else if (typeof obj[key] === "object" && obj[key] !== null) {
+			const result = checkObjectForInjection(obj[key], `${path}${key}.`);
+			if (result) return result;
+		}
+	}
+	return null;
+};

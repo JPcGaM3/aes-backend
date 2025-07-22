@@ -52,10 +52,25 @@ export const TaskOrderService = {
 		startDate?: Date,
 		endDate?: Date
 	): Promise<any> => {
+		const notShowStatus = [
+			StatusEnum.CREATED,
+			StatusEnum.REJECTED,
+			StatusEnum.CANCELLED,
+			StatusEnum.PENDING_APPROVAL,
+			StatusEnum.PENDING_EDIT,
+		];
+
 		const taskOrders = await prisma.taskorders.findMany({
 			where: {
 				assigned_user_id: assignedId,
 				active: true,
+				requestorders: {
+					status: {
+						not: {
+							in: notShowStatus as StatusEnum[],
+						},
+					},
+				},
 				...(startDate &&
 					endDate && { ap_date: { gte: startDate, lte: endDate } }),
 				...(startDate &&
