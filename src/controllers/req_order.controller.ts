@@ -442,6 +442,22 @@ export const RequestOrderController = {
 					.json(formatResponse([], { message: "Unauthorized." }));
 			}
 
+			if (
+				(start_month &&
+					end_month &&
+					start_year &&
+					end_year &&
+					start_year == end_year &&
+					start_month > end_month) ||
+				(start_year && end_year && start_year > end_year)
+			) {
+				return res.status(HTTP_STATUS.BAD_REQUEST).json(
+					formatResponse([], {
+						message: "Invalid date range.",
+					})
+				);
+			}
+
 			const isUnitHead = userRole.includes("UNIT_HEAD");
 
 			let statusArray: StatusEnum[] = [];
