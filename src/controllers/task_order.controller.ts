@@ -4,6 +4,7 @@ import { formatResponse } from "../utils/response_formatter";
 import { TaskOrderService } from "../services/task_order.service";
 import { StatusEnum } from "../../generated/prisma";
 import moment from "moment-timezone";
+import { RequestOrderService } from "../services/req_order.service";
 
 export const TaskOrderController = {
 	create: async (
@@ -182,6 +183,34 @@ export const TaskOrderController = {
 					.status(HTTP_STATUS.UNAUTHORIZED)
 					.json(formatResponse([], { message: "Unauthorized." }));
 			}
+
+			const existingTaskOrder = await TaskOrderService.getById(Number(taskId));
+			if (!existingTaskOrder) {
+				return res
+					.status(HTTP_STATUS.NOT_FOUND)
+					.json(formatResponse([], { message: "Task order not found." }));
+			}
+
+			const available_info = await RequestOrderService.getTargetAreas(
+				Number(existingTaskOrder.request_order_id),
+				Number(taskId)
+			);
+
+			const max_area = available_info.target_area;
+			const total_area = available_info.total_actual_area;
+
+			console.log("max: ", max_area);
+			console.log("total: ", total_area);
+			console.log("target: ", target_area);
+
+			if (target_area + total_area > max_area) {
+				return res
+					.status(HTTP_STATUS.NOT_FOUND)
+					.json(
+						formatResponse([], { message: "Insufficient available area." })
+					);
+			}
+
 			const updatedTaskOrder = await TaskOrderService.setAllAssigned(
 				Number(taskId),
 				Number(userId),

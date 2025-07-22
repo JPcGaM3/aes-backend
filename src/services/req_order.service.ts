@@ -20,6 +20,85 @@ const defaultInclude = {
 	},
 };
 
+const buildDateFilters = (
+	startMonth?: string,
+	endMonth?: string,
+	startYear?: number,
+	endYear?: number
+): any => {
+	if (!startYear && !endYear && !startMonth && !endMonth) {
+		return {};
+	}
+
+	const startMonthNum = startMonth ? ConvertIndexMonth_Eng(startMonth) : 1;
+	const endMonthNum = endMonth ? ConvertIndexMonth_Eng(endMonth) : 12;
+	const currentYear = new Date().getFullYear();
+
+	if (startYear && endYear) {
+		const orConditions = [];
+
+		for (let year = startYear; year <= endYear; year++) {
+			let monthStart = 1;
+			let monthEnd = 12;
+
+			if (startMonth && year === startYear) {
+				monthStart = startMonthNum;
+			}
+			if (endMonth && year === endYear) {
+				monthEnd = endMonthNum;
+			}
+
+			if (startMonth && !endMonth && year >= startYear) {
+				monthStart = startMonthNum;
+				monthEnd = 12;
+			}
+			if (endMonth && !startMonth) {
+				monthStart = 1;
+				monthEnd = year === endYear ? endMonthNum : 12;
+			}
+
+			for (let month = monthStart; month <= monthEnd; month++) {
+				orConditions.push({
+					ap_year: year,
+					ap_month: ConvertMonthIndex_Eng(month - 1),
+				});
+			}
+		}
+
+		return { OR: orConditions };
+	} else if (startYear && !endYear) {
+		if (startMonth) {
+			const orConditions = [];
+			const year = startYear;
+			const month = startMonth;
+			orConditions.push({
+				ap_year: year,
+				ap_month: month,
+			});
+
+			return { OR: orConditions };
+		} else {
+			return {
+				ap_year: { gte: startYear },
+			};
+		}
+	} else if (startMonth) {
+		return {
+			ap_month: {
+				gte: ConvertMonthIndex_Eng(startMonthNum - 1),
+			},
+		};
+	} else if (endMonth) {
+		return {
+			ap_month: {
+				lte: ConvertMonthIndex_Eng(endMonthNum - 1),
+			},
+		};
+	}
+
+	return {};
+};
+
 export const RequestOrderService = {
 	create: async (data: any) => {
 		const transformedData = {
@@ -90,6 +169,7 @@ export const RequestOrderService = {
 		endYear?: number,
 		quota_number?: string
 	): Promise<any> => {
+		console.log(buildDateFilters(startMonth, endMonth, startYear, endYear));
 		const filters: any = {
 			active: true,
 			...(unit_head_id && { unit_head_id }),
@@ -108,28 +188,8 @@ export const RequestOrderService = {
 					mode: "insensitive",
 				},
 			}),
+			...buildDateFilters(startMonth, endMonth, startYear, endYear),
 		};
-		if (startYear && startMonth && endYear && endMonth) {
-			const startMonthNum = ConvertIndexMonth_Eng(startMonth);
-			const endMonthNum = ConvertIndexMonth_Eng(endMonth);
-
-			filters.OR = [];
-
-			for (let year = startYear; year <= endYear; year++) {
-				const monthStart = year === startYear ? startMonthNum : 1;
-				const monthEnd = year === endYear ? endMonthNum : 12;
-
-				for (let month = monthStart; month <= monthEnd; month++) {
-					filters.OR.push({
-						ap_year: year,
-						ap_month: ConvertMonthIndex_Eng(month - 1),
-					});
-				}
-			}
-		} else if (startYear && startMonth) {
-			filters.ap_year = startYear;
-			filters.ap_month = startMonth;
-		}
 
 		const requestOrders = await prisma.requestorders.findMany({
 			where: filters,
@@ -244,5 +304,45 @@ export const RequestOrderService = {
 			data: { evidence, updated_by },
 		});
 		return updatedRequestOrder;
+	},
+
+	getTargetAreas: async (id: number, taskId?: number): Promise<any> => {
+		const requestOrderWithTargetArea = await prisma.requestorders.findUnique({
+			where: {
+				id,
+				active: true,
+			},
+			select: {
+				id: true,
+				quota_number: true,
+				farmer_name: true,
+				target_area: true,
+				taskorders: {
+					where: {
+						active: true,
+						NOT: {
+							id: taskId,
+						},
+					},
+					select: {
+						target_area: true,
+					},
+				},
+			},
+		});
+
+		if (!requestOrderWithTargetArea) {
+			return null;
+		}
+
+		const totalActualArea = requestOrderWithTargetArea.taskorders.reduce(
+			(sum, task) => sum + (task.target_area || 0),
+			0
+		);
+
+		return {
+			...requestOrderWithTargetArea,
+			total_actual_area: totalActualArea,
+		};
 	},
 };
