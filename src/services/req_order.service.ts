@@ -169,7 +169,6 @@ export const RequestOrderService = {
 		endYear?: number,
 		quota_number?: string
 	): Promise<any> => {
-		console.log(buildDateFilters(startMonth, endMonth, startYear, endYear));
 		const filters: any = {
 			active: true,
 			...(unit_head_id && { unit_head_id }),
