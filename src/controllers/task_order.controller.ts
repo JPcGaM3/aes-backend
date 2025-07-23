@@ -264,7 +264,8 @@ export const TaskOrderController = {
 				start_date ? new Date(start_date as string) : undefined,
 				end_date ? new Date(end_date as string) : undefined
 			);
-			if (!assignedTaskOrders) {
+
+			if (!assignedTaskOrders || assignedTaskOrders.length === 0) {
 				return res.status(HTTP_STATUS.NOT_FOUND).json(
 					formatResponse([], {
 						message: "No assigned task orders found",
