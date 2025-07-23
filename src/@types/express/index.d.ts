@@ -1,5 +1,3 @@
-import { users } from "../../../generated/prisma";
-
 interface CurrentUser {
 	token: string | null;
 	id: number | NaN;

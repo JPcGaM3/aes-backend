@@ -1,5 +1,5 @@
-import { RoleEnum, StatusEnum } from "../../generated/prisma/index";
 import prisma from "../middlewares/prisma.middleware";
+import { RoleEnum, StatusEnum } from "../utils/enum";
 
 const defaultInclude = {
 	user_role: {

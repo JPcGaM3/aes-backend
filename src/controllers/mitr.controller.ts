@@ -31,20 +31,19 @@ export const MitrController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			const { username, email, password } = req.body;
-			const { token } = req.currentUser;
+			const { token, username, email, password } = req.body;
 
 			if (!token) {
 				return res
 					.status(HTTP_STATUS.UNAUTHORIZED)
-					.json(formatResponse([], { message: "Unauthorized" }));
+					.json(formatResponse([], { message: "Invalid token" }));
 			}
 
 			const response = await MitrService.authen(
 				token,
+				password,
 				username,
-				email,
-				password
+				email
 			);
 			if (!response || response.code !== 200) {
 				return res.status(HTTP_STATUS.UNAUTHORIZED).json(

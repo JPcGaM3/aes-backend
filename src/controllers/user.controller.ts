@@ -3,7 +3,7 @@ import { HTTP_STATUS } from "../configs/constants";
 import { formatResponse } from "../utils/response_formatter";
 import { UserService } from "../services/user.service";
 import { AEAreaService } from "../services/ae_area.servive";
-import { RoleEnum } from "../../generated/prisma";
+
 import { RBACService } from "../services/rbac.service";
 
 export const UserController = {
@@ -58,7 +58,7 @@ export const UserController = {
 			const role_id: number[] = [];
 			roleArray.forEach((r: string) => {
 				const foundRole = role_res.find(
-					(role) => role.name === r.toUpperCase()
+					(role: any) => role.name === r.toUpperCase()
 				);
 				if (foundRole) {
 					role_id.push(foundRole.id);

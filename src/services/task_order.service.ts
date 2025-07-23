@@ -1,5 +1,5 @@
-import { StatusEnum } from "../../generated/prisma/index";
 import prisma from "../middlewares/prisma.middleware";
+import { StatusEnum } from "../utils/enum";
 
 const defaultInclude = {
 	users: true,

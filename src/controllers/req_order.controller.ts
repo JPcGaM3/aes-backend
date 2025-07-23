@@ -13,9 +13,10 @@ import { OperationAreaService } from "../services/operation_area.service";
 import { TaskOrderService } from "../services/task_order.service";
 import { ActivityService } from "../services/activity.service";
 import { ToolTypeService } from "../services/tool_type.service";
-import { StatusEnum } from "../../generated/prisma";
+
 import { AttachmentService } from "../services/attachment.service";
 import moment from "moment-timezone";
+import { StatusEnum } from "../utils/enum";
 
 export const RequestOrderController = {
 	createFormKeyIn: async (

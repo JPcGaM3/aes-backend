@@ -55,7 +55,7 @@ export const hasPermission = async (
 		},
 	});
 
-	const hasAccess = userPermissions.some((user_role) =>
+	const hasAccess = userPermissions.some((user_role: any) =>
 		user_role.role?.permissions.some(
 			(rp: any) =>
 				rp.permission.resource === resource && rp.permission.action === action

@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
-import { users } from "../../generated/prisma";
+import { users } from "@prisma/client";
 import { HTTP_STATUS } from "../configs/constants";
 import { formatResponse } from "../utils/response_formatter";
 
@@ -19,10 +19,9 @@ export const AuthMiddleware = (
 	const token = authHeader.split(" ")[1];
 
 	try {
-		const decoded = jwt.verify(
-			token,
-			process.env.JWT_SECRET as string
-		) as users & {
+		const decoded = jwt.verify(token, process.env.JWT_SECRET as string, {
+			algorithms: ["HS256"],
+		}) as users & {
 			token: string;
 		};
 		req.currentUser = decoded;

@@ -1,4 +1,3 @@
-import { RoleEnum, StatusEnum } from "../../generated/prisma/index";
 import prisma from "../middlewares/prisma.middleware";
 
 export const UserOperationAreaService = {

@@ -2,9 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import { HTTP_STATUS } from "../configs/constants";
 import { formatResponse } from "../utils/response_formatter";
 import { TaskOrderService } from "../services/task_order.service";
-import { StatusEnum } from "../../generated/prisma";
+
 import moment from "moment-timezone";
 import { RequestOrderService } from "../services/req_order.service";
+import { StatusEnum } from "../utils/enum";
 
 export const TaskOrderController = {
 	create: async (

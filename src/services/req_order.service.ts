@@ -1,5 +1,5 @@
-import { StatusEnum } from "../../generated/prisma/index";
 import prisma from "../middlewares/prisma.middleware";
+import { StatusEnum } from "../utils/enum";
 import {
 	ConvertIndexMonth_Eng,
 	ConvertMonthIndex_Eng,
@@ -335,7 +335,7 @@ export const RequestOrderService = {
 		}
 
 		const totalActualArea = requestOrderWithTargetArea.taskorders.reduce(
-			(sum, task) => sum + (task.target_area || 0),
+			(sum: number, task: any) => sum + (task.target_area || 0),
 			0
 		);
 
