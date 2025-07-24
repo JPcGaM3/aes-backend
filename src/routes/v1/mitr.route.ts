@@ -13,4 +13,8 @@ mitrRouter.post("/logout", MitrController.logout);
 
 mitrRouter.get("/refresh-token", AuthMiddleware, MitrController.refreshToken);
 
+mitrRouter.get("/health", (req, res) => {
+	res.status(200).json({ message: "AES Backend is working." });
+});
+
 export default mitrRouter;

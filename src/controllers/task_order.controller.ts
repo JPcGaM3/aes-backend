@@ -264,10 +264,11 @@ export const TaskOrderController = {
 			if (!assignedTaskOrders || assignedTaskOrders.length === 0) {
 				return res.status(HTTP_STATUS.NOT_FOUND).json(
 					formatResponse([], {
-						message: "No assigned task orders found",
+						message: "No assigned task orders found.",
 					})
 				);
 			}
+
 			return res
 				.status(HTTP_STATUS.OK)
 				.json(formatResponse(assignedTaskOrders));

@@ -43,7 +43,8 @@ services:
     ports:
       - "8081:8080"
     networks:
-      - aes-network
+      aes-network:
+        ipv4_address: 172.28.5.3
     depends_on:
       db:
         condition: service_healthy
@@ -52,6 +53,11 @@ networks:
   aes-network:
     driver: bridge
     external: true
+    ipam:
+      config:
+        - subnet: 172.28.5.0/24
+          gateway: 172.28.5.1
+          ip_range: 172.28.5.0/24
 
 volumes:
   postgres_data:
