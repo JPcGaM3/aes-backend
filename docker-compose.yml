@@ -51,6 +51,7 @@ services:
 networks:
   aes-network:
     driver: bridge
+    external: true
 
 volumes:
   postgres_data:
