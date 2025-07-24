@@ -74,16 +74,7 @@ export const MitrController = {
 					.json(formatResponse([], { message: "Unauthorized" }));
 			}
 
-			var profile = await MitrService.getProfile(token, username, email);
-
-			//TODO: Test Only
-			if (email === "L.Kritsada@mitrphol.com") {
-				profile = await MitrService.getProfile(
-					token,
-					"JetsadapornB",
-					undefined
-				);
-			}
+			const profile = await MitrService.getProfile(token, username, email);
 
 			if (!profile || profile.code !== 200) {
 				return res
@@ -123,16 +114,7 @@ export const MitrController = {
 					.json(formatResponse([], { message: "Unauthorized" }));
 			}
 
-			var profile = await MitrService.getProfileAD(token, username, email);
-
-			//TODO: Test Only
-			if (email === "L.Kritsada@mitrphol.com") {
-				profile = await MitrService.getProfileAD(
-					token,
-					"JetsadapornB",
-					undefined
-				);
-			}
+			const profile = await MitrService.getProfileAD(token, username, email);
 
 			if (!profile || profile.code !== 200) {
 				return res
@@ -203,21 +185,11 @@ export const MitrController = {
 				);
 			}
 
-			//TODO: Change to const
-			var profile = await MitrService.getProfile(
+			const profile = await MitrService.getProfile(
 				userToken,
 				username || null,
 				email || null
 			);
-
-			//TODO: Test Only
-			if (username === "L.Kritsada") {
-				profile = await MitrService.getProfile(
-					userToken,
-					"JetsadapornB",
-					email || null
-				);
-			}
 
 			if (!profile || profile.code !== 200) {
 				return res.status(HTTP_STATUS.NOT_FOUND).json(
@@ -227,13 +199,9 @@ export const MitrController = {
 				);
 			}
 
-			//TODO: Change to const
-			var user_exist = await UserService.getByEmployeeId(profile.result[0].id);
-
-			//TODO: Test Only
-			if (username === "L.Kritsada") {
-				user_exist = await UserService.getByEmployeeId("Test");
-			}
+			const user_exist = await UserService.getByEmployeeId(
+				profile.result[0].id
+			);
 
 			if (!user_exist) {
 				return res.status(HTTP_STATUS.UNAUTHORIZED).json(
