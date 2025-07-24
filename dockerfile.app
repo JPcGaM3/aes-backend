@@ -24,4 +24,4 @@ EXPOSE 8080
 
 COPY start.sh .
 RUN chmod +x start.sh
-CMD ["./start.sh"]
+CMD ["sh", "./start.sh"]

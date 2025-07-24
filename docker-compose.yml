@@ -1,0 +1,58 @@
+services:
+  db:
+    build:
+      context: ./
+      dockerfile: dockerfile.db
+    container_name: aes-db
+    environment:
+      POSTGRES_USER: aes_user
+      POSTGRES_PASSWORD: aes_password
+      POSTGRES_DB: aes_db
+      TZ: "Asia/Bangkok"
+      PGTZ: "Asia/Bangkok"
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - aes-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aes_user -d aes_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  backend:
+    build:
+      context: ./
+      dockerfile: dockerfile.app
+    container_name: aes-backend
+    environment:
+      - NODE_ENV=PRODUCTION
+      - HOST=0.0.0.0
+      - PORT=8080
+      - DATABASE_URL=postgresql://aes_user:aes_password@aes-db:5432/aes_db
+      - JWT_SECRET=aes-project
+      - AUTH_API_URL=https://mitrservices-internal.mitrphol.com
+      - TOKEN_API_URL=https://login.microsoftonline.com
+      - TENANT_ID=097b580b-b474-487c-8883-46e0bb1b5c11
+      - CLIENT_ID=f233e300-0bc3-45e5-af1c-c4cf04d31ea0
+      - CLIENT_SECRET=u3y8Q~IDZ6cE_n33FSMaMAUvvwdkb8ZyyAAaAdeH
+      - SCOPE=api://userinfo/.default
+      - SUBSCRIPTION_KEY=ceed233e3546483fa2e2bf4faacacba6
+    ports:
+      - "8081:8080"
+    networks:
+      - aes-network
+    depends_on:
+      db:
+        condition: service_healthy
+
+networks:
+  aes-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    name: aes-project_postgres_data
+    external: true

@@ -215,6 +215,13 @@ export const RequestOrderController = {
 				for (const row of data) {
 					try {
 						if (
+							row.หัวตารางแจ้งงาน === "(ตัวอย่าง)" ||
+							row.หัวหน้าไร่ === "(ตัวอย่าง)"
+						) {
+							continue;
+						}
+
+						if (
 							parseInt(nowMonth) >
 								ConvertIndexMonth_Eng(ConvertMonthTH_ENG(row.เดือน)) ||
 							parseInt(nowYear) > Number(row.ปี) - 543
