@@ -776,7 +776,6 @@ export const RequestOrderController = {
 			return res.status(HTTP_STATUS.OK).json(
 				formatResponse(
 					{
-						// requestOrder,
 						attachments,
 					},
 					{

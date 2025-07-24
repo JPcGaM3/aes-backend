@@ -116,7 +116,6 @@ model users {
   phone               String?               @db.VarChar(15)
   unit                Int?
   ae_id               Int?
-  // role                RoleEnum[]
   status              StatusEnum            @default(INACTIVE)
   active              Boolean?              @default(true)
   created_at          DateTime?             @default(now()) @db.Timestamptz

@@ -1,7 +1,6 @@
-// Base custom error class for consistent structure
 export class CustomError extends Error {
 	statusCode: number;
-	isOperational: boolean; // Indicates if this is a known, expected error (e.g., bad input)
+	isOperational: boolean;
 
 	constructor(
 		message: string,
@@ -11,12 +10,11 @@ export class CustomError extends Error {
 		super(message);
 		this.statusCode = statusCode;
 		this.isOperational = isOperational;
-		this.name = this.constructor.name; // Set the name to the class name (e.g., 'BadRequestError')
-		Error.captureStackTrace(this, this.constructor); // Captures stack trace
+		this.name = this.constructor.name;
+		Error.captureStackTrace(this, this.constructor);
 	}
 }
 
-// Common HTTP-specific errors
 export class BadRequestError extends CustomError {
 	constructor(message = "Bad Request") {
 		super(message, 400);
@@ -47,7 +45,6 @@ export class ConflictError extends CustomError {
 	}
 }
 
-// For errors that indicate a server-side problem not directly related to user input
 export class InternalServerError extends CustomError {
 	constructor(message = "Internal Server Error", isOperational = false) {
 		super(message, 500, isOperational);

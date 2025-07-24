@@ -1,4 +1,3 @@
-// import * as CarModel from "../services/car_services";
 import { HTTP_STATUS, MESSAGES } from "../configs/constants";
 import { NextFunction, Request, Response } from "express";
 import { CarService } from "../services/car.service";

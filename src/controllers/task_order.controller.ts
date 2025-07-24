@@ -200,10 +200,6 @@ export const TaskOrderController = {
 			const max_area = available_info.target_area;
 			const total_area = available_info.total_actual_area;
 
-			console.log("max: ", max_area);
-			console.log("total: ", total_area);
-			console.log("target: ", target_area);
-
 			if (target_area + total_area > max_area) {
 				return res
 					.status(HTTP_STATUS.NOT_FOUND)

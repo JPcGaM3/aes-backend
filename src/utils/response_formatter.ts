@@ -1,4 +1,3 @@
-// Define interfaces for a clearer response structure
 interface SuccessResponse<T> {
 	success: true;
 	message: string | null;
@@ -9,11 +8,10 @@ interface SuccessResponse<T> {
 interface ErrorResponse {
 	success: false;
 	message: string;
-	code?: string; // Optional: A specific error code (e.g., 'VALIDATION_FAILED')
-	details?: any; // Optional: More details about the error (e.g., validation errors)
+	code?: string;
+	details?: any;
 }
 
-// Union type for the possible return shapes
 export type ApiResponse<T> = SuccessResponse<T> | ErrorResponse;
 
 /**
@@ -39,7 +37,6 @@ export const formatResponse = <T>(
 	const { message, isError = false, code, details } = options;
 
 	if (isError) {
-		// This is an error response
 		if (!message) {
 			throw new Error("Error responses must have a message.");
 		}
@@ -50,14 +47,13 @@ export const formatResponse = <T>(
 			...(details && { details }),
 		};
 	} else {
-		// This is a success response
 		const hasData: boolean = Array.isArray(data) ? data.length > 0 : !!data;
 		const responseMessage = message || (hasData ? "Success" : "No data found");
 
 		const successRes: SuccessResponse<T> = {
 			success: true,
 			message: responseMessage,
-			data: data as T, // Cast data to T, as it's a success response
+			data: data as T,
 		};
 
 		if (Array.isArray(data)) {
