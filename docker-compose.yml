@@ -44,7 +44,7 @@ services:
       - "8081:8080"
     networks:
       aes-network:
-        ipv4_address: 172.28.5.3
+        ipv4_address: 172.28.5.4
     depends_on:
       db:
         condition: service_healthy

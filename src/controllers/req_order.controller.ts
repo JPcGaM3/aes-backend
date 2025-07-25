@@ -275,7 +275,7 @@ export const RequestOrderController = {
 							quota_number: row.โควต้าไร่.toString(),
 							farmer_name: row.ชื่อไร่.toString(),
 							target_area: Number(row.พื้นที่แจ้งจำนวนไร่),
-							land_number: Number(row.เลขที่แปลง),
+							land_number: row.เลขที่แปลง.toString(),
 							location_xy: row.สถานที่ทำงานใส่พิกัดXY.toString(),
 							ap_month: ConvertMonthTH_ENG(row.เดือน),
 							ap_year: Number(row.ปี) - 543,
