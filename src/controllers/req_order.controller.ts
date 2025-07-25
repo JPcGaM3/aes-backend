@@ -349,7 +349,7 @@ export const RequestOrderController = {
 				processedData.push({
 					fileName: file.originalname,
 					validRows: validReqData.length,
-					totalRows: data.length,
+					totalRows: data.length - 1,
 					errorRows: errorRows.length,
 					data: validReqData,
 					errorData: errorRows,
