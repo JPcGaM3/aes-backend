@@ -27,11 +27,6 @@ networks:
   aes-network:
     driver: bridge
     external: true
-    ipam:
-      config:
-        - subnet: 172.28.5.0/24
-          gateway: 172.28.5.1
-          ip_range: 172.28.5.0/24
 
 volumes:
   postgres_data:
