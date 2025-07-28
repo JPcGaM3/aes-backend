@@ -31,7 +31,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
 app.use(securityMiddleware);
 
-app.use("/api/v1", apiRouter);
+app.use("/aesback/api/v1", apiRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
