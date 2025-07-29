@@ -18,6 +18,10 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 
+RUN apk add --no-cache tzdata font-noto
+
+ENV LANG=th_TH.UTF-8
+ENV LC_ALL=th_TH.UTF-8
 ENV NODE_ENV=PRODUCTION
 
 EXPOSE 8080
