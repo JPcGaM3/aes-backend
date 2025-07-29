@@ -209,6 +209,7 @@ export const RequestOrderController = {
 			for (const file of files) {
 				const data = await ReadExcelFile(file.buffer);
 
+				let exampleRow: number = 0;
 				const reqData: any[] = [];
 				const errorRows: any[] = [];
 
@@ -218,6 +219,7 @@ export const RequestOrderController = {
 							row.หัวตารางแจ้งงาน === "(ตัวอย่าง)" ||
 							row.หัวหน้าไร่ === "(ตัวอย่าง)"
 						) {
+							exampleRow++;
 							continue;
 						}
 
@@ -349,7 +351,7 @@ export const RequestOrderController = {
 				processedData.push({
 					fileName: file.originalname,
 					validRows: validReqData.length,
-					totalRows: data.length - 1,
+					totalRows: data.length - exampleRow,
 					errorRows: errorRows.length,
 					data: validReqData,
 					errorData: errorRows,
