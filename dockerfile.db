@@ -1,0 +1,10 @@
+FROM postgres:latest
+
+# Set up Thai locale
+RUN localedef -i th_TH -c -f UTF-8 -A /usr/share/locale/locale.alias th_TH.UTF-8
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
+
+ENV LANG=th_TH.utf8
+ENV TZ=Asia/Bangkok
+ENV PGTZ=Asia/Bangkok

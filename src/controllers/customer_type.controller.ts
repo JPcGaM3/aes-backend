@@ -1,0 +1,187 @@
+import { NextFunction, Request, Response } from "express";
+import { HTTP_STATUS } from "../configs/constants";
+import { formatResponse } from "../utils/response_formatter";
+import { CustomerTypeService } from "../services/custormer_type.service";
+
+export const CustomerTypeController = {
+	getAll: async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<any> => {
+		try {
+			const customerTypes = await CustomerTypeService.getAll();
+			if (!customerTypes || customerTypes.length === 0) {
+				return res.status(HTTP_STATUS.OK).json(
+					formatResponse([], {
+						message: "No customer types found.",
+					})
+				);
+			}
+			return res.status(HTTP_STATUS.OK).json(formatResponse(customerTypes));
+		} catch (error) {
+			next(error);
+		}
+	},
+	getById: async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<any> => {
+		try {
+			const { id: customerTypeId } = req.params;
+			if (!customerTypeId) {
+				return res.status(HTTP_STATUS.BAD_REQUEST).json(
+					formatResponse([], {
+						message: "Customer type ID is required.",
+					})
+				);
+			}
+			const customerType = await CustomerTypeService.getById(
+				Number(customerTypeId)
+			);
+			if (!customerType) {
+				return res.status(HTTP_STATUS.NOT_FOUND).json(
+					formatResponse([], {
+						message: "Customer type not found",
+					})
+				);
+			}
+			return res.status(HTTP_STATUS.OK).json(formatResponse(customerType));
+		} catch (error) {
+			next(error);
+		}
+	},
+	getByName: async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<any> => {
+		try {
+			const { name } = req.params;
+			if (!name) {
+				return res.status(HTTP_STATUS.BAD_REQUEST).json(
+					formatResponse([], {
+						message: "Customer type name is required.",
+					})
+				);
+			}
+			const customerType = await CustomerTypeService.getByName(name);
+			if (!customerType) {
+				return res.status(HTTP_STATUS.NOT_FOUND).json(
+					formatResponse([], {
+						message: "Customer type not found",
+					})
+				);
+			}
+			return res.status(HTTP_STATUS.OK).json(formatResponse(customerType));
+		} catch (error) {
+			next(error);
+		}
+	},
+	create: async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<any> => {
+		const { name } = req.body;
+		const { id: userId } = req.currentUser;
+
+		if (!userId) {
+			return res
+				.status(HTTP_STATUS.UNAUTHORIZED)
+				.json(formatResponse([], { message: "Unauthorized." }));
+		}
+
+		try {
+			const newCustomerType = await CustomerTypeService.create({
+				name,
+				created_by: Number(userId),
+				updated_by: Number(userId),
+			});
+			return res
+				.status(HTTP_STATUS.CREATED)
+				.json(formatResponse(newCustomerType));
+		} catch (error) {
+			next(error);
+		}
+	},
+	update: async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<any> => {
+		try {
+			const { id: customerTypeId } = req.params;
+			const { name } = req.body;
+			const { id: userId } = req.currentUser;
+
+			if (!userId) {
+				return res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(formatResponse([], { message: "Unauthorized." }));
+			}
+
+			if (!customerTypeId) {
+				return res.status(HTTP_STATUS.BAD_REQUEST).json(
+					formatResponse([], {
+						message: "Customer type ID is required.",
+					})
+				);
+			}
+
+			const updatedCustomerType = await CustomerTypeService.update(
+				Number(customerTypeId),
+				{
+					name,
+					updated_by: Number(userId),
+				}
+			);
+			if (!updatedCustomerType) {
+				return res.status(HTTP_STATUS.NOT_FOUND).json(
+					formatResponse([], {
+						message: "Customer type not found",
+					})
+				);
+			}
+			return res
+				.status(HTTP_STATUS.OK)
+				.json(formatResponse(updatedCustomerType));
+		} catch (error) {
+			next(error);
+		}
+	},
+	delete: async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<any> => {
+		try {
+			const { id: customerTypeId } = req.params;
+
+			if (!customerTypeId) {
+				return res.status(HTTP_STATUS.BAD_REQUEST).json(
+					formatResponse([], {
+						message: "Customer type ID is required.",
+					})
+				);
+			}
+
+			const deletedCustomerType = await CustomerTypeService.delete(
+				Number(customerTypeId)
+			);
+			if (!deletedCustomerType) {
+				return res.status(HTTP_STATUS.NOT_FOUND).json(
+					formatResponse([], {
+						message: "Customer type not found",
+					})
+				);
+			}
+			return res
+				.status(HTTP_STATUS.OK)
+				.json(formatResponse(deletedCustomerType));
+		} catch (error) {
+			next(error);
+		}
+	},
+};

@@ -1,0 +1,446 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PermissionEnum {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+}
+
+enum StatusEnum {
+  WORKING
+  INACTIVE
+  ON_LEAVE
+  CANCELLED
+  REJECTED
+  CREATED
+  PENDING
+  ON_HOLD
+  IN_PROGRESS
+  PENDING_CONFIRM
+  PENDING_APPROVAL
+  PENDING_EDIT
+  PENDING_REVIEW
+  COMPLETED
+}
+
+enum RoleEnum {
+  ADMIN
+  MANAGER
+  SUB_MANAGER
+  COMMANDER
+  SUB_COMMANDER
+  DEPARTMENT_HEAD
+  ACCOUNTANT
+  MAINTENANCE
+  UNIT_HEAD
+  DRIVER
+}
+
+model role {
+  id          Int       @id @default(autoincrement())
+  name        RoleEnum?
+  description String?
+  active      Boolean   @default(true)
+  created_at  DateTime? @default(now()) @db.Timestamptz
+  updated_at  DateTime? @updatedAt @db.Timestamptz
+  created_by  Int
+  updated_by  Int
+
+  permissions role_permission[]
+  userRoles   user_role[]
+}
+
+model permission {
+  id          Int             @id @default(autoincrement())
+  resource    String?
+  action      PermissionEnum?
+  description String?
+  active      Boolean         @default(true)
+  created_at  DateTime?       @default(now()) @db.Timestamptz
+  updated_at  DateTime?       @updatedAt @db.Timestamptz
+  created_by  Int
+  updated_by  Int
+
+  rolePermissions role_permission[]
+
+  @@unique([resource, action])
+}
+
+model role_permission {
+  id            Int       @id @default(autoincrement())
+  role_id       Int?
+  permission_id Int?
+  active        Boolean?  @default(false)
+  created_at    DateTime? @default(now()) @db.Timestamptz
+  updated_at    DateTime? @updatedAt @db.Timestamptz
+  created_by    Int
+  updated_by    Int
+
+  role       role?       @relation(fields: [role_id], references: [id], onDelete: Cascade)
+  permission permission? @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+
+  @@unique([role_id, permission_id])
+  @@index([role_id])
+  @@index([permission_id])
+}
+
+model user_role {
+  id         Int       @id @default(autoincrement())
+  user_id    Int?
+  role_id    Int?
+  active     Boolean?  @default(false)
+  created_at DateTime? @default(now()) @db.Timestamptz
+  updated_at DateTime? @updatedAt @db.Timestamptz
+  created_by Int
+  updated_by Int
+
+  user users? @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  role role?  @relation(fields: [role_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, role_id])
+  @@index([user_id])
+  @@index([role_id])
+}
+
+model users {
+  id                  Int                   @id @default(autoincrement())
+  phone               String?               @db.VarChar(15)
+  unit                Int?
+  ae_id               Int?
+  status              StatusEnum            @default(INACTIVE)
+  active              Boolean?              @default(true)
+  created_at          DateTime?             @default(now()) @db.Timestamptz
+  updated_at          DateTime?             @updatedAt @db.Timestamptz
+  created_by          Int
+  updated_by          Int
+  username            String?               @db.VarChar(255)
+  email               String?               @unique @db.VarChar(255)
+  fullname            String?               @db.VarChar(255)
+  employee_id         String?               @unique @db.VarChar(255)
+  ae_area             ae_area?              @relation(fields: [ae_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  requestorders       requestorders[]
+  taskorders          taskorders[]
+  user_operation_area user_operation_area[]
+  user_role           user_role[]
+  user_ae_area        user_ae_area[]
+
+  @@index([ae_id])
+}
+
+model cars {
+  id                Int          @id @default(autoincrement())
+  car_number        String?      @db.VarChar(255)
+  asset             String?      @db.VarChar(255)
+  asset_class       Int?
+  asset_description String?
+  name              String?
+  car_brand         String?
+  car_code          String?
+  car_model         String?
+  year              Int?
+  capitalized_on    DateTime?    @db.Date
+  service_life      Int?
+  cost_center       String?      @db.VarChar(255)
+  note              String?
+  hp                Float?
+  acquis_val        Float?
+  accum_dep         Float?
+  curr_bk_val       Float?
+  active            Boolean?     @default(true)
+  ae_id             Int?
+  created_at        DateTime?    @default(now()) @db.Timestamptz
+  updated_at        DateTime?    @updatedAt @db.Timestamptz
+  created_by        Int
+  updated_by        Int
+  ae_area           ae_area?     @relation(fields: [ae_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  taskorders        taskorders[]
+
+  @@index([ae_id])
+}
+
+model locations {
+  id              Int             @id @default(autoincrement())
+  location_name   String?         @db.VarChar(255)
+  land_number     Int?
+  location_xy     String
+  is_new_location Boolean?        @default(false)
+  created_at      DateTime?       @default(now()) @db.Timestamptz
+  updated_at      DateTime?       @updatedAt @db.Timestamptz
+  created_by      Int
+  updated_by      Int
+  requestorders   requestorders[]
+}
+
+model activities {
+  id              Int          @id @default(autoincrement())
+  name            String       @db.VarChar(255)
+  created_at      DateTime?    @default(now()) @db.Timestamptz
+  updated_at      DateTime?    @updatedAt @db.Timestamptz
+  created_by      Int
+  updated_by      Int
+  activity_number Int
+  tool_types      tool_types[]
+  taskorders      taskorders[]
+}
+
+model tool_types {
+  id               Int          @id @default(autoincrement())
+  activity_id      Int
+  price_ct_fm      Float?       @default(0)
+  price_ct_rdc     Float?       @default(0)
+  price_ne1_fm     Float?       @default(0)
+  price_ne1_res    Float?       @default(0)
+  price_suffix     String?
+  tool_type_name   String
+  tool_type_number Int?
+  created_at       DateTime?    @default(now()) @db.Timestamptz
+  updated_at       DateTime?    @updatedAt @db.Timestamptz
+  created_by       Int
+  updated_by       Int
+  activities       activities   @relation(fields: [activity_id], references: [id])
+  tools            tools[]
+  taskorders       taskorders[]
+
+  @@index([activity_id])
+}
+
+model tools {
+  id             Int          @id @default(autoincrement())
+  name           String?      @db.VarChar(255)
+  asset          String?      @unique @db.VarChar(255)
+  year           Int?
+  capitalized_on DateTime     @db.Date
+  status         StatusEnum   @default(INACTIVE)
+  created_at     DateTime?    @default(now()) @db.Timestamptz
+  updated_at     DateTime?    @updatedAt @db.Timestamptz
+  created_by     Int
+  updated_by     Int
+  ae_id          Int?
+  tool_type_id   Int?
+  taskorders     taskorders[]
+  ae_area        ae_area?     @relation(fields: [ae_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tool_type      tool_types?  @relation(fields: [tool_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([ae_id])
+  @@index([tool_type_id])
+}
+
+model ae_area {
+  id             Int              @id @default(autoincrement())
+  name           String?          @db.VarChar(255)
+  created_at     DateTime?        @default(now()) @db.Timestamptz
+  updated_at     DateTime?        @updatedAt @db.Timestamptz
+  created_by     Int
+  updated_by     Int
+  operation_area operation_area[]
+  tools          tools[]
+  users          users[]
+  cars           cars[]
+  requestorders  requestorders[]
+  user_ae_area   user_ae_area[]
+}
+
+model operation_area {
+  id                     Int                   @id @default(autoincrement())
+  operation_area         String?               @db.VarChar(255)
+  area_number            Int?                  @unique
+  created_at             DateTime?             @default(now()) @db.Timestamptz
+  updated_at             DateTime?             @updatedAt @db.Timestamptz
+  created_by             Int
+  updated_by             Int
+  ae_id                  Int?
+  customer_type_id       Int
+  company_farm           company_farm[]
+  ae_area                ae_area?              @relation(fields: [ae_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  customer_type          customer_type         @relation(fields: [customer_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user_operation_area    user_operation_area[]
+  requestorders          requestorders[]       @relation(name: "RequestOrdersToOperationArea")
+  customer_requestorders requestorders[]       @relation(name: "CustomerRequestOrdersToOperationArea")
+
+  @@index([ae_id])
+  @@index([customer_type_id])
+}
+
+model company_farm {
+  id             Int             @id @default(autoincrement())
+  area_number    Int
+  zone           String?         @db.VarChar(255)
+  farm_name      String?
+  created_at     DateTime?       @default(now()) @db.Timestamptz
+  updated_at     DateTime?       @updatedAt @db.Timestamptz
+  created_by     Int
+  updated_by     Int
+  operation_area operation_area  @relation(fields: [area_number], references: [area_number], onDelete: NoAction)
+  requestorders  requestorders[]
+
+  @@index([area_number])
+}
+
+model customer_type {
+  id             Int              @id @default(autoincrement())
+  name           String?          @db.VarChar(255)
+  created_at     DateTime?        @default(now()) @db.Timestamptz
+  updated_at     DateTime?        @updatedAt @db.Timestamptz
+  created_by     Int
+  updated_by     Int
+  operation_area operation_area[]
+  requestorders  requestorders[]
+}
+
+model attachment {
+  id         Int       @id @default(autoincrement())
+  file_name  String?   @db.VarChar(255)
+  file_path  String?   @db.VarChar(255)
+  file_type  String?   @db.VarChar(255)
+  file_data  Bytes?    @db.ByteA
+  created_at DateTime? @default(now()) @db.Timestamptz
+  updated_at DateTime? @updatedAt @db.Timestamptz
+  created_by Int
+  updated_by Int
+}
+
+model requestorders {
+  id                         Int             @id @default(autoincrement())
+  run_number                 String?         @db.VarChar(255)
+  phone                      String?         @db.VarChar(15)
+  customer_type_id           Int?
+  customer_operation_area_id Int?
+  operation_area_id          Int?
+  quota_number               String?         @db.VarChar(255)
+  company_farm_id            Int?
+  zone                       String?         @db.VarChar(255)
+  farmer_name                String?         @db.VarChar(255)
+  land_number                String?         @db.VarChar(255)
+  ap_month                   String?         @db.VarChar(255)
+  ap_year                    Int?
+  ae_id                      Int?
+  target_area                Float?          @default(0)
+  actual_area                Float?          @default(0)
+  active                     Boolean?        @default(true)
+  evidence                   Int[]
+  sale                       Float?
+  status                     StatusEnum      @default(CREATED)
+  supervisor_name            String?
+  supervisor_id              Int?
+  location_xy                String?
+  location_id                Int?
+  unit_head_id               Int?
+  comment                    String?
+  created_at                 DateTime?       @default(now()) @db.Timestamptz
+  updated_at                 DateTime?       @updatedAt @db.Timestamptz
+  created_by                 Int
+  updated_by                 Int
+  customer_type              customer_type?  @relation(fields: [customer_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  operation_area             operation_area? @relation(name: "RequestOrdersToOperationArea", fields: [operation_area_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  customer_operation_area    operation_area? @relation(name: "CustomerRequestOrdersToOperationArea", fields: [customer_operation_area_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  company_farm               company_farm?   @relation(fields: [company_farm_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  ae_area                    ae_area?        @relation(fields: [ae_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  locations                  locations?      @relation(fields: [location_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users                      users?          @relation(fields: [unit_head_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  taskorders                 taskorders[]
+  bills                      bills[]
+
+  @@index([ae_id])
+  @@index([supervisor_id])
+  @@index([operation_area_id])
+  @@index([company_farm_id])
+  @@index([customer_type_id])
+}
+
+model taskorders {
+  id               Int            @id @default(autoincrement())
+  request_order_id Int?
+  activities_id    Int?
+  tool_types_id    Int?
+  car_id           Int?
+  tool_id          Int?
+  assigned_user_id Int?
+  target_area      Float?         @default(0)
+  actual_area      Float?         @default(0)
+  price            Float?         @default(0)
+  ap_date          DateTime?      @db.Date
+  oil_slip         String?
+  oil_start_mile   Int?
+  start_mile       Int?
+  end_mile         Int?
+  oil_start        Float?
+  oil_end          Float?
+  car_start_hour   String?        @db.VarChar(255)
+  car_end_hour     String?        @db.VarChar(255)
+  start_timer      DateTime?      @db.Timestamptz
+  end_timer        DateTime?      @db.Timestamptz
+  status           StatusEnum     @default(CREATED)
+  comment          String?
+  active           Boolean?       @default(true)
+  created_at       DateTime?      @default(now()) @db.Timestamptz
+  updated_at       DateTime?      @updatedAt @db.Timestamptz
+  created_by       Int
+  updated_by       Int
+  users            users?         @relation(fields: [assigned_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  cars             cars?          @relation(fields: [car_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  requestorders    requestorders? @relation(fields: [request_order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  activities       activities?    @relation(fields: [activities_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tools            tools?         @relation(fields: [tool_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tool_type        tool_types?    @relation(fields: [tool_types_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([activities_id])
+  @@index([tool_types_id])
+  @@index([car_id])
+  @@index([tool_id])
+  @@index([assigned_user_id])
+  @@index([request_order_id])
+}
+
+model bills {
+  id               Int            @id @default(autoincrement())
+  target_price     Float?         @default(0)
+  actual_price     Float?         @default(0)
+  status           StatusEnum     @default(CREATED)
+  request_order_id Int?
+  created_at       DateTime?      @default(now()) @db.Timestamptz
+  updated_at       DateTime?      @updatedAt @db.Timestamptz
+  created_by       Int
+  updated_by       Int
+  requestorders    requestorders? @relation(fields: [request_order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model user_operation_area {
+  id                Int             @id @default(autoincrement())
+  user_id           Int?
+  operation_area_id Int?
+  active            Boolean?        @default(false)
+  created_at        DateTime?       @default(now()) @db.Timestamptz
+  updated_at        DateTime?       @updatedAt @db.Timestamptz
+  created_by        Int
+  updated_by        Int
+  users             users?          @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  operation_area    operation_area? @relation(fields: [operation_area_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([user_id])
+  @@index([operation_area_id])
+}
+
+model user_ae_area {
+  id         Int       @id @default(autoincrement())
+  user_id    Int?
+  ae_id      Int?
+  active     Boolean?  @default(false)
+  created_at DateTime? @default(now()) @db.Timestamptz
+  updated_at DateTime? @updatedAt @db.Timestamptz
+  created_by Int
+  updated_by Int
+  users      users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  ae_area    ae_area?  @relation(fields: [ae_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([user_id])
+  @@index([ae_id])
+}

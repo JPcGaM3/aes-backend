@@ -1,0 +1,34 @@
+services:
+  backend:
+    build:
+      context: ./
+      dockerfile: dockerfile.app
+    container_name: aes-backend
+    environment:
+      - NODE_ENV=PRODUCTION
+      - HOST=0.0.0.0
+      - PORT=8080
+      - DATABASE_URL=postgresql://aesuser:A35M!trph01@10.25.69.250:5432/aeservice
+      - JWT_SECRET=aes-project
+      - AUTH_API_URL=https://mitrservices-internal.mitrphol.com
+      - TOKEN_API_URL=https://login.microsoftonline.com
+      - TENANT_ID=097b580b-b474-487c-8883-46e0bb1b5c11
+      - CLIENT_ID=f233e300-0bc3-45e5-af1c-c4cf04d31ea0
+      - CLIENT_SECRET=u3y8Q~IDZ6cE_n33FSMaMAUvvwdkb8ZyyAAaAdeH
+      - SCOPE=api://userinfo/.default
+      - SUBSCRIPTION_KEY=ceed233e3546483fa2e2bf4faacacba6
+    ports:
+      - "8081:8080"
+    networks:
+      aes-network:
+        ipv4_address: 172.28.5.4
+
+networks:
+  aes-network:
+    driver: bridge
+    external: true
+
+volumes:
+  postgres_data:
+    name: aes-project_postgres_data
+    external: true

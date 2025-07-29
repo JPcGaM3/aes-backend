@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "taskorders" ALTER COLUMN "start_timer" SET DATA TYPE TIMESTAMPTZ,
+ALTER COLUMN "end_timer" SET DATA TYPE TIMESTAMPTZ;
