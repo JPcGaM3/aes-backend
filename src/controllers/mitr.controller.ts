@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { MitrService } from "../services/mitr.service";
 import { UserService } from "../services/user.service";
 import { formatResponse } from "../utils/response_formatter";
+import { UnauthorizedError } from "../errors/custom_errors";
 
 export const MitrController = {
 	getToken: async (
@@ -22,6 +23,12 @@ export const MitrController = {
 			}
 			return res.status(HTTP_STATUS.OK).json(formatResponse(token));
 		} catch (error) {
+			if (
+				error instanceof Error &&
+				error.message.includes("Failed to authenticate")
+			) {
+				return next(new UnauthorizedError(error.message));
+			}
 			next(error);
 		}
 	},
@@ -56,6 +63,12 @@ export const MitrController = {
 				.status(HTTP_STATUS.OK)
 				.json(formatResponse({ authenresult: response.result[0] }));
 		} catch (error) {
+			if (
+				error instanceof Error &&
+				error.message.includes("Failed to authenticate")
+			) {
+				return next(new UnauthorizedError(error.message));
+			}
 			next(error);
 		}
 	},
@@ -96,6 +109,12 @@ export const MitrController = {
 				})
 			);
 		} catch (error) {
+			if (
+				error instanceof Error &&
+				error.message.includes("Failed to authenticate")
+			) {
+				return next(new UnauthorizedError(error.message));
+			}
 			next(error);
 		}
 	},
@@ -135,6 +154,12 @@ export const MitrController = {
 				})
 			);
 		} catch (error) {
+			if (
+				error instanceof Error &&
+				error.message.includes("Failed to authenticate")
+			) {
+				return next(new UnauthorizedError(error.message));
+			}
 			next(error);
 		}
 	},
@@ -269,6 +294,12 @@ export const MitrController = {
 				})
 			);
 		} catch (error) {
+			if (
+				error instanceof Error &&
+				error.message.includes("Failed to authenticate")
+			) {
+				return next(new UnauthorizedError(error.message));
+			}
 			next(error);
 		}
 	},
@@ -326,6 +357,12 @@ export const MitrController = {
 				})
 			);
 		} catch (error) {
+			if (
+				error instanceof Error &&
+				error.message.includes("Failed to authenticate")
+			) {
+				return next(new UnauthorizedError(error.message));
+			}
 			next(error);
 		}
 	},
@@ -339,6 +376,12 @@ export const MitrController = {
 				.status(HTTP_STATUS.OK)
 				.json(formatResponse({ message: "Logout successful." }));
 		} catch (error) {
+			if (
+				error instanceof Error &&
+				error.message.includes("Failed to authenticate")
+			) {
+				return next(new UnauthorizedError(error.message));
+			}
 			next(error);
 		}
 	},
