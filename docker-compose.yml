@@ -7,16 +7,16 @@ services:
     environment:
       - NODE_ENV=PRODUCTION
       - HOST=0.0.0.0
-      - PORT=8080
-      - DATABASE_URL=postgresql://aesuser:A35M!trph01@10.25.69.250:5432/aeservice
-      - JWT_SECRET=aes-project
-      - AUTH_API_URL=https://mitrservices-internal.mitrphol.com
-      - TOKEN_API_URL=https://login.microsoftonline.com
-      - TENANT_ID=097b580b-b474-487c-8883-46e0bb1b5c11
-      - CLIENT_ID=f233e300-0bc3-45e5-af1c-c4cf04d31ea0
-      - CLIENT_SECRET=u3y8Q~IDZ6cE_n33FSMaMAUvvwdkb8ZyyAAaAdeH
-      - SCOPE=api://userinfo/.default
-      - SUBSCRIPTION_KEY=ceed233e3546483fa2e2bf4faacacba6
+      - PORT=${PORT}
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - AUTH_API_URL=${AUTH_API_URL}
+      - TOKEN_API_URL=${TOKEN_API_URL}
+      - TENANT_ID=${TENANT_ID}
+      - CLIENT_ID=${CLIENT_ID}
+      - CLIENT_SECRET=${CLIENT_SECRET}
+      - SCOPE=${SCOPE}
+      - SUBSCRIPTION_KEY=${SUBSCRIPTION_KEY}
     ports:
       - "8081:8080"
     networks:
