@@ -17,7 +17,6 @@ import { ToolTypeService } from "../services/tool_type.service";
 import { AttachmentService } from "../services/attachment.service";
 import moment from "moment-timezone";
 import { StatusEnum } from "../utils/enum";
-import { constrainedMemory } from "process";
 
 export const RequestOrderController = {
 	createFormKeyIn: async (
@@ -226,7 +225,7 @@ export const RequestOrderController = {
 
 						if (
 							parseInt(nowMonth) >
-							ConvertIndexMonth_Eng(ConvertMonthTH_ENG(row.เดือน)) ||
+								ConvertIndexMonth_Eng(ConvertMonthTH_ENG(row.เดือน)) ||
 							parseInt(nowYear) > Number(row.ปี) - 543
 						) {
 							errorRows.push({
@@ -434,7 +433,6 @@ export const RequestOrderController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
-			console.log("Fetching all request orders");
 			const {
 				ae_id,
 				customer_type_id,
@@ -449,7 +447,6 @@ export const RequestOrderController = {
 			const { id: userId, role: userRole } = req.currentUser;
 
 			if (!userId || !userRole) {
-				console.log("Unauthorized access attempt");
 				return res
 					.status(HTTP_STATUS.UNAUTHORIZED)
 					.json(formatResponse([], { message: "Unauthorized." }));
@@ -464,7 +461,6 @@ export const RequestOrderController = {
 					start_month > end_month) ||
 				(start_year && end_year && start_year > end_year)
 			) {
-				console.log("Invalid date range.");
 				return res.status(HTTP_STATUS.BAD_REQUEST).json(
 					formatResponse([], {
 						message: "Invalid date range.",
@@ -476,7 +472,6 @@ export const RequestOrderController = {
 
 			let statusArray: StatusEnum[] = [];
 			if (status) {
-				console.log("Status filter applied:", status);
 				if (Array.isArray(status)) {
 					statusArray = status.map(
 						(s) => String(s).toUpperCase() as StatusEnum
@@ -500,7 +495,6 @@ export const RequestOrderController = {
 			);
 
 			if (!resquestOrders || resquestOrders.length === 0) {
-				console.log("No request orders found.");
 				return res.status(HTTP_STATUS.NOT_FOUND).json(
 					formatResponse([], {
 						message: "No request orders found.",
@@ -510,7 +504,6 @@ export const RequestOrderController = {
 
 			return res.status(HTTP_STATUS.OK).json(formatResponse(resquestOrders));
 		} catch (error) {
-			console.log("Fetching all request orders failed.");
 			next(error);
 		}
 	},
