@@ -1,35 +1,35 @@
 services:
- app:
-  restart: always
-  image: aes-backend:latest
-  container_name: aes-backend
-  build:
-   context: ./
-   dockerfile: dockerfile.app
-  networks:
-   project_network:
-    ipv4_address: 172.28.5.4
-  environment:
-   - NODE_ENV=PRODUCTION
-   - HOST=${HOST}
-   - PORT=${PORT}
-   - DATABASE_URL=${DATABASE_URL}
-   - JWT_SECRET=${JWT_SECRET}
-   - AUTH_API_URL=${AUTH_API_URL}
-   - TOKEN_API_URL=${TOKEN_API_URL}
-   - TENANT_ID=${TENANT_ID}
-   - CLIENT_ID=${CLIENT_ID}
-   - CLIENT_SECRET=${CLIENT_SECRET}
-   - SCOPE=${SCOPE}
-   - SUBSCRIPTION_KEY=${SUBSCRIPTION_KEY}
-  env_file:
-   - .env
-  expose:
-   - "8080"
-  logging:
-   driver: json-file
-   options:
-    max-size: "100m"
+  app:
+    restart: always
+    image: aes-backend:latest
+    container_name: aes-backend
+    build:
+      context: ./
+      dockerfile: dockerfile.app
+    networks:
+      project_network:
+        ipv4_address: 172.28.5.4
+    environment:
+      - NODE_ENV=PRODUCTION
+      - HOST=${HOST}
+      - PORT=${PORT}
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - AUTH_API_URL=${AUTH_API_URL}
+      - TOKEN_API_URL=${TOKEN_API_URL}
+      - TENANT_ID=${TENANT_ID}
+      - CLIENT_ID=${CLIENT_ID}
+      - CLIENT_SECRET=${CLIENT_SECRET}
+      - SCOPE=${SCOPE}
+      - SUBSCRIPTION_KEY=${SUBSCRIPTION_KEY}
+    env_file:
+      - .env
+    expose:
+      - "8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: "100m"
 
 networks:
   project_network:

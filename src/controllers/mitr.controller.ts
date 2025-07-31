@@ -250,7 +250,7 @@ export const MitrController = {
 			}
 
 			const userData = {
-				username: username,
+				username: profile.result[0].username || null,
 				email: authen.result[0].mail || null,
 				fullname: profile.result[0].employeeName.th || null,
 				updated_by: user_exist.id,
