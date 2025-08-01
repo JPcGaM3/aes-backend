@@ -206,6 +206,7 @@ export const RequestOrderController = {
 			const nowMonth = now.clone().tz("Asia/Bangkok").format("MM");
 			const nowYear = now.clone().tz("Asia/Bangkok").format("YYYY");
 
+			//TODO: รวมใบสั่่งงานด้วยเลขที่แปรงแทนการใช้ +
 			for (const file of files) {
 				const data = await ReadExcelFile(file.buffer);
 
@@ -268,6 +269,7 @@ export const RequestOrderController = {
 						const currentRunNumber = runNumberMap[currentYear];
 						runNumberMap[currentYear] += 1;
 
+						//TODO: ไม่เช็ค location_xy
 						const reqOrder = {
 							customer_type_id: Number(opa_res.customer_type_id),
 							run_number: currentRunNumber.toString().padStart(5, "0"),
@@ -302,6 +304,8 @@ export const RequestOrderController = {
 						const req_id = newRequestOrder.id;
 						const allActivities = SplitWords(row.กิจกรรม);
 						const allToolTypes = SplitWords(row.เครื่องมือ);
+
+						//TODO: check กิจกรรม กับ เครื่องมือก่อน
 
 						const newTaskOrders: any[] = [];
 
@@ -458,7 +462,8 @@ export const RequestOrderController = {
 					start_year &&
 					end_year &&
 					start_year == end_year &&
-					start_month > end_month) ||
+					ConvertIndexMonth_Eng(start_month as string) >
+						ConvertIndexMonth_Eng(end_month as string)) ||
 				(start_year && end_year && start_year > end_year)
 			) {
 				return res.status(HTTP_STATUS.BAD_REQUEST).json(
@@ -468,6 +473,7 @@ export const RequestOrderController = {
 				);
 			}
 
+			//TODO: Check หัวหน้าหน่วยเฉพาะหน้างาน, หน้ารายการไม่ต้องเช็ค
 			const isUnitHead = userRole.includes("UNIT_HEAD");
 
 			let statusArray: StatusEnum[] = [];

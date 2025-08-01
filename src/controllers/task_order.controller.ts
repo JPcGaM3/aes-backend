@@ -192,6 +192,7 @@ export const TaskOrderController = {
 					.json(formatResponse([], { message: "Task order not found." }));
 			}
 
+			//TODO: check จาก target area เลย ไม่ต้องหา  available
 			const available_info = await RequestOrderService.getTargetAreas(
 				Number(existingTaskOrder.request_order_id),
 				Number(taskId)
@@ -309,6 +310,7 @@ export const TaskOrderController = {
 		next: NextFunction
 	): Promise<any> => {
 		try {
+			//TODO: actual area ไม่เกิน target area
 			const { id: taskId } = req.params;
 			const { actual_area, start_timer, end_timer, start_mile, end_mile } =
 				req.body;

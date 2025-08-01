@@ -27,7 +27,6 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(requestLogger);
 app.use(securityMiddleware);
 
 app.use("/api/v1", apiRouter);
